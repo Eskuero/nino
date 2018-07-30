@@ -1,6 +1,12 @@
 #!/bin/bash
 while true; do
+	if [ $(acpi -a | cut -d ' ' -f 3) = "on-line" ]; then
+		battstatus="Charging";
+	else
+		battstatus="Discharging";
+	fi
+	battpercent=$(acpi | cut -d ' ' -f4 | cut -d , -f1);
 	timeformat=$(date "+%A %d %B %Y %T");
-	echo "| $timeformat ";
+	echo "| $battstatus $battpercent | $timeformat";
 	sleep 5;
 done
