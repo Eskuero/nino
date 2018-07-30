@@ -6,7 +6,12 @@ while true; do
 		battstatus="Discharging";
 	fi
 	battpercent=$(acpi | cut -d ' ' -f4 | cut -d , -f1);
+	networking=""
+	for iface in $(ip a | grep ^[1-9] | grep -Ev "DOWN|LOOPBACK" | cut -d : -f2); do
+		ipv4=$(echo $(ip a show $iface | grep "inet ") | cut -d " " -f2);
+		networking+=" $iface: $ipv4 |";
+	done
 	timeformat=$(date "+%A %d %B %Y %T");
-	echo "| $battstatus $battpercent | $timeformat";
+	echo "|$networking $battstatus $battpercent | $timeformat";
 	sleep 5;
 done
