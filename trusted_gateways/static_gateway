@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# If the interface we are bringing up does not have wireless extensions we drop here
+# We assume the system never has more than one wireless interface
+WIFACE=$(iwgetid | cut -d" " -f 1)
+if [ "$IFACE" != "$WIFACE" ]; then
+	exit 0;
+fi
+
+# File contaning configuration for different SSID with the follow syntax
+# MY_SSID ff:ff:ff:ff:ff:ff 192.168.1.1
+LIST="/etc/trusted_gateways"
+# Current SSID the of the connected network
+CONNECTION=$(iwgetid -r)
+
+# We loop through all avalaible gateways contained in $LIST
+while read ssid mac ip
+do
+	# And check if any configured SSID matches the connected one
+	if [ $ssid = $CONNECTION ]; then
+		# Add static ARP entry
+		arp -s $ip $mac;
+		exit 0;
+	fi
+done < $LIST
