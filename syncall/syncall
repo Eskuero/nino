@@ -1,0 +1,15 @@
+#!/bin/bash
+updatenag="There are updates for the following projects: "
+for project in $(find * -maxdepth 0 -type d); do
+	echo "-----------------------------------";
+	echo "Syncing $project";
+	echo "-----------------------------------";
+	cd "$project";
+	sync=$(git pull origin);
+	if [[ $sync != *"Already up"* ]]; then
+		updatenag+="$project "
+	fi
+	echo "";
+	cd ..;
+done
+echo $updatenag;
