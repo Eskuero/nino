@@ -23,6 +23,7 @@ async function toots() {
 		} else {
 			// Arriving here means we encountered a re-toot, so we increase the start in order to avoid eternal looping it
 			start++;
+			amount++;
 		}
 	}
 }
