@@ -9,6 +9,10 @@ for project in $(find * -maxdepth 0 -type d); do
 	if [ $? -eq 0 ]; then
 		if [[ $sync != *"Already up"* ]]; then
 			updatenag+="$project "
+		else
+			last=$(git log | grep "Date:" | head -n 1);
+			last=$(echo ${last#D*:} | cut -d " " -f 1,2,3,4);
+			echo "Last updated on $last";
 		fi
 	fi
 	echo "";
