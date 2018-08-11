@@ -6,8 +6,10 @@ for project in $(find * -maxdepth 0 -type d); do
 	echo "-----------------------------------";
 	cd "$project";
 	sync=$(git pull origin);
-	if [[ $sync != *"Already up"* ]]; then
-		updatenag+="$project "
+	if [ $? -eq 0 ]; then
+		if [[ $sync != *"Already up"* ]]; then
+			updatenag+="$project "
+		fi
 	fi
 	echo "";
 	cd ..;
