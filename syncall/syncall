@@ -5,13 +5,26 @@ for project in $(find * -maxdepth 0 -type d); do
 	echo "Syncing $project";
 	echo "-----------------------------------";
 	cd "$project";
-	sync=$(git pull origin);
+	if [ -d .git ]; then
+		sync=$(git pull origin);
+		updated="Already up";
+		lastdate="Date:"
+		addcmd="";
+		log="git log";
+	elif [ -d .hg ]; then
+		sync=$(hg pull);
+		updated="no changes found";
+		lastdate="date:"
+		addcmd="hg update";
+		log="hg log";
+	fi
 	if [ $? -eq 0 ]; then
-		if [[ $sync != *"Already up"* ]]; then
+		if [[ $sync != *"$updated"* ]]; then
 			updatenag+="$project "
+			eval "$addcmd";
 		else
-			last=$(git log | grep "Date:" | head -n 1);
-			last=$(echo ${last#D*:} | cut -d " " -f 1,2,3,4);
+			last=$(eval "$log" | grep "$lastdate" | head -n 1);
+			last=$(echo ${last#"$lastdate"} | cut -d " " -f 1,2,3,4);
 			echo "Last updated on $last";
 		fi
 	fi
