@@ -7,7 +7,6 @@ import subprocess
 import getpass
 import glob
 import re
-import datetime
 # Initialize basic variables
 clean = False
 build = False
