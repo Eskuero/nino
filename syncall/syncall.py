@@ -59,6 +59,7 @@ for project in projects:
 				apks = list(filter(regex.match, apks))
 				for apk in apks:
 					subprocess.call(["zipalign", "-f", "4", apk, "aligned.apk"])
+					os.remove(apk)
 					apk = re.sub(regex, "", apk)
 					apk = apk.split("/")
 					name = project
