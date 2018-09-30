@@ -4,16 +4,33 @@ import sys
 import git
 import platform
 import subprocess
+import getpass
+import glob
+import re
+import datetime
 clean = False
 build = False
 command = "gradlew"
 if "Windows" in platform.system():
 	command += ".bat"
-for arg in sys.argv:
+for i, arg in enumerate(sys.argv):
 	if arg == "--clean":
 		clean = True
 	if arg == "--build":
 		build = True
+		try:
+			keystore = sys.argv[i+1]
+		except IndexError:
+			print("You must provide a keystore file as the --build argument value for signing the release apks")
+			sys.exit(1)
+		else:
+			if not os.path.isfile(keystore):
+				print("The specified keystore file doesn't exists. Make sure you provided the correct path")
+				sys.exit(1)
+			else:
+				password = getpass.getpass('Provide the keystore password: ')
+if not os.path.isdir("SYNCALL-RELEASES"):
+	os.mkdir("SYNCALL-RELEASES")
 projects = os.listdir(".")
 updated = ""
 for project in projects:
@@ -37,5 +54,18 @@ for project in projects:
 			if build and changed:
 				print("BUILDING GRADLE APP")
 				subprocess.call(["./" + command, "assembleRelease"])
+				apks = glob.glob("**/*.apk", recursive = True)
+				regex = re.compile(".*build/outputs/apk/*")
+				apks = list(filter(regex.match, apks))
+				for apk in apks:
+					subprocess.call(["zipalign", "-f", "4", apk, "aligned.apk"])
+					apk = re.sub(regex, "", apk)
+					apk = apk.split("/")
+					name = project
+					if len(apk) == 3:
+						name += "-" + apk[0]
+					name += ".apk"
+					p = subprocess.Popen(["apksigner", "sign", "--ks", keystore, "--out", "../SYNCALL-RELEASES/" + name, "aligned.apk"], stdin=subprocess.PIPE)
+					p.communicate(input=password.encode())
 		os.chdir("..")
 print("The following projects have updates:" + updated)
