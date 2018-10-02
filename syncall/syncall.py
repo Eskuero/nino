@@ -11,7 +11,7 @@ import re
 clean = False
 build = False
 command = "gradlew"
-updated = ""
+updated = {}
 # If we are on Windows the gradle script is written in batch
 if "Windows" in platform.system():
 	command += ".bat"
@@ -56,7 +56,6 @@ for project in projects:
 		result = repo.pull()
 		# If something changed flag it for later checks
 		if "Already up" not in result:
-			updated += " " + project
 			changed = True
 		print(result + "\n")
 		# Project may not support building with gradle to check beforehand
@@ -68,6 +67,8 @@ for project in projects:
 			# Build task (only if something changed)
 			if build and changed:
 				print("BUILDING GRADLE APP")
+				# Initialize clean list to store finished .apks
+				releases = []
 				# Assemble a basic unsigned release apk
 				subprocess.call(["./" + command, "assembleRelease"])
 				# Retrieve all present .apk inside projects folder
@@ -78,22 +79,32 @@ for project in projects:
 				# Loop through the remaining apks (there may be different flavours)
 				for apk in apks:
 					# Zipalign for memory optimizations
-					subprocess.call(["zipalign", "-f", "4", apk, "aligned.apk"])
-					# Delete the file to avoid re-running over old versions in the future
-					os.remove(apk)
-					# Build the final .apk name
-					name = project
-					# A path with a length of 3 means we have flavour names so we append them
-					apk = re.sub(regex, "", apk)
-					apk = apk.split("/")
-					if len(apk) == 3:
-						name += "-" + apk[0]
-					name += ".apk"
-					# Sign the .apk with the provided key
-					p = subprocess.Popen(["apksigner", "sign", "--ks", keystore, "--out", "../SYNCALL-RELEASES/" + name, "aligned.apk"], stdin=subprocess.PIPE)
-					# Pipe the password into the signer standard input
-					p.communicate(input=password.encode())
+					align = subprocess.call(["zipalign", "-f", "4", apk, "aligned.apk"])
+					if align == 0:
+						# Delete the file to avoid re-running over old versions in the future
+						os.remove(apk)
+						# Build the final .apk name
+						name = project
+						# A path with a length of 3 means we have flavour names so we append them
+						apk = re.sub(regex, "", apk)
+						apk = apk.split("/")
+						if len(apk) == 3:
+							name += "-" + apk[0]
+						name += ".apk"
+						# Sign the .apk with the provided key
+						sign = subprocess.Popen(["apksigner", "sign", "--ks", keystore, "--out", "../SYNCALL-RELEASES/" + name, "aligned.apk"], stdin=subprocess.PIPE)
+						# Pipe the password into the signer standard input
+						sign.communicate(input=password.encode())
+						if sign.returncode == 0:
+							# If everything went fine add the new .apk to the list of releases
+							releases.append(name)
+				# If we at least have a release we add the project to the updated list
+				if len(releases) > 0:
+					updated[project] = releases
 		# Go back the invocation directory before moving onto the next project
 		os.chdir("..")
 # Provide information about the projects that have available updates
-print("The following projects have updates:" + updated)
+for key, value in updated.items():
+	print("The project " + key + " built the following files:")
+	for file in value:
+		print("- " + file)
