@@ -7,11 +7,15 @@ import subprocess
 import getpass
 import glob
 import re
+import pickle
 # Initialize basic variables
 clean = False
 build = False
+retry = False
 command = "gradlew"
 updated = {}
+failed = []
+rebuild = []
 # If we are on Windows the gradle script is written in batch
 if "Windows" in platform.system():
 	command += ".bat"
@@ -38,9 +42,20 @@ for i, arg in enumerate(sys.argv):
 			else:
 				# FIXME: We assume the keystore includes a single key protected with the same password
 				password = getpass.getpass('Provide the keystore password: ')
+	# This means we try to build the projects that failed in the previous attempt
+	if arg == "--retry":
+		retry = True
 # Create the out directory in case it doesn't exist already
 if not os.path.isdir("SYNCALL-RELEASES"):
 	os.mkdir("SYNCALL-RELEASES")
+# Retrieve list of the previously failed to build projects
+try:
+	with open(".retry-projects", "rb") as file:
+		rebuild = pickle.load(file)
+# We create an empty file in case it doesn't exists already
+except FileNotFoundError:
+	with open(".retry-projects", "wb") as file:
+		pickle.dump(failed, file)
 projects = os.listdir(".")
 # Loop for every folder that is a git repository on invocation dir
 for project in projects:
@@ -64,13 +79,16 @@ for project in projects:
 			if clean:
 				print("CLEANING GRADLE CACHE")
 				subprocess.call(["./" + command, "clean"])
-			# Build task (only if something changed)
-			if build and changed:
+			# Build task (only if something changed or we are re-trying)
+			if build and (changed or (retry and project in rebuild)):
 				print("BUILDING GRADLE APP")
 				# Initialize clean list to store finished .apks
 				releases = []
 				# Assemble a basic unsigned release apk
-				subprocess.call(["./" + command, "assembleRelease"])
+				assemble = subprocess.call(["./" + command, "assembleRelease"])
+				# If assembling fails we store the project name for future tasks
+				if assemble != 0:
+					failed.append(project)
 				# Retrieve all present .apk inside projects folder
 				apks = glob.glob("**/*.apk", recursive = True)
 				# Filter out those that are not result of the previous build
@@ -103,8 +121,14 @@ for project in projects:
 					updated[project] = releases
 		# Go back the invocation directory before moving onto the next project
 		os.chdir("..")
+# Write to the file which projects have build failures
+with open('.retry-projects', 'wb') as file:
+    pickle.dump(failed, file)
 # Provide information about the projects that have available updates
 for key, value in updated.items():
 	print("The project " + key + " built the following files:")
 	for file in value:
 		print("- " + file)
+# Provide information about which projects had failures
+for project in failed:
+	print("The project " + project + " had failures")
