@@ -44,6 +44,9 @@ for i, arg in enumerate(sys.argv):
 	# This means we try to build the projects that failed in the previous attempt
 	if arg == "--retry":
 		retry = True
+if retry and not build:
+	print("Retrying requires a keystore provided with the --build argument")
+	sys.exit(1)
 # Create the out directory in case it doesn't exist already
 if not os.path.isdir("SYNCALL-RELEASES"):
 	os.mkdir("SYNCALL-RELEASES")
@@ -121,14 +124,16 @@ for project in projects:
 					updated[project] = releases
 		# Go back the invocation directory before moving onto the next project
 		os.chdir("..")
-# Write to the file which projects have build failures
-with open('.retry-projects', 'wb') as file:
-    pickle.dump(failed, file)
-# Provide information about the projects that have available updates
-for key, value in updated.items():
-	print("The project " + key + " built the following files:")
-	for file in value:
-		print("- " + file)
-# Provide information about which projects had failures
-for project in failed:
-	print("The project " + project + " had failures")
+# Do not care about failed or successful builds if we are just syncing
+if build:
+	# Write to the file which projects have build failures
+	with open('.retry-projects', 'wb') as file:
+	    pickle.dump(failed, file)
+	# Provide information about the projects that have available updates
+	for key, value in updated.items():
+		print("The project " + key + " built the following files:")
+		for file in value:
+			print("- " + file)
+	# Provide information about which projects had failures
+	for project in failed:
+		print("The project " + project + " had failures")
