@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import sys
-import git
 import platform
 import subprocess
 import getpass
@@ -62,17 +61,18 @@ for project in projects:
 	if os.path.isdir(project) and ".git" in os.listdir(project):
 		changed = False
 		os.chdir(project)
-		repo = git.Repo(".").git
 		# Retrieve and show basic information about the project
-		lastdate = repo.log("-n", "1", "--format=%cr")
+		log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
+		lastdate = re.sub("(b'|\\\\n')", "", str(log.communicate()[0]))
 		print("------------------------------------------")
 		print(project + " - last updated " + lastdate)
-		print("------------------------------------------")
-		result = repo.pull()
+		pull = subprocess.Popen(["git", "pull"], stdout = subprocess.PIPE)
+		result = pull.stdout
 		# If something changed flag it for later checks
-		if "Already up" not in result:
+		if "Already up" not in str(result.readlines()):
 			changed = True
-		print(result + "\n")
+		for line in result:
+			print(re.sub("(b'|\\\\n')", "", str(line)))
 		# Project may not support building with gradle to check beforehand
 		if command in os.listdir("."):
 			# Clean task
