@@ -66,16 +66,16 @@ for project in projects:
 		os.chdir(project)
 		# Retrieve and show basic information about the project
 		log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
-		lastdate = re.sub("(b'|\\\\n')", "", str(log.communicate()[0]))
+		lastdate = log.communicate()[0].decode('ascii')
 		print("------------------------------------------")
 		print(project + " - last updated " + lastdate)
+		# Pull changes and save output and return code of the command for checks
 		pull = subprocess.Popen(["git", "pull"], stdout = subprocess.PIPE)
-		result = pull.stdout
+		output, code = pull.communicate()[0].decode('ascii'), pull.returncode
 		# If something changed flag it for later checks
-		if "Already up" not in str(result.readlines()):
+		if code == 0 and "Already up" not in output:
 			changed = True
-		for line in result:
-			print(re.sub("(b'|\\\\n')", "", str(line)))
+		print(output)
 		# Project may not support building with gradle to check beforehand
 		if command in os.listdir("."):
 			# Clean task
