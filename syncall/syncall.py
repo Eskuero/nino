@@ -13,7 +13,7 @@ build = False
 retry = False
 command = "gradlew"
 updated = {}
-failed = []
+failed = {}
 rebuild = []
 # If we are on Windows the gradle script is written in batch
 if "Windows" in platform.system():
@@ -87,11 +87,23 @@ for project in projects:
 				print("BUILDING GRADLE APP")
 				# Initialize clean list to store finished .apks
 				releases = []
-				# Assemble a basic unsigned release apk
-				assemble = subprocess.call(["./" + command, "assembleRelease"])
-				# If assembling fails we store the project name for future tasks
-				if assemble != 0:
-					failed.append(project)
+				# Retrieve the list of tasks for the current project
+				try:
+					with open(".custom-tasks", "r") as file:
+						tasks = file.read().splitlines()
+				# Default to a basic release task if none is provided
+				except FileNotFoundError:
+					tasks = ["assembleRelease"]
+				# We store the failed tasks here
+				broken = []
+				for task in tasks:
+					# Assemble a basic unsigned release apk
+					assemble = subprocess.call(["./" + command, task])
+					# If assembling fails we store the project name for future tasks
+					if assemble != 0:
+						broken.append(task)
+				if len(broken) > 0:
+					failed[project] = broken
 				# Retrieve all present .apk inside projects folder
 				apks = glob.glob("**/*.apk", recursive = True)
 				# Filter out those that are not result of the previous build
@@ -135,5 +147,7 @@ if build:
 		for file in value:
 			print("- " + file)
 	# Provide information about which projects had failures
-	for project in failed:
-		print("The project " + project + " had failures")
+	for key, value in failed.items():
+		print("The project " + key + " failed the following tasks:")
+		for file in value:
+			print("- " + file)
