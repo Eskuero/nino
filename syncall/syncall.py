@@ -37,8 +37,9 @@ for i, arg in enumerate(sys.argv):
 			if not os.path.isfile(keystore):
 				print("The specified keystore file doesn't exists. Make sure you provided the correct path")
 				sys.exit(1)
-			# And ask for the password
 			else:
+				# Make sure we have the full path to the key
+				keystore = os.path.abspath(keystore)
 				# FIXME: We assume the keystore includes a single key protected with the same password
 				password = getpass.getpass('Provide the keystore password: ')
 	# This means we try to build the projects that failed in the previous attempt
