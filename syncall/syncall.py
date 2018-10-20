@@ -67,7 +67,7 @@ for project in projects:
 		os.chdir(project)
 		# Retrieve and show basic information about the project
 		log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
-		lastdate = log.communicate()[0].decode('ascii')
+		lastdate = log.communicate()[0].decode('ascii').strip()
 		print("------------------------------------------")
 		print(project + " - last updated " + lastdate)
 		# Pull changes and save output and return code of the command for checks
