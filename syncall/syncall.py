@@ -11,6 +11,7 @@ import pickle
 clean = False
 build = False
 retry = False
+force = False
 command = "gradlew"
 updated = {}
 failed = {}
@@ -45,8 +46,16 @@ for i, arg in enumerate(sys.argv):
 	# This means we try to build the projects that failed in the previous attempt
 	if arg == "--retry":
 		retry = True
-if retry and not build:
-	print("Retrying requires a keystore provided with the --build argument")
+	# This means that we force build of certain projects even if they are neither failed or updated
+	if arg == "--force":
+		force = True
+		try:
+			forced = sys.argv[i+1].split(",")
+		except IndexError:
+			print("You must provide a list of comma joined project names to force rebuild")
+			sys.exit(1)
+if (retry or force) and not build:
+	print("Retrying and forcing require a keystore provided with the --build argument")
 	sys.exit(1)
 # Create the out directory in case it doesn't exist already
 if not os.path.isdir("SYNCALL-RELEASES"):
@@ -83,8 +92,8 @@ for project in projects:
 			if clean:
 				print("CLEANING GRADLE CACHE")
 				subprocess.call(["./" + command, "clean"])
-			# Build task (only if something changed or we are re-trying)
-			if build and (changed or (retry and project in rebuild)):
+			# Build task (only if something changed, we are re-trying or we are forcing)
+			if build and (changed or (retry and project in rebuild) or (force and project in forced)):
 				print("BUILDING GRADLE APP")
 				# Initialize clean list to store finished .apks
 				releases = []
