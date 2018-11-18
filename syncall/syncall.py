@@ -9,6 +9,7 @@ import re
 import pickle
 # Initialize basic variables
 clean = False
+fetch = True
 build = False
 retry = False
 force = False
@@ -21,9 +22,12 @@ if "Windows" in platform.system():
 	command += ".bat"
 # Check every argument
 for i, arg in enumerate(sys.argv):
-	# This means we clean gradle cache for the project
+	# This means we clean gradle cache for every project
 	if arg == "--clean":
 		clean = True
+	# This means we do not check remote for new changes
+	if arg == "--nofetch":
+		fetch = False
 	# This means we should build the new changes
 	if arg == "--build":
 		build = True
@@ -79,13 +83,15 @@ for project in projects:
 		lastdate = log.communicate()[0].decode('ascii').strip()
 		print("------------------------------------------")
 		print(project + " - last updated " + lastdate)
-		# Pull changes and save output and return code of the command for checks
-		pull = subprocess.Popen(["git", "pull"], stdout = subprocess.PIPE)
-		output, code = pull.communicate()[0].decode('ascii'), pull.returncode
-		# If something changed flag it for later checks
-		if code == 0 and "Already up" not in output:
-			changed = True
-		print(output)
+		# If we disable fetching we do not try to pull anything
+		if fetch:
+			# Pull changes and save output and return code of the command for checks
+			pull = subprocess.Popen(["git", "pull"], stdout = subprocess.PIPE)
+			output, code = pull.communicate()[0].decode('ascii'), pull.returncode
+			# If something changed flag it for later checks
+			if code == 0 and "Already up" not in output:
+				changed = True
+			print(output)
 		# Project may not support building with gradle to check beforehand
 		if command in os.listdir("."):
 			# Clean task
