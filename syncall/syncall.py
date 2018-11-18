@@ -58,7 +58,7 @@ if (retry or force) and not build:
 	print("Retrying and forcing require a keystore provided with the --build argument")
 	sys.exit(1)
 # Create the out directory in case it doesn't exist already
-if not os.path.isdir("SYNCALL-RELEASES"):
+if build and not os.path.isdir("SYNCALL-RELEASES"):
 	os.mkdir("SYNCALL-RELEASES")
 # Retrieve list of the previously failed to build projects
 try:
