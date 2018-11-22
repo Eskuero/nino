@@ -85,6 +85,8 @@ for project in projects:
 		print(project + " - last updated " + lastdate)
 		# If we disable fetching we do not try to pull anything
 		if fetch:
+			# Always clean local changes beforehand
+			subprocess.Popen(["git", "checkout", "."])
 			# Pull changes and save output and return code of the command for checks
 			pull = subprocess.Popen(["git", "pull"], stdout = subprocess.PIPE)
 			output, code = pull.communicate()[0].decode('ascii'), pull.returncode
