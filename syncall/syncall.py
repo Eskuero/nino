@@ -10,6 +10,7 @@ import pickle
 # Initialize basic variables
 clean = False
 fetch = True
+local = False
 build = False
 retry = False
 force = False
@@ -28,6 +29,9 @@ for i, arg in enumerate(sys.argv):
 	# This means we do not check remote for new changes
 	if arg == "--nofetch":
 		fetch = False
+	# This means we attempt to preserve local changes via diffing
+	if arg == "--preserve":
+		local = True
 	# This means we should build the new changes
 	if arg == "--build":
 		build = True
@@ -85,6 +89,9 @@ for project in projects:
 		print(project + " - last updated " + lastdate)
 		# If we disable fetching we do not try to pull anything
 		if fetch:
+			# Store the current local diff to restore it later
+			if local:
+				diff = subprocess.Popen(["git", "diff"], stdout = subprocess.PIPE).communicate()[0].decode('ascii');
 			# Always clean local changes beforehand
 			subprocess.Popen(["git", "checkout", "."])
 			# Pull changes and save output and return code of the command for checks
@@ -94,6 +101,9 @@ for project in projects:
 			if code == 0 and "Already up" not in output:
 				changed = True
 			print(output)
+			# If we are preserving we pipe and apply the previous relevant diff again
+			if local and diff != "":
+				subprocess.Popen(["git", "apply"], stdin=subprocess.PIPE).communicate(input=diff.encode())
 		# Project may not support building with gradle to check beforehand
 		if command in os.listdir("."):
 			# Clean task
