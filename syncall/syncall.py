@@ -14,8 +14,8 @@ retry = False
 force = False
 keystore = ""
 command = "gradlew"
-updated = {}
-failed = {}
+releases = []
+failed = []
 forced = []
 rebuild = []
 # If we are on Windows the gradle script is written in batch
@@ -80,9 +80,15 @@ projects = os.listdir(".")
 # Loop for every folder that is a git repository on invocation dir
 for project in projects:
 	if os.path.isdir(project) and ".git" in os.listdir(project):
-		failed = sync(project, command, clean, fetch, local, build, retry, force, forced, rebuild, failed)
-		updated = sign(project, keystore, password, updated)
-		# Go back the invocation directory before moving onto the next project
+		# Attempt to sync and build the project
+		result = sync(project, command, clean, fetch, local, build, retry, force, forced, rebuild)
+		# If something went wrong we record it for reporting
+		if result == 1:
+			failed.append(project)
+		# Else we search for apks to sign and merge them to the current list
+		else:
+			releases += sign(project, keystore, password)
+		# Go back to the invocation directory before moving onto the next project
 		os.chdir("..")
 # Do not care about failed or successful builds if we are just syncing
 if build:
@@ -90,12 +96,12 @@ if build:
 	with open('.retry-projects', 'wb') as file:
 	    pickle.dump(failed, file)
 	# Provide information about the projects that have available updates
-	for key, value in updated.items():
-		print("The project " + key + " built the following files:")
-		for file in value:
-			print("- " + file)
+	if len(releases) > 0:
+		print("Projects successfully built these files:")
+		for value in releases:
+			print("- " + value)
 	# Provide information about which projects had failures
-	for key, value in failed.items():
-		print("The project " + key + " failed the following tasks:")
-		for file in value:
-			print("- " + file)
+	if len(failed) > 0:
+		print("Projects failed producing these logs:")
+		for value in failed:
+			print("- " + value + "/log.txt")

@@ -4,7 +4,7 @@ import glob
 import re
 import subprocess
 
-def sync(project, command, clean, fetch, local, build, retry, force, forced, rebuild, failed):
+def sync(project, command, clean, fetch, local, build, retry, force, forced, rebuild):
 	changed = False
 	os.chdir(project)
 	# Retrieve and show basic information about the project
@@ -50,16 +50,18 @@ def sync(project, command, clean, fetch, local, build, retry, force, forced, reb
 			# We store the failed tasks here
 			broken = []
 			for task in tasks:
-				# Assemble a basic unsigned release apk
-				assemble = subprocess.call(["./" + command, task])
-				# If assembling fails we store the project name for future tasks
-				if assemble != 0:
-					broken.append(task)
-			if len(broken) > 0:
-				failed[project] = broken
-	return failed
+				# Attempt the task, we also redirect stderr to stdout to effectively merge them.
+				assemble = subprocess.Popen(["./" + command, task], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+				output, code = assemble.communicate()[0], assemble.returncode
+				# If assembling fails we save the log to a file
+				if code != 0:
+					with open("log.txt", "w") as file:
+						file.write(output.decode('ascii'))
+					return 1
+			return 0
+	return
 
-def sign(project, keystore, password, updated):
+def sign(project, keystore, password):
 	releases = []
 	# Retrieve all present .apk inside projects folder
 	apks = glob.glob("**/*.apk", recursive = True)
@@ -88,7 +90,4 @@ def sign(project, keystore, password, updated):
 			if sign.returncode == 0:
 				# If everything went fine add the new .apk to the list of releases
 				releases.append(name)
-	# If we at least have a release we add the project to the updated list
-	if len(releases) > 0:
-		updated[project] = releases
-	return updated
+	return releases
