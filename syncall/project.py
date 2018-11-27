@@ -4,7 +4,7 @@ import glob
 import re
 import subprocess
 
-def sync(project, command, clean, fetch, local, build, retry, force, forced, rebuild):
+def sync(project, command, config, tasks, retry, rebuild):
 	changed = False
 	os.chdir(project)
 	# Retrieve and show basic information about the project
@@ -13,9 +13,9 @@ def sync(project, command, clean, fetch, local, build, retry, force, forced, reb
 	print("------------------------------------------")
 	print(project + " - last updated " + lastdate)
 	# If we disable fetching we do not try to pull anything
-	if fetch:
+	if config["fetch"]:
 		# Store the current local diff to restore it later
-		if local:
+		if config["preserve"]:
 			diff = subprocess.Popen(["git", "diff"], stdout = subprocess.PIPE).communicate()[0].decode('ascii');
 		# Always clean local changes beforehand
 		subprocess.Popen(["git", "checkout", "."])
@@ -27,36 +27,29 @@ def sync(project, command, clean, fetch, local, build, retry, force, forced, reb
 			changed = True
 		print(output)
 		# If we are preserving we pipe and apply the previous relevant diff again
-		if local and diff != "":
+		if config["preserve"] and diff != "":
 			subprocess.Popen(["git", "apply"], stdin=subprocess.PIPE).communicate(input=diff.encode())
 	# Project may not support building with gradle to check beforehand
 	if command in os.listdir("."):
 		# Clean task
-		if clean:
+		if config["clean"]:
 			print("CLEANING GRADLE CACHE")
 			subprocess.call(["./" + command, "clean"])
 		# Build task (only if something changed, we are re-trying or we are forcing)
-		if build and (changed or (retry and project in rebuild) or (force and project in forced)):
-			print("BUILDING GRADLE APP")
+		if config["build"] and (changed or (retry and project in rebuild) or config["force"]):
 			# Initialize clean list to store finished .apks
 			releases = []
-			# Retrieve the list of tasks for the current project
-			try:
-				with open(".custom-tasks", "r") as file:
-					tasks = file.read().splitlines()
-			# Default to a basic release task if none is provided
-			except FileNotFoundError:
-				tasks = ["assembleRelease"]
 			# We store the failed tasks here
 			broken = []
 			for task in tasks:
+				print("RUNNING GRADLE TASK: " + task)
 				# Attempt the task, we also redirect stderr to stdout to effectively merge them.
 				assemble = subprocess.Popen(["./" + command, task], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
 				output, code = assemble.communicate()[0], assemble.returncode
 				# If assembling fails we save the log to a file
 				if code != 0:
 					with open("log.txt", "w") as file:
-						file.write(output.decode('ascii'))
+						file.write(output.decode())
 					return 1
 			return 0
 	return

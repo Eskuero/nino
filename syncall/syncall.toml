@@ -1,0 +1,24 @@
+# Basic configuration file for the syncall python script. It's expected to be locate don the working folder under the syncall.toml name
+
+# Default options that apply for all projects
+[default]
+# Clean the gradle cache before building the tasks
+clean = false
+# Check and pull new changes from the remote
+fetch = true
+# Attempt to keep local unstaged changes on projects, otherwise they will be undone
+preserve = true
+# Enable building of the project if changes are detected or forcing/retrying is enabled
+build = true
+# If build enabled retry failed builds from previous iterations of the script
+retry = false
+# Default path to the keystore used to sign the output files
+keystore = "clave.jks"
+
+# Custom configuration for overwritting default values per-project basis
+[Signal-Android]
+clean = false
+# Forces building of this certain app if build is enabled and keystore is provided
+force = false
+# Order of tasks to command gradle to do
+tasks = ["assemblePlayRelease", "assembleWebsiteRelease"]
