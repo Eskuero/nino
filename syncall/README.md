@@ -39,13 +39,6 @@ syncall.py --build=/path/to/key.jks
 ```
 The --build argument expects to be passed alongside the absolute or relative path to a Java key store containing a single key. You will be prompted to enter the password. It also accepts a value of n to disable building.
 All the output files will be automatically aligned and signed with the provided key, and then placed a SYNCALL-RELEASES folder on the working dir.
-By default the script will attempt the assembleRelease task for all the projects, but you can override this behaviour by placing a .custom-tasks file on the project folder formatted with a single task on each line and they will be executed on the encounter order.
-Per example if on some project you want to always clean the gradle cache first, then compile the playstore release and then the debug build your .custom-tasks would look like this:
-```
-clean
-assemblePlaystoreRelease
-assembleDebug
-```
 
 ### Retrying
 The script will save a list of the failed projects in the previous interation in the .retry-projects of the working folder. It also will report to you a list of which specific task failed at the end of the run. This is so you can retry building after maybe figuring out any issues.
