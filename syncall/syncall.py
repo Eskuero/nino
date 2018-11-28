@@ -40,7 +40,7 @@ rconfig["force"] = False
 # This dictionary will contain the keystore/password used for each projects, plus the default for all of them
 keystores = {
 	"default": {
-		"path": "key.jks",
+		"path": False,
 		"password": ""
 		}
 }
@@ -85,7 +85,7 @@ for i, arg in enumerate(sys.argv):
 				# In the case of build/force we save a keystore/list respectively
 				if name == "build":
 					rconfig["build"] = True
-					keystores["default"] = value
+					keystores["default"]["path"] = value
 				elif name == "force":
 					rconfig["force"] = True
 					forced = value.split(",")
@@ -94,8 +94,9 @@ for i, arg in enumerate(sys.argv):
 					exit(1)
 # Confirm we got an existant keystore and force
 for project in keystores:
-	if config[project].get("build", rconfig["build"]):
-		# If we building the project but there's no key, stop
+	# Only ask for password of default keystore or building projects
+	if config[project].get("build", rconfig["build"]) or project == "default":
+		# There's no key so stop
 		if keystores[project]["path"]:
 			# Make sure the specified file exists
 			if not os.path.isfile(keystores[project]["path"]):
@@ -109,9 +110,7 @@ for project in keystores:
 		else:
 			print("No keystore was provided for " + project)
 			sys.exit(1)
-if (rconfig["retry"] or rconfig["force"]) and not rconfig["build"]:
-	print("Retrying and forcing require a keystore provided with the --build argument")
-	sys.exit(1)
+
 # Create the out directory in case it doesn't exist already
 if rconfig["build"] and not os.path.isdir("SYNCALL-RELEASES"):
 	os.mkdir("SYNCALL-RELEASES")
@@ -122,6 +121,7 @@ try:
 # Restart the list if no previous file is found
 except FileNotFoundError:
 	rebuild = []
+
 projects = os.listdir(".")
 # Loop for every folder that is a git repository on invocation dir
 for project in projects:
@@ -155,18 +155,16 @@ for project in projects:
 			releases += sign(project, keystore, password)
 		# Go back to the invocation directory before moving onto the next project
 		os.chdir("..")
-# Do not care about failed or successful builds if we are just syncing
-if rconfig["build"]:
-	# Write to the file which projects have build failures
-	with open('.retry-projects', 'wb') as file:
-	    pickle.dump(failed, file)
-	# Provide information about the projects that have available updates
-	if len(releases) > 0:
-		print("\nProjects successfully built these files:")
-		for value in releases:
-			print("- " + value)
-	# Provide information about which projects had failures
-	if len(failed) > 0:
-		print("\nProjects failed producing these logs:")
-		for value in failed:
-			print("- " + value + "/log.txt")
+# Write to the file which projects have build failures
+with open('.retry-projects', 'wb') as file:
+	pickle.dump(failed, file)
+# Provide information about the projects that have available updates
+if len(releases) > 0:
+	print("\nProjects successfully built these files:")
+	for value in releases:
+		print("- " + value)
+# Provide information about which projects had failures
+if len(failed) > 0:
+	print("\nProjects failed producing these logs:")
+	for value in failed:
+		print("- " + value + "/log.txt")
