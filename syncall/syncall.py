@@ -27,8 +27,7 @@ rconfig = {
 	"preserve": "",
 	"build": "",
 	"retry": "",
-	"keystore": "",
-	"force": "",
+	"force": ""
 }
 # Initialize running config with falling back values
 defconfig = config.get("default", {})
@@ -37,9 +36,21 @@ rconfig["fetch"] = defconfig.get("fetch", True)
 rconfig["preserve"] = defconfig.get("preserve", False)
 rconfig["build"] = defconfig.get("build", False)
 rconfig["retry"] = defconfig.get("retry", False)
-rconfig["keystore"] = defconfig.get("keystore", "key.jks")
 rconfig["force"] = False
-password = ""
+# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
+keystores = {
+	"default": {
+		"path": "key.jks",
+		"password": ""
+		}
+}
+# Retrieve and store keystores from config file
+for project in config:
+	path = config[project].get("keystore", False)
+	# Only if there was one defined
+	if path:
+		keystores[project] = {"path": "", "password": ""}
+		keystores[project]["path"] = path
 # Basic lists of produced outputs, failed, forced of projects
 releases = []
 failed = []
@@ -74,23 +85,30 @@ for i, arg in enumerate(sys.argv):
 				# In the case of build/force we save a keystore/list respectively
 				if name == "build":
 					rconfig["build"] = True
-					rconfig["keystore"] = value
+					keystores["default"] = value
 				elif name == "force":
 					rconfig["force"] = True
 					forced = value.split(",")
 				else:
 					print("The argument " + arg[0] + " is expected boolean (y|n). Received: " + value)
 					exit(1)
-if rconfig["build"]:
-	# Make sure the specified file exists
-	if not os.path.isfile(rconfig["keystore"]):
-		print("The specified keystore file doesn't exists. Make sure you provided the correct path")
-		sys.exit(1)
-	else:
-		# Make sure we have the full path to the key
-		rconfig["keystore"] = os.path.abspath(rconfig["keystore"])
-		# FIXME: We assume the keystore includes a single key protected with the same password
-		password = getpass.getpass('Provide the keystore password: ')
+# Confirm we got an existant keystore and force
+for project in keystores:
+	if config[project].get("build", rconfig["build"]):
+		# If we building the project but there's no key, stop
+		if keystores[project]["path"]:
+			# Make sure the specified file exists
+			if not os.path.isfile(keystores[project]["path"]):
+				print("The specified keystore for " + project + " does not exist: " + keystores[project]["path"])
+				sys.exit(1)
+			else:
+				# Make sure we save the full path
+				keystores[project]["path"] = os.path.abspath(keystores[project]["path"])
+				# FIXME: We assume the keystore includes a single key protected with the same password
+				keystores[project]["password"] = getpass.getpass("Provide password for " + project + " keystore ("+ keystores[project]["path"] + "): ")
+		else:
+			print("No keystore was provided for " + project)
+			sys.exit(1)
 if (rconfig["retry"] or rconfig["force"]) and not rconfig["build"]:
 	print("Retrying and forcing require a keystore provided with the --build argument")
 	sys.exit(1)
@@ -130,8 +148,11 @@ for project in projects:
 		if result == 1:
 			failed.append(project)
 		# Else we search for apks to sign and merge them to the current list
-		else:
-			releases += sign(project, rconfig["keystore"], password)
+		elif result == 0:
+			signinfo = keystores.get(project, {})
+			keystore = signinfo.get("path", keystores["default"]["path"])
+			password = signinfo.get("password", keystores["default"]["password"])
+			releases += sign(project, keystore, password)
 		# Go back to the invocation directory before moving onto the next project
 		os.chdir("..")
 # Do not care about failed or successful builds if we are just syncing

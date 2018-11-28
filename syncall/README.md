@@ -16,7 +16,9 @@ This requires the installation of the toml parser:
 ```
 pip install toml
 ```
-Per example the following content would disable cache cleaning and retrying by default while enabling building for all the projects, using the keystore clave.jks and trying to keep local changes. For the Signal-Android project it would always force building of the app using the assemblePlayRelease and assembleWebsiteRelease tasks, in that order, without cleaning.
+Per example the following content would disable cache cleaning and retrying by default while enabling building for all the projects, using the keystore clave.jks and trying to keep local changes.
+For the Signal-Android project it would always force building of the app using the assemblePlayRelease and assembleWebsiteRelease tasks, in that order, without cleaning.
+It will also build the Conversations project with the assembleConversationsFreeSystemRelease task and sign it with the key inside the store key-1.jks
 ```
 [default]
 clean = false
@@ -30,6 +32,10 @@ keystore = "clave.jks"
 clean = false
 force = true
 tasks = ["assemblePlayRelease", "assembleWebsiteRelease"]
+
+[Conversations]
+keystore = "key-1.jks"
+tasks = ["assembleConversationsFreeSystemRelease"]
 ```
 
 ### Building
