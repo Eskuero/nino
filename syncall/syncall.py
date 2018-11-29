@@ -20,6 +20,7 @@ else:
 	# With no config file we gracefully start a blank config
 	except FileNotFoundError:
 		config = {}
+
 # We store the running config on a dictionary for ease on accesing the data
 rconfig = {
 	"clean": "",
@@ -37,28 +38,27 @@ rconfig["preserve"] = defconfig.get("preserve", False)
 rconfig["build"] = defconfig.get("build", False)
 rconfig["retry"] = defconfig.get("retry", False)
 rconfig["force"] = False
+
 # This dictionary will contain the keystore/password used for each projects, plus the default for all of them
 keystores = {
 	"default": {
 		"path": False,
-		"password": ""
+		"password": "",
+		"used": False
 		}
 }
-# Retrieve and store keystores from config file
-for project in config:
-	path = config[project].get("keystore", False)
-	# Only if there was one defined
-	if path:
-		keystores[project] = {"path": "", "password": ""}
-		keystores[project]["path"] = path
-# Basic lists of produced outputs, failed, forced of projects
+# Initialize keystore if default path is provided
+keystores["default"]["path"] = defconfig.get("keystore", False)
+# If we are building by default and path existed we enable usage
+if rconfig["build"] and keystores["default"]["path"]:
+	keystores["default"]["used"] = True
+
+# Basic lists of produced outputs, failed, forced of projects and avalaible folders
 releases = []
 failed = []
 forced = []
-# On Windows the gradle script is written in batch so we append proper extension
-command = "gradlew"
-if "Windows" in platform.system():
-	command += ".bat"
+projects = os.listdir(".")
+
 # Check every argument and store arguments
 for i, arg in enumerate(sys.argv):
 	# Skip first iteration (script name)
@@ -81,21 +81,45 @@ for i, arg in enumerate(sys.argv):
 				rconfig[name] = True
 			elif value == "n":
 				rconfig[name] = False
+				if name == "build":
+					keystores["default"]["used"] = False
 			else:
 				# In the case of build/force we save a keystore/list respectively
 				if name == "build":
 					rconfig["build"] = True
 					keystores["default"]["path"] = value
+					keystores["default"]["used"] = True
 				elif name == "force":
 					rconfig["force"] = True
 					forced = value.split(",")
 				else:
 					print("The argument " + arg[0] + " is expected boolean (y|n). Received: " + value)
 					exit(1)
+# Retrieve and store keystores from config file
+for project in config:
+	if not project == "default" and project in projects:
+		# Retrieve the path only if building, either because default or explicit
+		if config[project].get("build", rconfig["build"]):
+			path = config[project].get("keystore", False)
+			# Only if path is defined and in use
+			if path:
+				keystores[project] = {"path": "", "password": ""}
+				keystores[project]["path"] = path
+				keystores[project]["used"] = True
+			elif keystores["default"]["path"]:
+				keystores["default"]["used"] = True
+			else:
+				print(project + " build is enabled but lacks an asigned keystore.")
+				sys.exit(1)
+
+# On Windows the gradle script is written in batch so we append proper extension
+command = "gradlew"
+if "Windows" in platform.system():
+	command += ".bat"
 # Confirm we got an existant keystore and force
 for project in keystores:
 	# Only ask for password of default keystore or building projects
-	if config[project].get("build", rconfig["build"]) or project == "default":
+	if config.get(project, {}).get("build", rconfig["build"]) and keystores[project]["used"]:
 		# There's no key so stop
 		if keystores[project]["path"]:
 			# Make sure the specified file exists
@@ -122,7 +146,6 @@ try:
 except FileNotFoundError:
 	rebuild = []
 
-projects = os.listdir(".")
 # Loop for every folder that is a git repository on invocation dir
 for project in projects:
 	if os.path.isdir(project) and ".git" in os.listdir(project):
