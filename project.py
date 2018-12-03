@@ -6,7 +6,6 @@ import subprocess
 
 def sync(project, command, config, tasks, retry, rebuild):
 	changed = False
-	os.chdir(project)
 	# Retrieve and show basic information about the project
 	log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
 	lastdate = log.communicate()[0].decode('ascii').strip()

@@ -57,7 +57,8 @@ if rconfig["build"] and keystores["default"]["path"]:
 releases = []
 failed = []
 forced = []
-projects = os.listdir(".")
+projects = os.listdir()
+workdir = os.getcwd()
 
 # Check every argument and store arguments
 for i, arg in enumerate(sys.argv):
@@ -149,6 +150,7 @@ except FileNotFoundError:
 # Loop for every folder that is a git repository on invocation dir
 for project in projects:
 	if os.path.isdir(project) and ".git" in os.listdir(project):
+		os.chdir(project)
 		# Clone running config into a project config for this specific one
 		pconfig = dict(rconfig)
 		# Retrieve custom configuration for project
@@ -177,7 +179,7 @@ for project in projects:
 			password = signinfo.get("password", keystores["default"]["password"])
 			releases += sign(project, keystore, password)
 		# Go back to the invocation directory before moving onto the next project
-		os.chdir("..")
+		os.chdir(workdir)
 # Write to the file which projects have build failures
 with open('.retry-projects', 'wb') as file:
 	pickle.dump(failed, file)
