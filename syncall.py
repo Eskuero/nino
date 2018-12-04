@@ -4,7 +4,7 @@ import sys
 import platform
 import getpass
 import pickle
-from project import sync, sign
+from project import sync, build, sign
 try:
 	import toml
 # If the module is not avalaible start a blank config file
@@ -167,17 +167,20 @@ for project in projects:
 			pconfig["force"] = cconfig.get("force", False)
 		# Get tasks defined on custom config or fallback to basic assembling of a release
 		tasks = cconfig.get("tasks", ["assembleRelease"])
-		# Attempt to sync and build the project
-		result = sync(project, command, pconfig, tasks, pconfig["retry"], rebuild)
-		# If something went wrong we record it for reporting
-		if result == 1:
-			failed.append(project)
-		# Else we search for apks to sign and merge them to the current list
-		elif result == 0:
-			signinfo = keystores.get(project, {})
-			keystore = signinfo.get("path", keystores["default"]["path"])
-			password = signinfo.get("password", keystores["default"]["password"])
-			releases += sign(project, keystore, password)
+		# Sync the project
+		changed = sync(project, pconfig)
+		# Only attempt gradle projects with build enabled and are either forced, retrying or have new changes
+		if command in os.listdir() and pconfig["build"] and (changed or (pconfig["retry"] and project in rebuild) or pconfig["force"]):
+			result = build(command, pconfig["clean"], tasks)
+			# If some task went wrong we report it
+			if result == 1:
+				failed.append(project)
+			# Else we search for apks to sign and merge them to the current list
+			elif result == 0:
+				signinfo = keystores.get(project, {})
+				keystore = signinfo.get("path", keystores["default"]["path"])
+				password = signinfo.get("password", keystores["default"]["password"])
+				releases += sign(project, keystore, password)
 		# Go back to the invocation directory before moving onto the next project
 		os.chdir(workdir)
 # Write to the file which projects have build failures

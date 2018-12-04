@@ -4,7 +4,7 @@ import glob
 import re
 import subprocess
 
-def sync(project, command, config, tasks, retry, rebuild):
+def sync(project, config):
 	changed = False
 	# Retrieve and show basic information about the project
 	log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
@@ -28,30 +28,27 @@ def sync(project, command, config, tasks, retry, rebuild):
 		# If we are preserving we pipe and apply the previous relevant diff again
 		if config["preserve"] and diff != "":
 			subprocess.Popen(["git", "apply"], stdin=subprocess.PIPE).communicate(input=diff.encode())
-	# Project may not support building with gradle to check beforehand
-	if command in os.listdir("."):
-		# Clean task
-		if config["clean"]:
-			print("CLEANING GRADLE CACHE")
-			subprocess.call(["./" + command, "clean"])
-		# Build task (only if something changed, we are re-trying or we are forcing)
-		if config["build"] and (changed or (retry and project in rebuild) or config["force"]):
-			# Initialize clean list to store finished .apks
-			releases = []
-			# We store the failed tasks here
-			broken = []
-			for task in tasks:
-				print("RUNNING GRADLE TASK: " + task)
-				# Attempt the task, we also redirect stderr to stdout to effectively merge them.
-				assemble = subprocess.Popen(["./" + command, task], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-				output, code = assemble.communicate()[0], assemble.returncode
-				# If assembling fails we save the log to a file
-				if code != 0:
-					with open("log.txt", "w") as file:
-						file.write(output.decode())
-					return 1
-			return 0
-	return
+	return changed
+
+def build(command, clean, tasks):
+	# Clean task
+	if clean:
+		print("CLEANING GRADLE CACHE")
+		subprocess.call(["./" + command, "clean"])
+	# Initialize clean list to store finished .apks
+	releases = []
+	for task in tasks:
+		print("RUNNING GRADLE TASK: " + task)
+		# Attempt the task, we also redirect stderr to stdout to effectively merge them.
+		assemble = subprocess.Popen(["./" + command, task], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+		output, code = assemble.communicate()[0], assemble.returncode
+		# If assembling fails we save the log to a file
+		if code != 0:
+			with open("log.txt", "w") as file:
+				file.write(output.decode())
+			return 1
+	# Arriving here means no task failed
+	return 0
 
 def sign(project, keystore, password):
 	releases = []
