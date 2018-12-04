@@ -15,7 +15,7 @@ def sync(project, config):
 	if config["fetch"]:
 		# Store the current local diff to restore it later
 		if config["preserve"]:
-			diff = subprocess.Popen(["git", "diff"], stdout = subprocess.PIPE).communicate()[0].decode('ascii');
+			diff = subprocess.Popen(["git", "diff"], stdout = subprocess.PIPE).communicate()[0];
 		# Always clean local changes beforehand
 		subprocess.Popen(["git", "checkout", "."])
 		# Pull changes and save output and return code of the command for checks
@@ -26,8 +26,8 @@ def sync(project, config):
 			changed = True
 		print(output)
 		# If we are preserving we pipe and apply the previous relevant diff again
-		if config["preserve"] and diff != "":
-			subprocess.Popen(["git", "apply"], stdin=subprocess.PIPE).communicate(input=diff.encode())
+		if config["preserve"] and diff.decode() != "":
+			subprocess.Popen(["git", "apply"], stdin=subprocess.PIPE).communicate(input=diff)
 	return changed
 
 def build(command, clean, tasks):
