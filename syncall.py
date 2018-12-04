@@ -23,7 +23,6 @@ else:
 
 # We store the running config on a dictionary for ease on accesing the data
 rconfig = {
-	"clean": "",
 	"fetch": "",
 	"preserve": "",
 	"build": "",
@@ -32,7 +31,6 @@ rconfig = {
 }
 # Initialize running config with falling back values
 defconfig = config.get("default", {})
-rconfig["clean"] = defconfig.get("clean", False)
 rconfig["fetch"] = defconfig.get("fetch", True)
 rconfig["preserve"] = defconfig.get("preserve", False)
 rconfig["build"] = defconfig.get("build", False)
@@ -156,7 +154,6 @@ for project in projects:
 		# Retrieve custom configuration for project
 		cconfig = config.get(project, {})
 		# Overwrite configuration with custom values
-		pconfig["clean"] = cconfig.get("clean", rconfig["clean"])
 		pconfig["fetch"] = cconfig.get("fetch", rconfig["fetch"])
 		pconfig["preserve"] = cconfig.get("preserve", rconfig["preserve"])
 		pconfig["build"] = cconfig.get("build", rconfig["build"])
@@ -171,7 +168,7 @@ for project in projects:
 		changed = sync(project, pconfig)
 		# Only attempt gradle projects with build enabled and are either forced, retrying or have new changes
 		if command in os.listdir() and pconfig["build"] and (changed or (pconfig["retry"] and project in rebuild) or pconfig["force"]):
-			result = build(command, pconfig["clean"], tasks)
+			result = build(command, tasks)
 			# If some task went wrong we report it
 			if result == 1:
 				failed.append(project)

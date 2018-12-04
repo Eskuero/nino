@@ -2,8 +2,6 @@
 
 # Default options that apply for all projects
 [default]
-# Clean the gradle cache before building the tasks
-clean = false
 # Check and pull new changes from the remote
 fetch = true
 # Attempt to keep local unstaged changes on projects, otherwise they will be undone
@@ -17,7 +15,6 @@ keystore = "clave.jks"
 
 # Custom configuration for overwritting default values per-project basis
 [Signal-Android]
-clean = false
 # Forces building of this certain app if build is enabled and keystore is provided
 force = false
 # Order of tasks to command gradle to do

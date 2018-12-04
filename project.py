@@ -30,11 +30,7 @@ def sync(project, config):
 			subprocess.Popen(["git", "apply"], stdin=subprocess.PIPE).communicate(input=diff)
 	return changed
 
-def build(command, clean, tasks):
-	# Clean task
-	if clean:
-		print("CLEANING GRADLE CACHE")
-		subprocess.call(["./" + command, "clean"])
+def build(command, tasks):
 	# Initialize clean list to store finished .apks
 	releases = []
 	for task in tasks:
