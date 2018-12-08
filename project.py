@@ -4,13 +4,13 @@ import glob
 import re
 import subprocess
 
-def sync(project, fetch, preserve):
+def sync(name, fetch, preserve):
 	changed = False
 	# Retrieve and show basic information about the project
 	log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
 	lastdate = log.communicate()[0].decode('ascii').strip()
 	print("------------------------------------------")
-	print(project + " - last updated " + lastdate)
+	print(name + " - last updated " + lastdate)
 	# If we disable fetching we do not try to pull anything
 	if fetch:
 		# Store the current local diff to restore it later
@@ -46,7 +46,7 @@ def build(command, tasks):
 	# Arriving here means no task failed
 	return 0
 
-def sign(project, keystore, password):
+def sign(name, keystore, password):
 	releases = []
 	# Retrieve all present .apk inside projects folder
 	apks = glob.glob("**/*.apk", recursive = True)
@@ -60,8 +60,6 @@ def sign(project, keystore, password):
 		if align == 0:
 			# Delete the file to avoid re-running over old versions in the future
 			os.remove(apk)
-			# Build the final .apk name
-			name = project
 			# A path with a length of 3 means we have flavour names so we append them
 			apk = re.sub(regex, "", apk)
 			apk = apk.split("/")

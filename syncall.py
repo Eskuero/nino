@@ -4,7 +4,7 @@ import sys
 import platform
 import getpass
 import pickle
-from project import sync, build, sign
+import project
 try:
 	import toml
 # If the module is not avalaible start a blank config file
@@ -95,20 +95,20 @@ for i, arg in enumerate(sys.argv):
 					print("The argument " + arg[0] + " is expected boolean (y|n). Received: " + value)
 					exit(1)
 # Retrieve and store keystores from config file
-for project in config:
-	if not project == "default" and project in projects:
+for name in config:
+	if not name == "default" and name in projects:
 		# Retrieve the path only if building, either because default or explicit
-		if config[project].get("build", rconfig["build"]):
-			path = config[project].get("keystore", False)
+		if config[name].get("build", rconfig["build"]):
+			path = config[name].get("keystore", False)
 			# Only if path is defined and in use
 			if path:
-				keystores[project] = {"path": "", "password": ""}
-				keystores[project]["path"] = path
-				keystores[project]["used"] = True
+				keystores[name] = {"path": "", "password": ""}
+				keystores[name]["path"] = path
+				keystores[name]["used"] = True
 			elif keystores["default"]["path"]:
 				keystores["default"]["used"] = True
 			else:
-				print(project + " build is enabled but lacks an asigned keystore.")
+				print(name + " build is enabled but lacks an asigned keystore.")
 				sys.exit(1)
 
 # On Windows the gradle script is written in batch so we append proper extension
@@ -116,22 +116,22 @@ command = "gradlew"
 if "Windows" in platform.system():
 	command += ".bat"
 # Confirm we got an existant keystore and force
-for project in keystores:
+for name in keystores:
 	# Only ask for password of default keystore or building projects
-	if config.get(project, {}).get("build", rconfig["build"]) and keystores[project]["used"]:
+	if config.get(name, {}).get("build", rconfig["build"]) and keystores[name]["used"]:
 		# There's no key so stop
-		if keystores[project]["path"]:
+		if keystores[name]["path"]:
 			# Make sure the specified file exists
-			if not os.path.isfile(keystores[project]["path"]):
-				print("The specified keystore for " + project + " does not exist: " + keystores[project]["path"])
+			if not os.path.isfile(keystores[name]["path"]):
+				print("The specified keystore for " + name + " does not exist: " + keystores[name]["path"])
 				sys.exit(1)
 			else:
 				# Make sure we save the full path
-				keystores[project]["path"] = os.path.abspath(keystores[project]["path"])
+				keystores[name]["path"] = os.path.abspath(keystores[name]["path"])
 				# FIXME: We assume the keystore includes a single key protected with the same password
-				keystores[project]["password"] = getpass.getpass("Provide password for " + project + " keystore ("+ keystores[project]["path"] + "): ")
+				keystores[name]["password"] = getpass.getpass("Provide password for " + name + " keystore ("+ keystores[name]["path"] + "): ")
 		else:
-			print("No keystore was provided for " + project)
+			print("No keystore was provided for " + name)
 			sys.exit(1)
 
 # Create the out directory in case it doesn't exist already
@@ -146,36 +146,36 @@ except FileNotFoundError:
 	rebuild = []
 
 # Loop for every folder that is a git repository on invocation dir
-for project in projects:
-	if os.path.isdir(project) and ".git" in os.listdir(project):
-		os.chdir(project)
+for name in projects:
+	if os.path.isdir(name) and ".git" in os.listdir(name):
+		os.chdir(name)
 		# Retrieve custom configuration for project
-		cconfig = config.get(project, {})
+		cconfig = config.get(name, {})
 		# Overwrite configuration with custom values
 		fetch = cconfig.get("fetch", rconfig["fetch"])
 		preserve = cconfig.get("preserve", rconfig["preserve"])
 		build = cconfig.get("build", rconfig["build"])
 		# In case of forcing we ignore custom config if command line options have been received
-		if rconfig["force"] and project in forced:
+		if rconfig["force"] and name in forced:
 			force = True
 		else:
 			force = cconfig.get("force", False)
 		# Get tasks defined on custom config or fallback to basic assembling of a release
 		tasks = cconfig.get("tasks", ["assembleRelease"])
 		# Sync the project
-		changed = sync(project, fetch, preserve)
+		changed = project.sync(name, fetch, preserve)
 		# Only attempt gradle projects with build enabled and are either forced, retrying or have new changes
-		if command in os.listdir() and build and (changed or (rconfig["retry"] and project in rebuild) or force):
-			result = build(command, tasks)
+		if command in os.listdir() and build and (changed or (rconfig["retry"] and name in rebuild) or force):
+			result = project.build(command, tasks)
 			# If some task went wrong we report it
 			if result == 1:
-				failed.append(project)
+				failed.append(name)
 			# Else we search for apks to sign and merge them to the current list
 			elif result == 0:
-				signinfo = keystores.get(project, {})
+				signinfo = keystores.get(name, {})
 				keystore = signinfo.get("path", keystores["default"]["path"])
 				password = signinfo.get("password", keystores["default"]["password"])
-				releases += sign(project, keystore, password)
+				releases += project.sign(name, keystore, password)
 		# Go back to the invocation directory before moving onto the next project
 		os.chdir(workdir)
 # Write to the file which projects have build failures
