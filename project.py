@@ -46,7 +46,7 @@ def build(command, tasks):
 	# Arriving here means no task failed
 	return 0
 
-def sign(name, keystore, password):
+def sign(name, workdir, keystore, password):
 	releases = []
 	# Retrieve all present .apk inside projects folder
 	apks = glob.glob("**/*.apk", recursive = True)
@@ -67,7 +67,7 @@ def sign(name, keystore, password):
 				name += "-" + apk[0]
 			name += ".apk"
 			# Sign the .apk with the provided key
-			sign = subprocess.Popen(["apksigner", "sign", "--ks", keystore, "--out", "../SYNCALL-RELEASES/" + name, "aligned.apk"], stdin=subprocess.PIPE)
+			sign = subprocess.Popen(["apksigner", "sign", "--ks", keystore, "--out", workdir + "/SYNCALL-RELEASES/" + name, "aligned.apk"], stdin=subprocess.PIPE)
 			# Pipe the password into the signer standard input
 			sign.communicate(input=password.encode())
 			if sign.returncode == 0:

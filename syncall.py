@@ -175,7 +175,7 @@ for name in projects:
 				signinfo = keystores.get(name, {})
 				keystore = signinfo.get("path", keystores["default"]["path"])
 				password = signinfo.get("password", keystores["default"]["password"])
-				releases += project.sign(name, keystore, password)
+				releases += project.sign(name, workdir, keystore, password)
 		# Go back to the invocation directory before moving onto the next project
 		os.chdir(workdir)
 # Write to the file which projects have build failures
