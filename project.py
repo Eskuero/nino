@@ -4,7 +4,7 @@ import glob
 import re
 import subprocess
 
-def sync(project, config):
+def sync(project, fetch, preserve):
 	changed = False
 	# Retrieve and show basic information about the project
 	log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
@@ -12,9 +12,9 @@ def sync(project, config):
 	print("------------------------------------------")
 	print(project + " - last updated " + lastdate)
 	# If we disable fetching we do not try to pull anything
-	if config["fetch"]:
+	if fetch:
 		# Store the current local diff to restore it later
-		if config["preserve"]:
+		if preserve:
 			diff = subprocess.Popen(["git", "diff"], stdout = subprocess.PIPE).communicate()[0];
 		# Always clean local changes beforehand
 		subprocess.Popen(["git", "checkout", "."])
@@ -26,7 +26,7 @@ def sync(project, config):
 			changed = True
 		print(output)
 		# If we are preserving we pipe and apply the previous relevant diff again
-		if config["preserve"] and diff.decode() != "":
+		if preserve and diff.decode() != "":
 			subprocess.Popen(["git", "apply"], stdin=subprocess.PIPE).communicate(input=diff)
 	return changed
 

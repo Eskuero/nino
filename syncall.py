@@ -149,25 +149,23 @@ except FileNotFoundError:
 for project in projects:
 	if os.path.isdir(project) and ".git" in os.listdir(project):
 		os.chdir(project)
-		# Clone running config into a project config for this specific one
-		pconfig = dict(rconfig)
 		# Retrieve custom configuration for project
 		cconfig = config.get(project, {})
 		# Overwrite configuration with custom values
-		pconfig["fetch"] = cconfig.get("fetch", rconfig["fetch"])
-		pconfig["preserve"] = cconfig.get("preserve", rconfig["preserve"])
-		pconfig["build"] = cconfig.get("build", rconfig["build"])
+		fetch = cconfig.get("fetch", rconfig["fetch"])
+		preserve = cconfig.get("preserve", rconfig["preserve"])
+		build = cconfig.get("build", rconfig["build"])
 		# In case of forcing we ignore custom config if command line options have been received
 		if rconfig["force"] and project in forced:
-			pconfig["force"] = True
+			force = True
 		else:
-			pconfig["force"] = cconfig.get("force", False)
+			force = cconfig.get("force", False)
 		# Get tasks defined on custom config or fallback to basic assembling of a release
 		tasks = cconfig.get("tasks", ["assembleRelease"])
 		# Sync the project
-		changed = sync(project, pconfig)
+		changed = sync(project, fetch, preserve)
 		# Only attempt gradle projects with build enabled and are either forced, retrying or have new changes
-		if command in os.listdir() and pconfig["build"] and (changed or (pconfig["retry"] and project in rebuild) or pconfig["force"]):
+		if command in os.listdir() and build and (changed or (rconfig["retry"] and project in rebuild) or force):
 			result = build(command, tasks)
 			# If some task went wrong we report it
 			if result == 1:
