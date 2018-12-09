@@ -4,6 +4,14 @@ Do you want to manually build everything to confirm the source code matches the 
 
 You can use this Python script to automatically sync, build and sign all of your open source apps using gradle. It will download the latest copy of the source code from the git repository provided, proceed to build if changes are detected, to later sign the outputs and finally provide a ready to install .apk file.
 
+## Installation
+Clone this git repository and install it using pip:
+```
+$ git clone https://github.com/Eskuero/syncall.git
+$ cd syncall
+# pip install .
+```
+
 ## Usage
 By default executing the command without arguments/config file will result into it synchronizing all the git repositories in the immediate subfolders.
 ```
