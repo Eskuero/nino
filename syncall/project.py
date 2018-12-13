@@ -65,13 +65,13 @@ class project():
 				apk = re.sub(regex, "", apk)
 				apk = apk.split("/")
 				if len(apk) == 3:
-					name += "-" + apk[0]
-				name += ".apk"
+					apk = name + "-" + apk[0]
+				apk += ".apk"
 				# Sign the .apk with the provided key
-				sign = subprocess.Popen(["apksigner", "sign", "--ks", keystore, "--out", workdir + "/SYNCALL-RELEASES/" + name, "aligned.apk"], stdin=subprocess.PIPE)
+				sign = subprocess.Popen(["apksigner", "sign", "--ks", keystore, "--out", workdir + "/SYNCALL-RELEASES/" + apk, "aligned.apk"], stdin=subprocess.PIPE)
 				# Pipe the password into the signer standard input
 				sign.communicate(input=password.encode())
 				if sign.returncode == 0:
 					# If everything went fine add the new .apk to the list of releases
-					releases.append(name)
+					releases.append(apk)
 		return releases
