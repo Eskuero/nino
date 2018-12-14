@@ -12,6 +12,8 @@ $ cd syncall
 # pip install .
 ```
 
+The script depends on the toml python library (will be automatically installed by pip) and requires having keytool (Java OpenJDK), apksigner (Android SDK build tools), zipalign (Android SDK Build Tools) and git on the PATH of your running operative system.
+
 ## Usage
 By default executing the command without arguments/config file will result into it synchronizing all the git repositories in the immediate subfolders.
 ```
@@ -24,9 +26,9 @@ This requires the installation of the toml parser:
 ```
 pip install toml
 ```
-Per example the following content would disable cache cleaning and retrying by default while enabling building for all the projects, using the keystore clave.jks and trying to keep local changes.
+Per example the following content would disable cache cleaning and retrying by default while enabling building for all the projects, using the key "mykey" inside keystore clave.jks and trying to keep local changes.
 For the Signal-Android project it would always force building of the app using the assemblePlayRelease and assembleWebsiteRelease tasks, in that order.
-It will also build the Conversations project with the assembleConversationsFreeSystemRelease task and sign it with the key inside the store key-1.jks
+It will also build the Conversations project with the assembleConversationsFreeSystemRelease task and sign it with the key "otherkey" inside the store key-1.jks
 ```
 [default]
 fetch = true
@@ -34,6 +36,7 @@ preserve = true
 build = true
 retry = false
 keystore = "clave.jks"
+keyalias = "mykey"
 
 [Signal-Android]
 force = true
@@ -41,6 +44,7 @@ tasks = ["assemblePlayRelease", "assembleWebsiteRelease"]
 
 [Conversations]
 keystore = "key-1.jks"
+keystore = "otherkey"
 tasks = ["assembleConversationsFreeSystemRelease"]
 ```
 
@@ -54,9 +58,9 @@ Would force building of the Shelter project without fetching changes on any proj
 ### Building
 If you want to not only the sync the source code but also to compile the app when new changes are detected during the current syncing interation you must use it like this:
 ```
-syncall.py --build=/path/to/key.jks
+syncall.py --build=/path/to/key.jks,keyalias
 ```
-The --build argument expects to be passed alongside the absolute or relative path to a Java key store containing a single key. You will be prompted to enter the password. It also accepts a value of n to disable building.
+The --build argument expects to be passed alongside the absolute or relative path to a Java key store containing the key named as keyalias. You will be prompted to enter both passwords. It also accepts a value of n to disable building.
 All the output files will be automatically aligned and signed with the provided key, and then placed a SYNCALL-RELEASES folder on the working dir.
 
 ### Retrying

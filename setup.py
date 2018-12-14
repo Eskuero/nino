@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name = 'syncall',
-    version = '1.0',
+    version = '1.1',
     author='Óliver García Albertos',
     author_email='3skuero@gmail.com',
     description = 'Command line script to automatize syncing, building and signing of open source Android apps using gradle',

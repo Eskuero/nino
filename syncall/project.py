@@ -47,7 +47,7 @@ class project():
 		# Arriving here means no task failed
 		return 0
 
-	def sign(name, workdir, keystore, password):
+	def sign(name, workdir, signinfo):
 		releases = []
 		# Retrieve all present .apk inside projects folder
 		apks = glob.glob("**/*.apk", recursive = True)
@@ -65,12 +65,14 @@ class project():
 				apk = re.sub(regex, "", apk)
 				apk = apk.split("/")
 				if len(apk) == 3:
-					apk = name + "-" + apk[0]
-				apk += ".apk"
+					apk = name + "-" + apk[0] + ".apk"
+				else:
+					apk = name + ".apk"
 				# Sign the .apk with the provided key
-				sign = subprocess.Popen(["apksigner", "sign", "--ks", keystore, "--out", workdir + "/SYNCALL-RELEASES/" + apk, "aligned.apk"], stdin=subprocess.PIPE)
-				# Pipe the password into the signer standard input
-				sign.communicate(input=password.encode())
+				sign = subprocess.Popen(["apksigner", "sign", "--ks", signinfo["path"], "--ks-key-alias", signinfo["alias"],"--out", workdir + "/SYNCALL-RELEASES/" + apk, "--in", "aligned.apk"], stdout = subprocess.DEVNULL, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+				# Generate the input using the two passwords and feed it to the subprocess
+				secrets = signinfo["storepass"] + "\n" + signinfo["aliaspass"]
+				sign.communicate(input=secrets.encode())
 				if sign.returncode == 0:
 					# If everything went fine add the new .apk to the list of releases
 					releases.append(apk)

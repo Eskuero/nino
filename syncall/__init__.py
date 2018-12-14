@@ -4,6 +4,7 @@ import sys
 import platform
 import getpass
 import pickle
+import subprocess
 import toml
 from .project import project
 
@@ -37,14 +38,17 @@ def main():
 	keystores = {
 		"default": {
 			"path": False,
-			"password": "",
+			"alias": False,
+			"storepass": "",
+			"aliaspass": "",
 			"used": False
-			}
+		}
 	}
 	# Initialize keystore if default path is provided
 	keystores["default"]["path"] = defconfig.get("keystore", False)
+	keystores["default"]["alias"] = defconfig.get("keyalias", False)
 	# If we are building by default and path existed we enable usage
-	if rconfig["build"] and keystores["default"]["path"]:
+	if rconfig["build"] and keystores["default"]["path"] and keystores["default"]["alias"]:
 		keystores["default"]["used"] = True
 
 	# Basic lists of produced outputs, failed, forced of projects and avalaible folders
@@ -82,29 +86,40 @@ def main():
 					# In the case of build/force we save a keystore/list respectively
 					if name == "build":
 						rconfig["build"] = True
-						keystores["default"]["path"] = value
+						value = value.split(",")
+						keystores["default"]["path"] = value[0]
+						try:
+							keystores["default"]["alias"] = value[1]
+						except IndexError:
+							print("No alias was given for keystore " + value[0] + " provided through command line")
+							sys.exit(1)
 						keystores["default"]["used"] = True
 					elif name == "force":
 						rconfig["force"] = True
 						forced = value.split(",")
 					else:
 						print("The argument " + arg[0] + " is expected boolean (y|n). Received: " + value)
-						exit(1)
+						sys.exit(1)
 	# Retrieve and store keystores from config file
 	for name in config:
 		if not name == "default" and name in projects:
 			# Retrieve the path only if building, either because default or explicit
 			if config[name].get("build", rconfig["build"]):
 				path = config[name].get("keystore", False)
+				alias = config[name].get("keyalias", False)
 				# Only if path is defined and in use
-				if path:
-					keystores[name] = {"path": "", "password": ""}
-					keystores[name]["path"] = path
-					keystores[name]["used"] = True
-				elif keystores["default"]["path"]:
+				if path and alias:
+					keystores[name] = {
+						"path": path,
+						"alias": alias,
+						"storepass": "",
+						"aliaspass": "",
+						"used": True
+					}
+				elif keystores["default"]["path"] and keystores["default"]["alias"]:
 					keystores["default"]["used"] = True
 				else:
-					print(name + " build is enabled but lacks an asigned keystore.")
+					print(name + " build is enabled but lacks an asigned keystore and/or key.")
 					sys.exit(1)
 
 	# On Windows the gradle script is written in batch so we append proper extension
@@ -116,7 +131,7 @@ def main():
 		# Only ask for password of default keystore or building projects
 		if config.get(name, {}).get("build", rconfig["build"]) and keystores[name]["used"]:
 			# There's no key so stop
-			if keystores[name]["path"]:
+			if keystores[name]["path"] and keystores[name]["alias"]:
 				# Make sure the specified file exists
 				if not os.path.isfile(keystores[name]["path"]):
 					print("The specified keystore for " + name + " does not exist: " + keystores[name]["path"])
@@ -124,10 +139,30 @@ def main():
 				else:
 					# Make sure we save the full path
 					keystores[name]["path"] = os.path.abspath(keystores[name]["path"])
-					# FIXME: We assume the keystore includes a single key protected with the same password
-					keystores[name]["password"] = getpass.getpass("Provide password for " + name + " keystore ("+ keystores[name]["path"] + "): ")
+					# Ask for the keystore password
+					keystores[name]["storepass"] = getpass.getpass("Enter password of '" + name + "' keystore '"+ keystores[name]["path"] + "': ")
+					# Try to retrieve the specified alias from the keystore to test password
+					listing = subprocess.Popen(["keytool", "-list", "-keystore", keystores[name]["path"], "-alias", keystores[name]["alias"]], stdout = subprocess.DEVNULL, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+					listing.communicate(input=keystores[name]["storepass"].encode())
+					if listing.returncode != 0:
+						print("Password is incorrect or the specified alias '" + keystores[name]["alias"] + "' does not exist on keystore")
+						sys.exit(1)
+					else:
+						# Ask for the key password
+						keystores[name]["aliaspass"] = getpass.getpass("     Enter password for key '" + keystores[name]["alias"] + "': ")
+						# Attempt to export to a temporal keystore to test the alias password
+						testkey = subprocess.Popen(["keytool", "-importkeystore", "-srckeystore", keystores[name]["path"], "-destkeystore", "tmpstore", "-deststorepass", "tmpstore", "-srcalias", keystores[name]["alias"]],  stdout = subprocess.DEVNULL, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+						# Generate the input using the two passwords and feed it to the subprocess
+						secrets = keystores[name]["storepass"] + "\n" + keystores[name]["aliaspass"]
+						testkey.communicate(input=secrets.encode())
+						if testkey.returncode == 0:
+							# Everything was fine, delete the temporal keystore
+							os.remove("tmpstore")
+						else:
+							print("Provided password for key '" + keystores[name]["alias"] + "' of keystore '" + keystores[name]["path"] +"' is incorrect")
+							sys.exit(1)
 			else:
-				print("No keystore was provided for " + name)
+				print("No keystore/key name was provided for " + name)
 				sys.exit(1)
 
 	# Create the out directory in case it doesn't exist already
@@ -168,10 +203,9 @@ def main():
 					failed.append(name)
 				# Else we search for apks to sign and merge them to the current list
 				elif result == 0:
-					signinfo = keystores.get(name, {})
-					keystore = signinfo.get("path", keystores["default"]["path"])
-					password = signinfo.get("password", keystores["default"]["password"])
-					releases += project.sign(name, workdir, keystore, password)
+					signinfo = keystores.get(name, keystores["default"])
+					if signinfo["used"]:
+						releases += project.sign(name, workdir, signinfo)
 			# Go back to the invocation directory before moving onto the next project
 			os.chdir(workdir)
 	# Write to the file which projects have build failures
