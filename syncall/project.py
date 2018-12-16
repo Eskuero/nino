@@ -20,12 +20,18 @@ class project():
 			# Always clean local changes beforehand
 			subprocess.Popen(["git", "checkout", "."])
 			# Pull changes and save output and return code of the command for checks
-			pull = subprocess.Popen(["git", "pull"], stdout = subprocess.PIPE)
+			print("SYNCING SOURCE CODE ", end = "", flush = True)
+			pull = subprocess.Popen(["git", "pull"], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
 			output, code = pull.communicate()[0].decode('ascii'), pull.returncode
 			# If something changed flag it for later checks
-			if code == 0 and "Already up" not in output:
-				changed = True
-			print(output)
+			if code == 0:
+				if "Already up" not in output:
+					print("- \033[92mUPDATED\033[0m")
+					changed = True
+				else:
+					print("- \033[93mUNCHANGED\033[0m")
+			else:
+				print("- \033[91mFAILED\033[0m")
 			# If we are preserving we pipe and apply the previous relevant diff again
 			if preserve and diff.decode() != "":
 				subprocess.Popen(["git", "apply"], stdin=subprocess.PIPE).communicate(input=diff)
@@ -35,15 +41,18 @@ class project():
 		# Initialize clean list to store finished .apks
 		releases = []
 		for task in tasks:
-			print("RUNNING GRADLE TASK: " + task)
+			print("RUNNING GRADLE TASK: " + task + " ", end = "", flush = True)
 			# Attempt the task, we also redirect stderr to stdout to effectively merge them.
 			assemble = subprocess.Popen(["./" + command, task], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
 			output, code = assemble.communicate()[0], assemble.returncode
 			# If assembling fails we save the log to a file
 			if code != 0:
+				print("- \033[91mFAILED\033[0m")
 				with open("log.txt", "w") as file:
 					file.write(output.decode())
 				return 1
+			else:
+				print("- \033[92mSUCCESSFUL\033[0m")
 		# Arriving here means no task failed
 		return 0
 
@@ -56,6 +65,7 @@ class project():
 		apks = list(filter(regex.match, apks))
 		# Loop through the remaining apks (there may be different flavours)
 		for apk in apks:
+			print("SIGNING OUTPUT: " + re.sub(regex, "", apk) + " ", end = "", flush = True)
 			# Zipalign for memory optimizations
 			align = subprocess.call(["zipalign", "-f", "4", apk, "aligned.apk"])
 			if align == 0:
@@ -76,4 +86,9 @@ class project():
 				if sign.returncode == 0:
 					# If everything went fine add the new .apk to the list of releases
 					releases.append(apk)
+					print("- \033[92mSUCCESSFUL\033[0m")
+				else:
+					print("- \033[91mFAILED\033[0m")
+			else:
+				print("- \033[91mFAILED\033[0m")
 		return releases
