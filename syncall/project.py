@@ -66,11 +66,15 @@ class project():
 		# Loop through the remaining apks (there may be different flavours)
 		for apk in apks:
 			print("SIGNING OUTPUT: " + re.sub(regex, "", apk) + " ", end = "", flush = True)
-			# Zipalign for memory optimizations
-			align = subprocess.call(["zipalign", "-f", "4", apk, "aligned.apk"])
+			# Zipalign for memory optimizations if the gradle script doesn't automatically align it
+			align = subprocess.call(["zipalign", "-c", "4", apk])
 			if align == 0:
+				os.rename(apk, "aligned.apk")
+			else:
+				align = subprocess.call(["zipalign", "-f", "4", apk, "aligned.apk"])
 				# Delete the file to avoid re-running over old versions in the future
 				os.remove(apk)
+			if align == 0:
 				# A path with a length of 3 means we have flavour names so we append them
 				apk = re.sub(regex, "", apk)
 				apk = apk.split("/")
