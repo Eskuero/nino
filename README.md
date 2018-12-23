@@ -26,25 +26,39 @@ This requires the installation of the toml parser:
 ```
 pip install toml
 ```
-Per example the following content would disable cache cleaning and retrying by default while enabling building for all the projects, using the key "mykey" inside keystore clave.jks and trying to keep local changes.
+Per example the following content would disable retrying by default while enabling building for all the projects, using the key "mykey" inside keystore "default" (clave.jks) and trying to keep local changes.
+It defines two keystores, one named "default" that contains "mykey" and "myke2" keys, and another named "otherkey" that only contains the "another" alias, but provides both passwords without prompting the user.
 For the Signal-Android project it would always force building of the app using the assemblePlayRelease and assembleWebsiteRelease tasks, in that order.
-It will also build the Conversations project with the assembleConversationsFreeSystemRelease task and sign it with the key "otherkey" inside the store key-1.jks
+It will also build the Conversations project with the assembleConversationsFreeSystemRelease task and sign it with the key "another" inside the store "otherkey" (keystore.jks)
 ```
 [default]
 fetch = true
 preserve = true
 build = true
 retry = false
-keystore = "clave.jks"
+keystore = "default"
 keyalias = "mykey"
+
+[keystores]
+	[keystores.default]
+		path = "clave.jks"
+		[keystores.default.aliases]
+			[keystores.default.aliases.mykey]
+			[keystores.default.aliases.myke2]
+	[keystores.otherkey]
+		path = "keystore.jks"
+		password = "password"
+		[keystores.someother.aliases]
+			[keystores.someother.aliases.another]
+				password = "123456"
 
 [Signal-Android]
 force = true
 tasks = ["assemblePlayRelease", "assembleWebsiteRelease"]
 
 [Conversations]
-keystore = "key-1.jks"
 keystore = "otherkey"
+keyalias = "another"
 tasks = ["assembleConversationsFreeSystemRelease"]
 ```
 

@@ -10,12 +10,41 @@ preserve = true
 build = true
 # If build enabled retry failed builds from previous iterations of the script
 retry = false
-# Default path to the keystore used to sign the output files
-keystore = "clave.jks"
+# Default keystore used to sign the output files
+keystore = "default"
+# Key alias located on default keystore to sign output files
+keyalias = "mykey"
+
+# Table containing all the keystore and their respectives keyalias
+[keystores]
+	# Keystore entry named default
+	[keystores.default]
+		# Located on the path "clave.jks"
+		path = "clave.jks"
+		# Defining two keys inside (mykey and myke2)
+		[keystores.default.aliases]
+			[keystores.default.aliases.mykey]
+			[keystores.default.aliases.myke2]
+	# Keystore entry named otherkey
+	[keystores.otherkey]
+		# Located on keystore.jks
+		path = "keystore.jks"
+		# With 'password' as password
+		password = "password"
+		[keystores.someother.aliases]
+			# With a single alias named another store with password '123456'
+			[keystores.someother.aliases.another]
+				password = "123456"
 
 # Custom configuration for overwritting default values per-project basis
 [Signal-Android]
-# Forces building of this certain app if build is enabled and keystore is provided
-force = false
+# Forces always building of this certain app if build is enabled and keystore is provided
+force = true
 # Order of tasks to command gradle to do
 tasks = ["assemblePlayRelease", "assembleWebsiteRelease"]
+
+[Conversations]
+# This project will be signed with the following combination instead of the default one
+keystore = "otherkey"
+keyalias = "another"
+tasks = ["assembleConversationsFreeSystemRelease"]
