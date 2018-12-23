@@ -189,12 +189,12 @@ def main():
 				force = True
 			else:
 				force = cconfig.get("force", False)
-			# Get tasks defined on custom config or fallback to basic assembling of a release
-			tasks = cconfig.get("tasks", ["assembleRelease"])
 			# Sync the project
 			changed = project.sync(name, fetch, preserve)
 			# Only attempt gradle projects with build enabled and are either forced, retrying or have new changes
 			if command in os.listdir() and build and (changed or (rconfig["retry"] and name in rebuild) or force):
+				# Get tasks defined on custom config or fallback to basic assembling of a release
+				tasks = cconfig.get("tasks", ["assembleRelease"])
 				result = project.build(command, tasks)
 				# If some task went wrong we report it
 				if result == 1:
