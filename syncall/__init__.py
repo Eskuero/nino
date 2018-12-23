@@ -32,24 +32,12 @@ def main():
 	rconfig["preserve"] = defconfig.get("preserve", False)
 	rconfig["build"] = defconfig.get("build", False)
 	rconfig["retry"] = defconfig.get("retry", False)
+	rconfig["keystore"] = defconfig.get("keystore", False)
+	rconfig["keyalias"] = defconfig.get("keyalias", False)
 	rconfig["force"] = False
 
 	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
-	keystores = {
-		"default": {
-			"path": False,
-			"alias": False,
-			"storepass": "",
-			"aliaspass": "",
-			"used": False
-		}
-	}
-	# Initialize keystore if default path is provided
-	keystores["default"]["path"] = defconfig.get("keystore", False)
-	keystores["default"]["alias"] = defconfig.get("keyalias", False)
-	# If we are building by default and path existed we enable usage
-	if rconfig["build"] and keystores["default"]["path"] and keystores["default"]["alias"]:
-		keystores["default"]["used"] = True
+	keystores = config.get("keystores", {})
 
 	# Basic lists of produced outputs, failed, forced of projects and avalaible folders
 	releases = []
@@ -87,39 +75,45 @@ def main():
 					if name == "build":
 						rconfig["build"] = True
 						value = value.split(",")
-						keystores["default"]["path"] = value[0]
 						try:
-							keystores["default"]["alias"] = value[1]
+							keystores["overridestore"] = {
+								"path": value[0],
+								"aliases": {
+									value[1]: {
+										"used": True
+									}
+								},
+								"used": True
+							}
+							rconfig["keystore"] = "overridestore"
+							rconfig["keyalias"] = value[1]
 						except IndexError:
 							print("No alias was given for keystore " + value[0] + " provided through command line")
 							sys.exit(1)
-						keystores["default"]["used"] = True
 					elif name == "force":
 						rconfig["force"] = True
 						forced = value.split(",")
 					else:
 						print("The argument " + arg[0] + " is expected boolean (y|n). Received: " + value)
 						sys.exit(1)
-	# Retrieve and store keystores from config file
+
+	# Enable custom keystores defined for each project
 	for name in config:
-		if not name == "default" and name in projects:
-			# Retrieve the path only if building, either because default or explicit
+		if not name == "keystores" and (name in projects or (name == "default" and "overridestore" not in keystores)):
+			# Retrieve the path only if building, either from default or custom
 			if config[name].get("build", rconfig["build"]):
-				path = config[name].get("keystore", False)
-				alias = config[name].get("keyalias", False)
+				store = config[name].get("keystore", rconfig["keystore"])
+				alias = config[name].get("keyalias", rconfig["keyalias"])
 				# Only if path is defined and in use
-				if path and alias:
-					keystores[name] = {
-						"path": path,
-						"alias": alias,
-						"storepass": "",
-						"aliaspass": "",
-						"used": True
-					}
-				elif keystores["default"]["path"] and keystores["default"]["alias"]:
-					keystores["default"]["used"] = True
+				if store and alias:
+					if alias in keystores.get(store, {}).get("aliases", {}):
+						keystores[store]["used"] = True
+						keystores[store]["aliases"][alias]["used"] = True
+					else:
+						print("The specified keystore/key alias combination for " + name + " doesn't exist on configuration file")
+						sys.exit(1)
 				else:
-					print(name + " build is enabled but lacks an asigned keystore and/or key.")
+					print(name + " build is enabled but lacks an assigned keystore and/or key.")
 					sys.exit(1)
 
 	# On Windows the gradle script is written in batch so we append proper extension
@@ -127,43 +121,47 @@ def main():
 	if "Windows" in platform.system():
 		command += ".bat"
 	# Confirm we got an existant keystore and force
-	for name in keystores:
-		# Only ask for password of default keystore or building projects
-		if config.get(name, {}).get("build", rconfig["build"]) and keystores[name]["used"]:
-			# There's no key so stop
-			if keystores[name]["path"] and keystores[name]["alias"]:
-				# Make sure the specified file exists
-				if not os.path.isfile(keystores[name]["path"]):
-					print("The specified keystore for " + name + " does not exist: " + keystores[name]["path"])
-					sys.exit(1)
-				else:
-					# Make sure we save the full path
-					keystores[name]["path"] = os.path.abspath(keystores[name]["path"])
-					# Ask for the keystore password
-					keystores[name]["storepass"] = getpass.getpass("Enter password of '" + name + "' keystore '"+ keystores[name]["path"] + "': ")
-					# Try to retrieve the specified alias from the keystore to test password
-					listing = subprocess.Popen(["keytool", "-list", "-keystore", keystores[name]["path"], "-alias", keystores[name]["alias"]], stdout = subprocess.DEVNULL, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
-					listing.communicate(input=keystores[name]["storepass"].encode())
+	for store in keystores:
+		# If the keystore won't be used we skip it altogether
+		if keystores[store].get("used", False):
+			# Make sure the specified path for the keystore exists
+			path = keystores[store].get("path", "")
+			if not os.path.isfile(path):
+				print("The specified path for " + store + " keystore does not exist: '" + path + "'")
+				sys.exit(1)
+			else:
+				# Make sure we save the full path
+				keystores[store]["path"] = os.path.abspath(keystores[store]["path"])
+				# Ask for the keystore password
+				try:
+					keystores[store]["password"]
+				except KeyError:
+					keystores[store]["password"] = getpass.getpass("Enter password of '" + store + "' keystore '"+ keystores[store]["path"] + "': ")
+				# Try to retrieve aliases from the keystore to test password
+				aliases = keystores[store].get("aliases", {})
+				for alias in (alias for alias in aliases if keystores[store]["aliases"][alias].get("used", False)):
+					listing = subprocess.Popen(["keytool", "-list", "-keystore", keystores[store]["path"], "-alias", alias], stdout = subprocess.DEVNULL, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+					listing.communicate(input=keystores[store]["password"].encode())
 					if listing.returncode != 0:
-						print("Password is incorrect or the specified alias '" + keystores[name]["alias"] + "' does not exist on keystore")
+						print("Keystore password is incorrect or alias '" + alias + "' does not exist on keystore")
 						sys.exit(1)
 					else:
 						# Ask for the key password
-						keystores[name]["aliaspass"] = getpass.getpass("     Enter password for key '" + keystores[name]["alias"] + "': ")
+						try:
+							keystores[store]["aliases"][alias]["password"]
+						except KeyError:
+							keystores[store]["aliases"][alias]["password"] = getpass.getpass("     Enter password for key '" + alias + "' of '" + store + "' keystore '"+ keystores[store]["path"] + "': ")
 						# Attempt to export to a temporal keystore to test the alias password
-						testkey = subprocess.Popen(["keytool", "-importkeystore", "-srckeystore", keystores[name]["path"], "-destkeystore", "tmpstore", "-deststorepass", "tmpstore", "-srcalias", keystores[name]["alias"]],  stdout = subprocess.DEVNULL, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+						testkey = subprocess.Popen(["keytool", "-importkeystore", "-srckeystore", keystores[store]["path"], "-destkeystore", "tmpstore", "-deststorepass", "tmpstore", "-srcalias", alias],  stdout = subprocess.DEVNULL, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
 						# Generate the input using the two passwords and feed it to the subprocess
-						secrets = keystores[name]["storepass"] + "\n" + keystores[name]["aliaspass"]
+						secrets = keystores[store]["password"] + "\n" + keystores[store]["aliases"][alias]["password"]
 						testkey.communicate(input=secrets.encode())
 						if testkey.returncode == 0:
 							# Everything was fine, delete the temporal keystore
 							os.remove("tmpstore")
 						else:
-							print("Provided password for key '" + keystores[name]["alias"] + "' of keystore '" + keystores[name]["path"] +"' is incorrect")
+							print("Provided password for key '" + alias + "' of keystore '" + keystores[store]["path"] +"' is incorrect")
 							sys.exit(1)
-			else:
-				print("No keystore/key name was provided for " + name)
-				sys.exit(1)
 
 	# Create the out directory in case it doesn't exist already
 	if rconfig["build"] and not os.path.isdir("SYNCALL-RELEASES"):
@@ -203,9 +201,10 @@ def main():
 					failed.append(name)
 				# Else we search for apks to sign and merge them to the current list
 				elif result == 0:
-					signinfo = keystores.get(name, keystores["default"])
-					if signinfo["used"]:
-						releases += project.sign(name, workdir, signinfo)
+					signinfo = keystores.get(cconfig.get("keystore", rconfig["keystore"]), {})
+					alias = cconfig.get("keyalias", rconfig["keyalias"])
+					if signinfo["used"] and signinfo["aliases"][alias]["used"]:
+						releases += project.sign(name, workdir, signinfo, alias)
 			# Go back to the invocation directory before moving onto the next project
 			os.chdir(workdir)
 	# Write to the file which projects have build failures
