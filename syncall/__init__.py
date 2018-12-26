@@ -68,8 +68,6 @@ def main():
 					rconfig[name] = True
 				elif value == "n":
 					rconfig[name] = False
-					if name == "build":
-						keystores["default"]["used"] = False
 				else:
 					# In the case of build/force we save a keystore/list respectively
 					if name == "build":
@@ -99,7 +97,7 @@ def main():
 
 	# Enable custom keystores defined for each project
 	for name in config:
-		if not name == "keystores" and (name in projects or (name == "default" and "overridestore" not in keystores)):
+		if not name == "keystores" and (name in projects or (name == "default" and "overridestore" not in keystores and rconfig["build"])):
 			# Retrieve the path only if building, either from default or custom
 			if config[name].get("build", rconfig["build"]):
 				store = config[name].get("keystore", rconfig["keystore"])
