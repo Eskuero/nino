@@ -96,3 +96,25 @@ class project():
 			else:
 				print("- \033[91mFAILED\033[0m")
 		return releases
+
+	def deploy(apks, targets, workdir):
+		for apk in apks:
+			print("DEPLOYING OUTPUT: " + apk)
+			for target in targets:
+				print("     TO DEVICE: " + target + " ", end = "\r")
+				try:
+					# Make sure the device is online before proceeding, timeout after 15 secs of waiting
+					print("     TO DEVICE: " + target + " - \033[93mCONNECTING   \033[0m", end = "\r")
+					subprocess.run(["adb", "-s", target, "wait-for-device"], timeout = 15, stdout = subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+				# If the adb subprocess timed out we skip this device
+				except subprocess.TimeoutExpired:
+					print("     TO DEVICE: " + target + " - \033[91mNOT REACHABLE\033[0m")
+				else:
+					print("     TO DEVICE: " + target + " - \033[93mDEPLOYING    \033[0m", end = "\r")
+					# We send the apk trying to override it on the system if neccessary
+					send = subprocess.Popen(["adb", "-s" , target, "install", "-r", workdir + "/SYNCALL-RELEASES/" + apk], stdout = subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+					send.communicate()
+					if send.returncode == 0:
+						print("     TO DEVICE: " + target + " - \033[92mSUCCESSFUL   \033[0m")
+					else:
+						print("     TO DEVICE: " + target + " - \033[91mFAILED       \033[0m")

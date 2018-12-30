@@ -34,6 +34,7 @@ def main():
 	rconfig["retry"] = defconfig.get("retry", False)
 	rconfig["keystore"] = defconfig.get("keystore", False)
 	rconfig["keyalias"] = defconfig.get("keyalias", False)
+	rconfig["deploy"] = defconfig.get("deploy", [])
 	rconfig["force"] = False
 
 	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
@@ -64,10 +65,13 @@ def main():
 		else:
 			# Most arguments are boolean and follow the same logic
 			if name in rconfig:
-				if value == "y":
+				if value == "y" and name not in ["deploy", "force"]:
 					rconfig[name] = True
 				elif value == "n":
-					rconfig[name] = False
+					if name == "deploy":
+						rconfig["deploy"] = []
+					else:
+						rconfig[name] = False
 				else:
 					# In the case of build/force we save a keystore/list respectively
 					if name == "build":
@@ -91,6 +95,8 @@ def main():
 					elif name == "force":
 						rconfig["force"] = True
 						forced = value.split(",")
+					elif name == "deploy":
+						rconfig["deploy"] = value.split(",")
 					else:
 						print("The argument " + arg[0] + " is expected boolean (y|n). Received: " + value)
 						sys.exit(1)
@@ -202,7 +208,15 @@ def main():
 					signinfo = keystores.get(cconfig.get("keystore", rconfig["keystore"]), {})
 					alias = cconfig.get("keyalias", rconfig["keyalias"])
 					if signinfo["used"] and signinfo["aliases"][alias]["used"]:
-						releases += project.sign(name, workdir, signinfo, alias)
+						apks = project.sign(name, workdir, signinfo, alias)
+						# We remember and deploy if we built something
+						if len(apks) > 0:
+							releases += apks
+							# Retrieve possible targets for deployment
+							targets = cconfig.get("deploy", rconfig["deploy"])
+							# Proceed if we at least have one target
+							if len(targets) > 0:
+								project.deploy(apks, targets, workdir)
 			# Go back to the invocation directory before moving onto the next project
 			os.chdir(workdir)
 	# Write to the file which projects have build failures
