@@ -35,15 +35,14 @@ def main():
 	rconfig["keystore"] = defconfig.get("keystore", False)
 	rconfig["keyalias"] = defconfig.get("keyalias", False)
 	rconfig["deploy"] = defconfig.get("deploy", [])
-	rconfig["force"] = False
+	rconfig["force"] = []
 
 	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
 	keystores = config.get("keystores", {})
 
-	# Basic lists of produced outputs, failed, forced of projects and avalaible folders
+	# Basic lists of produced outputs, failed projects and avalaible folders
 	releases = []
 	failed = []
-	forced = []
 	projects = os.listdir()
 	workdir = os.getcwd()
 
@@ -67,7 +66,7 @@ def main():
 			if name in rconfig:
 				if value == "y" and name not in ["deploy", "force"]:
 					rconfig[name] = True
-				elif value == "n":
+				elif value == "n" and not name == "force":
 					if name == "deploy":
 						rconfig["deploy"] = []
 					else:
@@ -92,11 +91,8 @@ def main():
 						except IndexError:
 							print("No alias was given for keystore " + value[0] + " provided through command line")
 							sys.exit(1)
-					elif name == "force":
-						rconfig["force"] = True
-						forced = value.split(",")
-					elif name == "deploy":
-						rconfig["deploy"] = value.split(",")
+					elif name in ["deploy", "force"]:
+						rconfig[name] = value.split(",")
 					else:
 						print("The argument " + arg[0] + " is expected boolean (y|n). Received: " + value)
 						sys.exit(1)
@@ -189,7 +185,7 @@ def main():
 			preserve = cconfig.get("preserve", rconfig["preserve"])
 			build = cconfig.get("build", rconfig["build"])
 			# In case of forcing we ignore custom config if command line options have been received
-			if rconfig["force"] and name in forced:
+			if name in rconfig["force"]:
 				force = True
 			else:
 				force = cconfig.get("force", False)
