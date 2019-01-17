@@ -36,7 +36,14 @@ class project():
 				print("- \033[91mFAILED\033[0m")
 			# If we are preserving we pipe and apply the previous relevant diff again
 			if preserve and diff.decode() != "":
-				subprocess.Popen(["git", "apply"], stdout = logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE).communicate(input=diff)
+				print("     PRESERVING LOCAL CHANGES ", end = "", flush = True)
+				print("\nPRESERVING LOCAL CHANGES\n" + diff.decode(), file = logfile, flush = True)
+				apply = subprocess.Popen(["git", "apply"], stdout = logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE)
+				apply.communicate(input=diff)
+				if apply.returncode == 0:
+					print("- \033[92mSUCCESSFUL\033[0m")
+				else:
+					print("- \033[91mFAILED\033[0m")
 		return changed
 
 	def build(command, tasks, logfile):
@@ -66,14 +73,21 @@ class project():
 		# Loop through the remaining apks (there may be different flavours)
 		for apk in apks:
 			displayname = re.sub(regex, "", apk)
-			print("SIGNING OUTPUT: " + displayname + " ", end = "", flush = True)
-			print("\nSIGNING OUTPUT: " + displayname, file = logfile, flush = True)
+			print("PREPARING OUTPUT: " + displayname + " ")
+			print("\nPREPARING OUTPUT: " + displayname, file = logfile, flush = True)
 			# Zipalign for memory optimizations if the gradle script doesn't automatically align it
-			align = subprocess.call(["zipalign", "-c", "4", apk])
+			print("     ZIPALIGNING ", end = "", flush = True)
+			print("     ZIPALIGNING", file = logfile, flush = True)
+			align = subprocess.call(["zipalign", "-c", "4", apk], stdout = logfile, stderr=subprocess.STDOUT)
 			if align == 0:
+				print("- \033[93mUNNEEDED\033[0m")
 				os.rename(apk, "aligned.apk")
 			else:
-				align = subprocess.call(["zipalign", "-f", "4", apk, "aligned.apk"])
+				align = subprocess.call(["zipalign", "-f", "4", apk, "aligned.apk"], stdout = logfile, stderr=subprocess.STDOUT)
+				if align == 0:
+					print("- \033[92mSUCCESSFUL\033[0m")
+				else:
+					print("- \033[91mFAILED\033[0m")
 				# Delete the file to avoid re-running over old versions in the future
 				os.remove(apk)
 			if align == 0:
@@ -84,6 +98,8 @@ class project():
 					apk = name + "-" + apk[0] + ".apk"
 				else:
 					apk = name + ".apk"
+				print("     SIGNING ", end = "", flush = True)
+				print("     SIGNING", file = logfile, flush = True)
 				# Sign the .apk with the provided key
 				sign = subprocess.Popen(["apksigner", "sign", "--ks", signinfo["path"], "--ks-key-alias", alias,"--out", workdir + "/SYNCALL-RELEASES/" + apk, "--in", "aligned.apk"], stdout = logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 				# Generate the input using the two passwords and feed it to the subprocess
