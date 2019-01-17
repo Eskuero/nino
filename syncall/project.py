@@ -5,7 +5,7 @@ import re
 import subprocess
 
 class project():
-	def sync(name, fetch, preserve):
+	def sync(name, fetch, preserve, logfile):
 		changed = False
 		# Retrieve and show basic information about the project
 		log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
@@ -21,11 +21,13 @@ class project():
 			subprocess.Popen(["git", "checkout", "."])
 			# Pull changes and save output and return code of the command for checks
 			print("SYNCING SOURCE CODE ", end = "", flush = True)
-			pull = subprocess.Popen(["git", "pull"], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-			output, code = pull.communicate()[0].decode('ascii'), pull.returncode
+			print("SYNCING SOURCE CODE", file = logfile, flush = True)
+			pull = subprocess.call(["git", "pull"], stdout = logfile, stderr = subprocess.STDOUT)
+			# We need to pull back to the start of the file to be able to read anything
+			logfile.seek(0)
 			# If something changed flag it for later checks
-			if code == 0:
-				if "Already up" not in output:
+			if pull == 0:
+				if "Already up" not in logfile.read():
 					print("- \033[92mUPDATED\033[0m")
 					changed = True
 				else:
@@ -34,29 +36,27 @@ class project():
 				print("- \033[91mFAILED\033[0m")
 			# If we are preserving we pipe and apply the previous relevant diff again
 			if preserve and diff.decode() != "":
-				subprocess.Popen(["git", "apply"], stdin=subprocess.PIPE).communicate(input=diff)
+				subprocess.Popen(["git", "apply"], stdout = logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE).communicate(input=diff)
 		return changed
 
-	def build(command, tasks):
+	def build(command, tasks, logfile):
 		# Initialize clean list to store finished .apks
 		releases = []
 		for task in tasks:
 			print("RUNNING GRADLE TASK: " + task + " ", end = "", flush = True)
+			print("\nRUNNING GRADLE TASK: " + task, file = logfile, flush = True)
 			# Attempt the task, we also redirect stderr to stdout to effectively merge them.
-			assemble = subprocess.Popen(["./" + command, task], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-			output, code = assemble.communicate()[0], assemble.returncode
-			# If assembling fails we save the log to a file
-			if code != 0:
+			assemble = subprocess.call(["./" + command, task], stdout = logfile, stderr = subprocess.STDOUT)
+			# If assembling fails we return to tell main
+			if assemble != 0:
 				print("- \033[91mFAILED\033[0m")
-				with open("log.txt", "w") as file:
-					file.write(output.decode())
 				return 1
 			else:
 				print("- \033[92mSUCCESSFUL\033[0m")
 		# Arriving here means no task failed
 		return 0
 
-	def sign(name, workdir, signinfo, alias):
+	def sign(name, workdir, signinfo, alias, logfile):
 		releases = []
 		# Retrieve all present .apk inside projects folder
 		apks = glob.glob("**/*.apk", recursive = True)
@@ -65,7 +65,9 @@ class project():
 		apks = list(filter(regex.match, apks))
 		# Loop through the remaining apks (there may be different flavours)
 		for apk in apks:
-			print("SIGNING OUTPUT: " + re.sub(regex, "", apk) + " ", end = "", flush = True)
+			displayname = re.sub(regex, "", apk)
+			print("SIGNING OUTPUT: " + displayname + " ", end = "", flush = True)
+			print("\nSIGNING OUTPUT: " + displayname, file = logfile, flush = True)
 			# Zipalign for memory optimizations if the gradle script doesn't automatically align it
 			align = subprocess.call(["zipalign", "-c", "4", apk])
 			if align == 0:
@@ -83,7 +85,7 @@ class project():
 				else:
 					apk = name + ".apk"
 				# Sign the .apk with the provided key
-				sign = subprocess.Popen(["apksigner", "sign", "--ks", signinfo["path"], "--ks-key-alias", alias,"--out", workdir + "/SYNCALL-RELEASES/" + apk, "--in", "aligned.apk"], stdout = subprocess.DEVNULL, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+				sign = subprocess.Popen(["apksigner", "sign", "--ks", signinfo["path"], "--ks-key-alias", alias,"--out", workdir + "/SYNCALL-RELEASES/" + apk, "--in", "aligned.apk"], stdout = logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 				# Generate the input using the two passwords and feed it to the subprocess
 				secrets = signinfo["password"] + "\n" + signinfo["aliases"][alias]["password"]
 				sign.communicate(input=secrets.encode())
@@ -97,24 +99,25 @@ class project():
 				print("- \033[91mFAILED\033[0m")
 		return releases
 
-	def deploy(apks, targets, workdir):
+	def deploy(apks, targets, workdir, logfile):
 		for apk in apks:
 			print("DEPLOYING OUTPUT: " + apk)
 			for target in targets:
 				print("     TO DEVICE: " + target + " ", end = "\r")
+				print("\nDEPLOYING OUTPUT " + apk + " TO DEVICE " + target, file = logfile, flush = True)
 				try:
 					# Make sure the device is online before proceeding, timeout after 15 secs of waiting
 					print("     TO DEVICE: " + target + " - \033[93mCONNECTING   \033[0m", end = "\r")
-					subprocess.run(["adb", "-s", target, "wait-for-device"], timeout = 15, stdout = subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+					subprocess.call(["adb", "-s", target, "wait-for-device"], timeout = 15, stdout = logfile, stderr = subprocess.STDOUT)
 				# If the adb subprocess timed out we skip this device
 				except subprocess.TimeoutExpired:
 					print("     TO DEVICE: " + target + " - \033[91mNOT REACHABLE\033[0m")
+					print("Not reachable", file = logfile, flush = True)
 				else:
 					print("     TO DEVICE: " + target + " - \033[93mDEPLOYING    \033[0m", end = "\r")
 					# We send the apk trying to override it on the system if neccessary
-					send = subprocess.Popen(["adb", "-s" , target, "install", "-r", workdir + "/SYNCALL-RELEASES/" + apk], stdout = subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-					send.communicate()
-					if send.returncode == 0:
+					send = subprocess.call(["adb", "-s" , target, "install", "-r", workdir + "/SYNCALL-RELEASES/" + apk], stdout = logfile, stderr=subprocess.STDOUT)
+					if send == 0:
 						print("     TO DEVICE: " + target + " - \033[92mSUCCESSFUL   \033[0m")
 					else:
 						print("     TO DEVICE: " + target + " - \033[91mFAILED       \033[0m")
