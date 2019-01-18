@@ -12,7 +12,8 @@ $ cd syncall
 # pip install .
 ```
 
-The script depends on the toml python library (will be automatically installed by pip) and requires having keytool (Java OpenJDK), adb (Android Debug Bridge), apksigner (Android SDK build tools), zipalign (Android SDK Build Tools) and git on the PATH of your running operative system.
+The script depends on the toml python library (will be automatically installed by pip) and requires having keytool (Java OpenJDK), adb (Android Debug Bridge), apksigner (Android SDK build tools), zipalign (Android SDK Build Tools), gradle (in case any of the projects do not provide a gradle wrapper) and git on the PATH of your running operative system.
+Each project may also have additional dependencies to build binaries.
 
 ## Usage
 By default executing the command without arguments/config file will result into it synchronizing all the git repositories in the immediate subfolders.

@@ -39,11 +39,22 @@ def main():
 	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
 	keystores = config.get("keystores", {})
 
-	# Basic lists of produced outputs, failed projects and avalaible folders
+	# Basic lists of produced outputs, failed projects from current and previous iteration and available folders
 	releases = []
 	failed = []
+	rebuild = []
 	projects = os.listdir()
 	workdir = os.getcwd()
+
+	# Default to gradle wrapper, then override on project basis if the script is not found
+	command = "./gradlew"
+	# On Windows the gradle script is written in batch so we append proper extension
+	if "Windows" in platform.system():
+		command += ".bat"
+
+	# Create the out directory in case it doesn't exist already
+	if not os.path.isdir("SYNCALL-RELEASES"):
+		os.mkdir("SYNCALL-RELEASES")
 
 	# Check every argument and store arguments
 	for i, arg in enumerate(sys.argv):
@@ -100,21 +111,14 @@ def main():
 	keystores = signing.enable(config, projects, keystores, rconfig)
 	keystores = signing.secrets(keystores)
 
-	# On Windows the gradle script is written in batch so we append proper extension
-	command = "gradlew"
-	if "Windows" in platform.system():
-		command += ".bat"
-
-	# Create the out directory in case it doesn't exist already
-	if rconfig["build"] and not os.path.isdir("SYNCALL-RELEASES"):
-		os.mkdir("SYNCALL-RELEASES")
-	# Retrieve list of the previously failed to build projects
-	try:
-		with open(".retry-projects", "rb") as file:
-			rebuild = pickle.load(file)
-	# Restart the list if no previous file is found
-	except FileNotFoundError:
-		rebuild = []
+	# Retrieve list of the previously failed to build projects if retrying
+	if rconfig["retry"]:
+		try:
+			with open(".retry-projects", "rb") as file:
+				rebuild = pickle.load(file)
+		# Restart the list if no previous file is found
+		except FileNotFoundError:
+			pass
 
 	# Loop for every folder that is a git repository on invocation dir
 	for name in projects:
@@ -136,7 +140,7 @@ def main():
 				# Sync the project
 				changed = project.sync(name, fetch, preserve, logfile)
 				# Only attempt gradle projects with build enabled and are either forced, retrying or have new changes
-				if command in os.listdir() and build and (changed or (rconfig["retry"] and name in rebuild) or force):
+				if build and (changed or (rconfig["retry"] and name in rebuild) or force):
 					# Get tasks defined on custom config or fallback to basic assembling of a release
 					tasks = cconfig.get("tasks", ["assembleRelease"])
 					result = project.build(command, tasks, logfile)

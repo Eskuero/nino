@@ -49,11 +49,14 @@ class project():
 	def build(command, tasks, logfile):
 		# Initialize clean list to store finished .apks
 		releases = []
+		# Check if gradle wrapper exists before falling back to system-wide gradle
+		if not os.path.isfile(command):
+			command = "gradle"
 		for task in tasks:
 			print("RUNNING GRADLE TASK: " + task + " ", end = "", flush = True)
 			print("\nRUNNING GRADLE TASK: " + task, file = logfile, flush = True)
 			# Attempt the task, we also redirect stderr to stdout to effectively merge them.
-			assemble = subprocess.call(["./" + command, task], stdout = logfile, stderr = subprocess.STDOUT)
+			assemble = subprocess.call([command, task], stdout = logfile, stderr = subprocess.STDOUT)
 			# If assembling fails we return to tell main
 			if assemble != 0:
 				print("- \033[91mFAILED\033[0m")
