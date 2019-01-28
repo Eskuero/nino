@@ -5,45 +5,44 @@ import re
 import subprocess
 
 class project():
-	def sync(name, fetch, preserve, logfile):
-		changed = False
+	def sync(name, preserve, logfile):
 		# Retrieve and show basic information about the project
 		log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
 		lastdate = log.communicate()[0].decode('ascii').strip()
 		print("------------------------------------------")
 		print(name + " - last updated " + lastdate)
 		# If we disable fetching we do not try to pull anything
-		if fetch:
-			# Store the current local diff to restore it later
-			if preserve:
-				diff = subprocess.Popen(["git", "diff"], stdout = subprocess.PIPE).communicate()[0];
-			# Always clean local changes beforehand
-			subprocess.Popen(["git", "checkout", "."])
-			# Pull changes and save output and return code of the command for checks
-			print("SYNCING SOURCE CODE ", end = "", flush = True)
-			print("SYNCING SOURCE CODE", file = logfile, flush = True)
-			pull = subprocess.call(["git", "pull"], stdout = logfile, stderr = subprocess.STDOUT)
-			# We need to pull back to the start of the file to be able to read anything
-			logfile.seek(0)
-			# If something changed flag it for later checks
-			if pull == 0:
-				if "Already up" not in logfile.read():
-					print("- \033[92mUPDATED\033[0m")
-					changed = True
-				else:
-					print("- \033[93mUNCHANGED\033[0m")
+		# Store the current local diff to restore it later
+		if preserve:
+			diff = subprocess.Popen(["git", "diff"], stdout = subprocess.PIPE).communicate()[0];
+		# Always clean local changes beforehand
+		subprocess.Popen(["git", "checkout", "."])
+		# Pull changes and save output and return code of the command for checks
+		print("SYNCING SOURCE CODE ", end = "", flush = True)
+		print("SYNCING SOURCE CODE", file = logfile, flush = True)
+		pull = subprocess.call(["git", "pull"], stdout = logfile, stderr = subprocess.STDOUT)
+		# We need to pull back to the start of the file to be able to read anything
+		logfile.seek(0)
+		# If something changed flag it for later checks
+		changed = False
+		if pull == 0:
+			if "Already up" not in logfile.read():
+				print("- \033[92mUPDATED\033[0m")
+				changed = True
+			else:
+				print("- \033[93mUNCHANGED\033[0m")
+		else:
+			print("- \033[91mFAILED\033[0m")
+		# If we are preserving we pipe and apply the previous relevant diff again
+		if preserve and diff.decode() != "":
+			print("     PRESERVING LOCAL CHANGES ", end = "", flush = True)
+			print("\nPRESERVING LOCAL CHANGES\n" + diff.decode(), file = logfile, flush = True)
+			apply = subprocess.Popen(["git", "apply"], stdout = logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE)
+			apply.communicate(input=diff)
+			if apply.returncode == 0:
+				print("- \033[92mSUCCESSFUL\033[0m")
 			else:
 				print("- \033[91mFAILED\033[0m")
-			# If we are preserving we pipe and apply the previous relevant diff again
-			if preserve and diff.decode() != "":
-				print("     PRESERVING LOCAL CHANGES ", end = "", flush = True)
-				print("\nPRESERVING LOCAL CHANGES\n" + diff.decode(), file = logfile, flush = True)
-				apply = subprocess.Popen(["git", "apply"], stdout = logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE)
-				apply.communicate(input=diff)
-				if apply.returncode == 0:
-					print("- \033[92mSUCCESSFUL\033[0m")
-				else:
-					print("- \033[91mFAILED\033[0m")
 		return changed
 
 	def build(command, tasks, logfile):

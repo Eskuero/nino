@@ -138,7 +138,9 @@ def main():
 			# Open logfile to store all the output
 			with open("log.txt", "w+") as logfile:
 				# Sync the project
-				changed = project.sync(name, fetch, preserve, logfile)
+				changed = False
+				if fetch:
+					changed = project.sync(name, preserve, logfile)
 				# Only attempt gradle projects with build enabled and are either forced, retrying or have new changes
 				if build and (changed or (rconfig["retry"] and name in rebuild) or force):
 					# Get tasks defined on custom config or fallback to basic assembling of a release
