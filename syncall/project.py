@@ -59,11 +59,11 @@ class project():
 			# If assembling fails we return to tell main
 			if assemble != 0:
 				print("- \033[91mFAILED\033[0m")
-				return 1
+				return False
 			else:
 				print("- \033[92mSUCCESSFUL\033[0m")
 		# Arriving here means no task failed
-		return 0
+		return True
 
 	def sign(name, workdir, signinfo, alias, logfile):
 		releases = []

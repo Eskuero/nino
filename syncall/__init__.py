@@ -142,27 +142,29 @@ def main():
 				if fetch:
 					changed = project.sync(name, preserve, logfile)
 				# Only attempt gradle projects with build enabled and are either forced, retrying or have new changes
+				built = False
 				if build and (changed or (rconfig["retry"] and name in rebuild) or force):
 					# Get tasks defined on custom config or fallback to basic assembling of a release
 					tasks = cconfig.get("tasks", ["assembleRelease"])
-					result = project.build(command, tasks, logfile)
+					built = project.build(command, tasks, logfile)
 					# If some task went wrong we report it
-					if result == 1:
+					if not built:
 						failed.append(name)
-					# Else we search for apks to sign and merge them to the current list
-					elif result == 0:
-						signinfo = keystores.get(cconfig.get("keystore", rconfig["keystore"]), {})
-						alias = cconfig.get("keyalias", rconfig["keyalias"])
-						if signinfo["used"] and signinfo["aliases"][alias]["used"]:
-							apks = project.sign(name, workdir, signinfo, alias, logfile)
-							# We remember and deploy if we built something
-							if len(apks) > 0:
-								releases += apks
-								# Retrieve possible targets for deployment
-								targets = cconfig.get("deploy", rconfig["deploy"])
-								# Proceed if we at least have one target
-								if len(targets) > 0:
-									project.deploy(apks, targets, workdir, logfile)
+				# We search for apks to sign and merge them to the current list
+				apks = []
+				if built:
+					signinfo = keystores.get(cconfig.get("keystore", rconfig["keystore"]), {})
+					alias = cconfig.get("keyalias", rconfig["keyalias"])
+					if signinfo["used"] and signinfo["aliases"][alias]["used"]:
+						apks = project.sign(name, workdir, signinfo, alias, logfile)
+				# We deploy if we built something
+				if len(apks) > 0:
+					releases += apks
+					# Retrieve possible targets for deployment
+					targets = cconfig.get("deploy", rconfig["deploy"])
+					# Proceed if we at least have one target
+					if len(targets) > 0:
+						project.deploy(apks, targets, workdir, logfile)
 			# Go back to the invocation directory before moving onto the next project
 			os.chdir(workdir)
 	# Write to the file which projects have build failures
