@@ -75,44 +75,24 @@ class project():
 		# Loop through the remaining apks (there may be different flavours)
 		for apk in apks:
 			displayname = re.sub(regex, "", apk)
-			print("PREPARING OUTPUT: " + displayname + " ")
-			print("\nPREPARING OUTPUT: " + displayname, file = logfile, flush = True)
-			# Zipalign for memory optimizations if the gradle script doesn't automatically align it
-			print("     ZIPALIGNING ", end = "", flush = True)
-			print("     ZIPALIGNING", file = logfile, flush = True)
-			align = subprocess.call(["zipalign", "-c", "4", apk], stdout = logfile, stderr=subprocess.STDOUT)
-			if align == 0:
-				print("- \033[93mUNNEEDED\033[0m")
-				os.rename(apk, "aligned.apk")
+			print("SIGNING OUTPUT: " + displayname + " ", end = "", flush = True)
+			print("\nSIGNING OUTPUT: " + displayname, file = logfile, flush = True)
+			# A path with a length of 3 means we have flavour names so we append them
+			displayname = displayname.split("/")
+			if len(displayname) == 3:
+				displayname = name + "-" + displayname[0] + ".apk"
 			else:
-				align = subprocess.call(["zipalign", "-f", "4", apk, "aligned.apk"], stdout = logfile, stderr=subprocess.STDOUT)
-				if align == 0:
-					print("- \033[92mSUCCESSFUL\033[0m")
-				else:
-					print("- \033[91mFAILED\033[0m")
-				# Delete the file to avoid re-running over old versions in the future
+				displayname = name + ".apk"
+			# Sign the .apk with the provided key
+			sign = subprocess.Popen(["apksigner", "sign", "--ks", signinfo["path"], "--ks-key-alias", alias,"--out", workdir + "/SYNCALL-RELEASES/" + displayname, "--in", apk], stdout = logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+			# Generate the input using the two passwords and feed it to the subprocess
+			secrets = signinfo["password"] + "\n" + signinfo["aliases"][alias]["password"]
+			sign.communicate(input=secrets.encode())
+			if sign.returncode == 0:
+				# If everything went fine add the new .apk to the list of releases
+				releases.append(displayname)
 				os.remove(apk)
-			if align == 0:
-				# A path with a length of 3 means we have flavour names so we append them
-				apk = re.sub(regex, "", apk)
-				apk = apk.split("/")
-				if len(apk) == 3:
-					apk = name + "-" + apk[0] + ".apk"
-				else:
-					apk = name + ".apk"
-				print("     SIGNING ", end = "", flush = True)
-				print("     SIGNING", file = logfile, flush = True)
-				# Sign the .apk with the provided key
-				sign = subprocess.Popen(["apksigner", "sign", "--ks", signinfo["path"], "--ks-key-alias", alias,"--out", workdir + "/SYNCALL-RELEASES/" + apk, "--in", "aligned.apk"], stdout = logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
-				# Generate the input using the two passwords and feed it to the subprocess
-				secrets = signinfo["password"] + "\n" + signinfo["aliases"][alias]["password"]
-				sign.communicate(input=secrets.encode())
-				if sign.returncode == 0:
-					# If everything went fine add the new .apk to the list of releases
-					releases.append(apk)
-					print("- \033[92mSUCCESSFUL\033[0m")
-				else:
-					print("- \033[91mFAILED\033[0m")
+				print("- \033[92mSUCCESSFUL\033[0m")
 			else:
 				print("- \033[91mFAILED\033[0m")
 		return releases
