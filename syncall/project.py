@@ -46,8 +46,6 @@ class project():
 		return changed
 
 	def build(command, tasks, logfile):
-		# Initialize clean list to store finished .apks
-		releases = []
 		# Check if gradle wrapper exists before falling back to system-wide gradle
 		if not os.path.isfile(command):
 			command = "gradle"
