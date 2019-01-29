@@ -5,13 +5,14 @@ import re
 import subprocess
 
 class project():
-	def sync(name, preserve, logfile):
+	def presentation(name):
 		# Retrieve and show basic information about the project
 		log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
 		lastdate = log.communicate()[0].decode('ascii').strip()
 		print("------------------------------------------")
 		print(name + " - last updated " + lastdate)
-		# If we disable fetching we do not try to pull anything
+
+	def sync(preserve, logfile):
 		# Store the current local diff to restore it later
 		if preserve:
 			diff = subprocess.Popen(["git", "diff"], stdout = subprocess.PIPE).communicate()[0];

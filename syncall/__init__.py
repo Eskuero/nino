@@ -137,10 +137,12 @@ def main():
 				force = cconfig.get("force", False)
 			# Open logfile to store all the output
 			with open("log.txt", "w+") as logfile:
+				# Introduce the project
+				project.presentation(name)
 				# Sync the project
 				changed = False
 				if fetch:
-					changed = project.sync(name, preserve, logfile)
+					changed = project.sync(preserve, logfile)
 				# Only attempt gradle projects with build enabled and are either forced, retrying or have new changes
 				built = False
 				if build and (changed or (rconfig["retry"] and name in rebuild) or force):
