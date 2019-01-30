@@ -23,7 +23,7 @@ class signing():
 					else:
 						print(name + " build is enabled but lacks an assigned keystore and/or key.")
 						sys.exit(1)
-		return keystores
+		return signing.secrets(keystores)
 		
 	def secrets(keystores):
 		# Confirm we got an existant keystore and force

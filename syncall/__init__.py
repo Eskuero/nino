@@ -109,7 +109,6 @@ def main():
 
 	# Update keystores dict twice, first with enabled projects, and then with retrieved secrets
 	keystores = signing.enable(config, projects, keystores, rconfig)
-	keystores = signing.secrets(keystores)
 
 	# Retrieve list of the previously failed to build projects if retrying
 	if rconfig["retry"]:
