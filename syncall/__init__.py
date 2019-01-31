@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import os
 import sys
+import copy
 import platform
-import pickle
+import json
 import toml
 from .project import project
 from .signing import signing
@@ -18,18 +19,13 @@ def main():
 		config = {}
 
 	# We store the running config on a dictionary for ease on accesing the data
-	rconfig = {
-		"fetch": "",
-		"preserve": "",
-		"build": "",
-		"retry": "",
-		"force": ""
-	}
+	rconfig = {}
 	# Initialize running config with falling back values
 	defconfig = config.get("default", {})
 	rconfig["fetch"] = defconfig.get("fetch", True)
 	rconfig["preserve"] = defconfig.get("preserve", False)
 	rconfig["build"] = defconfig.get("build", False)
+	rconfig["tasks"] = defconfig.get("tasks", ["assembleRelease"])
 	rconfig["retry"] = defconfig.get("retry", False)
 	rconfig["keystore"] = defconfig.get("keystore", False)
 	rconfig["keyalias"] = defconfig.get("keyalias", False)
@@ -38,14 +34,11 @@ def main():
 
 	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
 	keystores = config.get("keystores", {})
-
-	# Basic lists of produced outputs, failed projects from current and previous iteration and available folders
-	releases = []
-	failed = []
-	rebuild = []
+	# Store the dictionary so a retry attempt will use the same keystores
+	failed = {"keystores": copy.deepcopy(keystores)}
+	# List of available projects on the current workdir, also saved
 	projects = os.listdir()
 	workdir = os.getcwd()
-
 	# Default to gradle wrapper, then override on project basis if the script is not found
 	command = "./gradlew"
 	# On Windows the gradle script is written in batch so we append proper extension
@@ -107,78 +100,82 @@ def main():
 						print("The argument " + arg[0] + " is expected boolean (y|n). Received: " + value)
 						sys.exit(1)
 
-	# Update keystores dict twice, first with enabled projects, and then with retrieved secrets
-	keystores = signing.enable(config, projects, keystores, rconfig)
-	keystores = signing.secrets(keystores)
-
-	# Retrieve list of the previously failed to build projects if retrying
+	# Import previously failed list of projects if retry is set
 	if rconfig["retry"]:
 		try:
-			with open(".retry-projects", "rb") as file:
-				rebuild = pickle.load(file)
-		# Restart the list if no previous file is found
+			with open(".last-syncall", "r") as file:
+				config = json.load(file)
+				# Overwrite keystores to use with the ones from the previous iteration
+				keystores = config.get("keystores", {})
 		except FileNotFoundError:
 			pass
+
+	# Enable the keystores and keys that will be used
+	keystores = signing.enable(config, projects, keystores, rconfig)
+	# For the enabled projects prompt and store passwords
+	keystores = signing.secrets(keystores)
 
 	# Loop for every folder that is a git repository on invocation dir
 	for name in projects:
 		if os.path.isdir(name) and ".git" in os.listdir(name):
+			# Skip project if retrying but nothing to do
+			if rconfig["retry"] and name not in config:
+				continue
 			os.chdir(name)
 			# Retrieve custom configuration for project
-			cconfig = config.get(name, {})
-			# Overwrite configuration with custom values
-			fetch = cconfig.get("fetch", rconfig["fetch"])
-			preserve = cconfig.get("preserve", rconfig["preserve"])
-			build = cconfig.get("build", rconfig["build"])
-			# In case of forcing we ignore custom config if command line options have been received
-			if name in rconfig["force"]:
-				force = True
-			else:
-				force = cconfig.get("force", False)
+			pconfig = config.get(name, {})
+			# Add missing keys from defconfig if not retrying, where we always disable
+			for entry in rconfig:
+				if rconfig["retry"] and entry not in ["tasks", "keystore", "keyalias", "deploy"]:
+					pconfig[entry] = pconfig.get(entry, False)
+				elif entry == "force":
+					pconfig["force"] = name in rconfig["force"]
+				else:
+					pconfig[entry] = pconfig.get(entry, rconfig[entry])
+			# Empty vessel for the retryable config
+			failed[name] = {}
 			# Open logfile to store all the output
 			with open("log.txt", "w+") as logfile:
 				# Introduce the project
 				project.presentation(name)
 				# Sync the project
 				changed = False
-				if fetch:
-					changed = project.sync(preserve, logfile)
-				# Only attempt gradle projects with build enabled and are either forced, retrying or have new changes
+				if pconfig["fetch"]:
+					pull, changed = project.sync(pconfig["preserve"], logfile)
+					# Remember we need to attempt syncing again
+					if pull == 1:
+						fconfig["fetch"] = (pull == 1)
+				# Only attempt gradle projects with build enabled and are either forced or have new changes
 				built = False
-				if build and (changed or (rconfig["retry"] and name in rebuild) or force):
-					# Get tasks defined on custom config or fallback to basic assembling of a release
-					tasks = cconfig.get("tasks", ["assembleRelease"])
-					built = project.build(command, tasks, logfile)
-					# If some task went wrong we report it
+				if pconfig["build"] and (changed or pconfig["force"]):
+					built, tasks = project.build(command, pconfig["tasks"], logfile)
+					# Remember if we need to attempt some tasks again
 					if not built:
-						failed.append(name)
+						failed[name]["build"] = True
+						failed[name]["force"] = True
+						failed[name]["tasks"] = tasks
 				# We search for apks to sign and merge them to the current list
 				apks = []
-				if built:
-					signinfo = keystores.get(cconfig.get("keystore", rconfig["keystore"]), {})
-					alias = cconfig.get("keyalias", rconfig["keyalias"])
+				if built or pconfig.get("resign", False):
+					signinfo = keystores.get(pconfig["keystore"], {})
+					alias = pconfig["keyalias"]
 					if signinfo["used"] and signinfo["aliases"][alias]["used"]:
-						apks = project.sign(name, workdir, signinfo, alias, logfile)
+						apks, resign = project.sign(name, workdir, signinfo, alias, logfile)
+						if resign:
+							failed[name]["resign"] = True
 				# We deploy if we built something
-				if len(apks) > 0:
-					releases += apks
-					# Retrieve possible targets for deployment
-					targets = cconfig.get("deploy", rconfig["deploy"])
-					# Proceed if we at least have one target
-					if len(targets) > 0:
-						project.deploy(apks, targets, workdir, logfile)
+				deploylist = pconfig.get("deploylist", {})
+				for apk in apks:
+					deploylist[apk] = pconfig["deploy"]
+				if len(deploylist) > 0:
+					faileddeploylist = project.deploy(deploylist, workdir, logfile)
+					if len(faileddeploylist) > 0:
+						failed[name]["deploylist"] = faileddeploylist
+			# If retriable config is empty, drop it
+			if len(failed[name]) < 1:
+				failed.pop(name)
 			# Go back to the invocation directory before moving onto the next project
 			os.chdir(workdir)
-	# Write to the file which projects have build failures
-	with open('.retry-projects', 'wb') as file:
-		pickle.dump(failed, file)
-	# Provide information about the projects that have available updates
-	if len(releases) > 0:
-		print("\nProjects successfully built these files:")
-		for value in releases:
-			print("- " + value)
-	# Provide information about which projects had failures
-	if len(failed) > 0:
-		print("\nProjects failed producing these logs:")
-		for value in failed:
-			print("- " + value + "/log.txt")
+	# Save the report to file
+	with open(".last-syncall", "w") as file:
+		json.dump(failed, file)

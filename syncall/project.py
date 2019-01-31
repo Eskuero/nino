@@ -44,7 +44,7 @@ class project():
 				print("- \033[92mSUCCESSFUL\033[0m")
 			else:
 				print("- \033[91mFAILED\033[0m")
-		return changed
+		return pull, changed
 
 	def build(command, tasks, logfile):
 		# Check if gradle wrapper exists before falling back to system-wide gradle
@@ -58,11 +58,12 @@ class project():
 			# If assembling fails we return to tell main
 			if assemble != 0:
 				print("- \033[91mFAILED\033[0m")
-				return False
+				# Return a list consisting of the failed task and the ones that would have follow
+				return False, [word for word in tasks if tasks.index(word) >= tasks.index(task)]
 			else:
 				print("- \033[92mSUCCESSFUL\033[0m")
 		# Arriving here means no task failed
-		return True
+		return True, []
 
 	def sign(name, workdir, signinfo, alias, logfile):
 		releases = []
@@ -71,6 +72,8 @@ class project():
 		# Filter out those that are not result of the previous build
 		regex = re.compile(".*build/outputs/apk/*")
 		apks = list(filter(regex.match, apks))
+		# To tell main if we need to attempt signing again on retry
+		resign = False
 		# Loop through the remaining apks (there may be different flavours)
 		for apk in apks:
 			displayname = re.sub(regex, "", apk)
@@ -93,13 +96,16 @@ class project():
 				os.remove(apk)
 				print("- \033[92mSUCCESSFUL\033[0m")
 			else:
+				resign = True
 				print("- \033[91mFAILED\033[0m")
-		return releases
+		return releases, resign
 
-	def deploy(apks, targets, workdir, logfile):
-		for apk in apks:
+	def deploy(deploylist, workdir, logfile):
+		faileddeploylist = {}
+		for apk in deploylist:
+			faileddeploylist[apk] = []
 			print("DEPLOYING OUTPUT: " + apk)
-			for target in targets:
+			for target in deploylist[apk]:
 				print("     TO DEVICE: " + target + " ", end = "\r")
 				print("\nDEPLOYING OUTPUT " + apk + " TO DEVICE " + target, file = logfile, flush = True)
 				try:
@@ -108,6 +114,7 @@ class project():
 					subprocess.call(["adb", "-s", target, "wait-for-device"], timeout = 15, stdout = logfile, stderr = subprocess.STDOUT)
 				# If the adb subprocess timed out we skip this device
 				except subprocess.TimeoutExpired:
+					faileddeploylist[apk].append(target)
 					print("     TO DEVICE: " + target + " - \033[91mNOT REACHABLE\033[0m")
 					print("Not reachable", file = logfile, flush = True)
 				else:
@@ -117,4 +124,8 @@ class project():
 					if send == 0:
 						print("     TO DEVICE: " + target + " - \033[92mSUCCESSFUL   \033[0m")
 					else:
+						faileddeploylist[apk].append(target)
 						print("     TO DEVICE: " + target + " - \033[91mFAILED       \033[0m")
+			if len(faileddeploylist[apk]) < 1:
+				faileddeploylist.pop(apk)
+		return faileddeploylist

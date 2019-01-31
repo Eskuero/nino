@@ -8,8 +8,8 @@ class signing():
 		# Enable custom keystores defined for each project
 		for name in config:
 			if not name == "keystores" and (name in projects or (name == "default" and "overridestore" not in keystores and rconfig["build"])):
-				# Retrieve the path only if building, either from default or custom
-				if config[name].get("build", rconfig["build"]):
+				# Retrieve the path only if building, either from default or custom. When retrying we always fallback to no
+				if config[name].get("build", rconfig["build"] and not rconfig["retry"]):
 					store = config[name].get("keystore", rconfig["keystore"])
 					alias = config[name].get("keyalias", rconfig["keyalias"])
 					# Only if path is defined and in use
