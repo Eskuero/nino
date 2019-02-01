@@ -20,20 +20,23 @@ def main():
 		config = {}
 
 	# We store the running config on a dictionary for ease on accesing the data
-	rconfig = {}
-	# Initialize running config with falling back values
+	rconfig = {
+		"fetch": True,
+		"preserve": True,
+		"build": True,
+		"force": [],
+		"tasks": ["assembleRelease"],
+		"retry": False,
+		"resign": False,
+		"keystore": False,
+		"keyalias": False,
+		"deploy": [],
+		"deploylist": {}
+	}
+	# Update running config with avalaible values from valid definitions on config file
 	defconfig = config.get("default", {})
-	rconfig["fetch"] = defconfig.get("fetch", True)
-	rconfig["preserve"] = defconfig.get("preserve", False)
-	rconfig["build"] = defconfig.get("build", False)
-	rconfig["tasks"] = defconfig.get("tasks", ["assembleRelease"])
-	rconfig["retry"] = defconfig.get("retry", False)
-	rconfig["keystore"] = defconfig.get("keystore", False)
-	rconfig["keyalias"] = defconfig.get("keyalias", False)
-	rconfig["deploy"] = defconfig.get("deploy", [])
-	rconfig["force"] = []
-	rconfig["resign"] = False
-	rconfig["deploylist"] = {}
+	for option in [option for option in defconfig if option in rconfig]:
+		rconfig[option] = defconfig[option]
 
 	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
 	keystores = config.get("keystores", {})
@@ -50,7 +53,7 @@ def main():
 		os.mkdir("SYNCALL-RELEASES")
 
 	# Parse command line arguments and modify running config accordingly
-	rconfig, keytores = utils.cmdargs(sys.argv, rconfig, keystores)
+	rconfig, keystores = utils.cmdargs(sys.argv, rconfig, keystores)
 
 	# Import previously failed list of projects if retry is set
 	if rconfig["retry"]:
