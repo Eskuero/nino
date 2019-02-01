@@ -31,11 +31,11 @@ def main():
 	rconfig["keyalias"] = defconfig.get("keyalias", False)
 	rconfig["deploy"] = defconfig.get("deploy", [])
 	rconfig["force"] = []
+	rconfig["resign"] = False
+	rconfig["deploylist"] = {}
 
 	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
 	keystores = config.get("keystores", {})
-	# Store the dictionary so a retry attempt will use the same keystores
-	failed = {"keystores": copy.deepcopy(keystores)}
 	# List of available projects on the current workdir, also saved
 	projects = os.listdir()
 	workdir = os.getcwd()
@@ -83,11 +83,8 @@ def main():
 							keystores["overridestore"] = {
 								"path": value[0],
 								"aliases": {
-									value[1]: {
-										"used": True
-									}
+									value[1]: {}
 								},
-								"used": True
 							}
 							rconfig["keystore"] = "overridestore"
 							rconfig["keyalias"] = value[1]
@@ -110,6 +107,8 @@ def main():
 		except FileNotFoundError:
 			pass
 
+	# Store the dictionary so a retry attempt will use the same keystores
+	failed = {"keystores": copy.deepcopy(keystores)}
 	# Enable the keystores and keys that will be used
 	keystores = signing.enable(config, projects, keystores, rconfig)
 	# For the enabled projects prompt and store passwords
@@ -126,14 +125,18 @@ def main():
 			pconfig = config.get(name, {})
 			# Add missing keys from defconfig if not retrying, where we always disable
 			for entry in rconfig:
-				if rconfig["retry"] and entry not in ["tasks", "keystore", "keyalias", "deploy"]:
+				# defconfig force is a list we must check and comvert to boolean
+				if entry == "force":
+					pconfig["force"] = pconfig.get("force", name in rconfig["force"])
+				# For retrying we always default to false as long as the option is boolean
+				elif rconfig["retry"] and entry not in ["tasks", "keystore", "keyalias", "deploylist", "deploy"]:
 					pconfig[entry] = pconfig.get(entry, False)
-				elif entry == "force":
-					pconfig["force"] = name in rconfig["force"]
 				else:
-					pconfig[entry] = pconfig.get(entry, rconfig[entry])
-			# Empty vessel for the retryable config
+					pconfig[entry] = copy.deepcopy(pconfig.get(entry, rconfig[entry]))
+			# Vessel for the retryable config, must always retain some configuration
 			failed[name] = {}
+			# If some steps fail even if the following run fine those previous may provide more work in a retry, so we register them again to check
+			pending = []
 			# Open logfile to store all the output
 			with open("log.txt", "w+") as logfile:
 				# Introduce the project
@@ -144,33 +147,37 @@ def main():
 					pull, changed = project.sync(pconfig["preserve"], logfile)
 					# Remember we need to attempt syncing again
 					if pull == 1:
-						fconfig["fetch"] = (pull == 1)
+						pending = set(pending).union(set(["fetch", "preserve", "build", "force", "tasks", "keystore", "keyalias", "resign", "deploylist", "deploy"]))
 				# Only attempt gradle projects with build enabled and are either forced or have new changes
 				built = False
 				if pconfig["build"] and (changed or pconfig["force"]):
 					built, tasks = project.build(command, pconfig["tasks"], logfile)
 					# Remember if we need to attempt some tasks again
 					if not built:
-						failed[name]["build"] = True
-						failed[name]["force"] = True
-						failed[name]["tasks"] = tasks
+						# Update tasks to only retry remaining, ensure we force rebuild
+						pconfig["force"] = True
+						pconfig["tasks"] = tasks
+						pending = set(pending).union(set(["build", "force", "tasks", "keystore", "keyalias", "resign", "deploylist", "deploy"]))
 				# We search for apks to sign and merge them to the current list
 				apks = []
-				if built or pconfig.get("resign", False):
+				if built or pconfig["resign"]:
 					signinfo = keystores.get(pconfig["keystore"], {})
 					alias = pconfig["keyalias"]
 					if signinfo["used"] and signinfo["aliases"][alias]["used"]:
 						apks, resign = project.sign(name, workdir, signinfo, alias, logfile)
 						if resign:
-							failed[name]["resign"] = True
+							pconfig["resign"] = True
+							pending = set(pending).union(set(["keystore", "keyalias", "resign", "deploylist", "deploy"]))
 				# We deploy if we built something
-				deploylist = pconfig.get("deploylist", {})
 				for apk in apks:
-					deploylist[apk] = pconfig["deploy"]
-				if len(deploylist) > 0:
-					faileddeploylist = project.deploy(deploylist, workdir, logfile)
-					if len(faileddeploylist) > 0:
-						failed[name]["deploylist"] = faileddeploylist
+					pconfig["deploylist"][apk] = pconfig["deploy"]
+				if len(pconfig["deploylist"]) > 0:
+					pconfig["deploylist"] = project.deploy(pconfig["deploylist"], workdir, logfile)
+					if len(pconfig["deploylist"]) > 0:
+						pending = set(pending).union(set(["deploylist", "deploy"]))
+			# Append pending tasks
+			for entry in pending:
+				failed[name][entry] = pconfig[entry]
 			# If retriable config is empty, drop it
 			if len(failed[name]) < 1:
 				failed.pop(name)
