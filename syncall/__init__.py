@@ -52,8 +52,12 @@ def main():
 	if not os.path.isdir("SYNCALL-RELEASES"):
 		os.mkdir("SYNCALL-RELEASES")
 
-	# Parse command line arguments and modify running config accordingly
-	rconfig, keystores = utils.cmdargs(sys.argv, rconfig, keystores)
+	# If we are retrying cmd arguments won't be used so avoid doing useless function calls
+	if "--retry=y" in sys.argv:
+		rconfig["retry"] = True
+	else:
+		# Parse command line arguments and modify running config accordingly
+		rconfig, keystores = utils.cmdargs(sys.argv, rconfig, keystores)
 
 	# Import previously failed list of projects if retry is set
 	if rconfig["retry"]:
