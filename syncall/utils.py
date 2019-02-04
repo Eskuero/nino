@@ -16,7 +16,7 @@ class utils():
 		defconfig = config.get("default", {})
 		for option in [option for option in defconfig if option in rconfig]:
 			rconfig[option] = defconfig[option]
-		return config, rconfig
+		return config
 
 	def cmdargs(args, rconfig, keystores):
 		# Check every argument and store arguments
@@ -65,4 +65,3 @@ class utils():
 					else:
 						print("The argument " + arg[0] + " is expected boolean (y|n). Received: " + value)
 						sys.exit(1)
-		return rconfig, keystores

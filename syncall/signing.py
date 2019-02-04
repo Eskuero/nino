@@ -23,8 +23,7 @@ class signing():
 					else:
 						print(name + " build is enabled but lacks an assigned keystore and/or key.")
 						sys.exit(1)
-		return keystores
-		
+
 	def secrets(keystores):
 		# Confirm we got an existant keystore and force
 		for store in keystores:
@@ -68,4 +67,3 @@ class signing():
 							else:
 								print("Provided password for key '" + alias + "' of keystore '" + keystores[store]["path"] +"' is incorrect")
 								sys.exit(1)
-		return keystores						

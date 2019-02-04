@@ -24,6 +24,8 @@ def main():
 		"deploylist": {}
 	}
 
+	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
+	keystores = {}
 	# List of available projects on the current workdir, also saved
 	projects = os.listdir()
 	workdir = os.getcwd()
@@ -45,21 +47,20 @@ def main():
 		except FileNotFoundError:
 			pass
 		rconfig["retry"] = True
+		keystores = config.get("keystores", {})
 	else:
 		# Retrieve configuration file and load options
-		config, rconfig = utils.cfgfile(rconfig)
+		config = utils.cfgfile(rconfig)
+		keystores = config.get("keystores", {})
 		# Parse command line arguments and modify running config accordingly
-		rconfig, keystores = utils.cmdargs(sys.argv, rconfig, config.get("keystores", {}))
-
-	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
-	keystores = config.get("keystores", {})
+		utils.cmdargs(sys.argv, rconfig, keystores)
 
 	# Store the dictionary so a retry attempt will use the same keystores
 	failed = {"keystores": copy.deepcopy(keystores)}
 	# Enable the keystores and keys that will be used
-	keystores = signing.enable(config, projects, keystores, rconfig)
+	signing.enable(config, projects, keystores, rconfig)
 	# For the enabled projects prompt and store passwords
-	keystores = signing.secrets(keystores)
+	signing.secrets(keystores)
 
 	# Loop for every folder that is a git repository on invocation dir
 	for name in projects:
