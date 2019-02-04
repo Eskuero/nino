@@ -11,9 +11,9 @@ from .utils import utils
 def main():
 	# We store the running config on a dictionary for ease on accesing the data
 	rconfig = {
-		"fetch": True,
-		"preserve": True,
-		"build": True,
+		"fetch": False,
+		"preserve": False,
+		"build": False,
 		"force": [],
 		"tasks": ["assembleRelease"],
 		"retry": False,
@@ -73,12 +73,9 @@ def main():
 			pconfig = config.get(name, {})
 			# Add missing keys from defconfig if not retrying, where we always disable
 			for entry in rconfig:
-				# defconfig force is a list we must check and comvert to boolean
+				# defconfig force is a list we must check and convert to boolean
 				if entry == "force":
 					pconfig["force"] = pconfig.get("force", name in rconfig["force"])
-				# For retrying we always default to false as long as the option is boolean
-				elif rconfig["retry"] and entry not in ["tasks", "keystore", "keyalias", "deploylist", "deploy"]:
-					pconfig[entry] = pconfig.get(entry, False)
 				else:
 					pconfig[entry] = copy.deepcopy(pconfig.get(entry, rconfig[entry]))
 			# Vessel for the retryable config, must always retain some configuration
