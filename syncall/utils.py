@@ -1,6 +1,23 @@
 import sys
+import toml
 
 class utils():
+	def cfgfile(rconfig):
+		config = {}
+		# Retrieve entire configuration from local configuration file
+		try:
+			with open("syncall.toml", "r") as file:
+				content = file.read()
+				config = toml.loads(content)
+		# No config file is fine
+		except FileNotFoundError:
+			pass
+		# Update running config with avalaible values from valid definitions on config file
+		defconfig = config.get("default", {})
+		for option in [option for option in defconfig if option in rconfig]:
+			rconfig[option] = defconfig[option]
+		return config, rconfig
+
 	def cmdargs(args, rconfig, keystores):
 		# Check every argument and store arguments
 		for i, arg in enumerate(args):

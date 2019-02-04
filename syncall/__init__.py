@@ -4,21 +4,11 @@ import sys
 import copy
 import platform
 import json
-import toml
 from .project import project
 from .signing import signing
 from .utils import utils
 
 def main():
-	# Retrieve entire configuration from local configuration file
-	try:
-		with open("syncall.toml", "r") as file:
-			content = file.read()
-			config = toml.loads(content)
-	# With no config file we gracefully start a blank config
-	except FileNotFoundError:
-		config = {}
-
 	# We store the running config on a dictionary for ease on accesing the data
 	rconfig = {
 		"fetch": True,
@@ -33,13 +23,7 @@ def main():
 		"deploy": [],
 		"deploylist": {}
 	}
-	# Update running config with avalaible values from valid definitions on config file
-	defconfig = config.get("default", {})
-	for option in [option for option in defconfig if option in rconfig]:
-		rconfig[option] = defconfig[option]
 
-	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
-	keystores = config.get("keystores", {})
 	# List of available projects on the current workdir, also saved
 	projects = os.listdir()
 	workdir = os.getcwd()
@@ -52,22 +36,23 @@ def main():
 	if not os.path.isdir("SYNCALL-RELEASES"):
 		os.mkdir("SYNCALL-RELEASES")
 
-	# If we are retrying cmd arguments won't be used so avoid doing useless function calls
+	# When retrying we completely ignore configurations from file and cmdargs
 	if "--retry=y" in sys.argv:
-		rconfig["retry"] = True
-	else:
-		# Parse command line arguments and modify running config accordingly
-		rconfig, keystores = utils.cmdargs(sys.argv, rconfig, keystores)
-
-	# Import previously failed list of projects if retry is set
-	if rconfig["retry"]:
+		config = {}
 		try:
 			with open(".last-syncall", "r") as file:
 				config = json.load(file)
-				# Overwrite keystores to use with the ones from the previous iteration
-				keystores = config.get("keystores", {})
 		except FileNotFoundError:
 			pass
+		rconfig["retry"] = True
+	else:
+		# Retrieve configuration file and load options
+		config, rconfig = utils.cfgfile(rconfig)
+		# Parse command line arguments and modify running config accordingly
+		rconfig, keystores = utils.cmdargs(sys.argv, rconfig, config.get("keystores", {}))
+
+	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
+	keystores = config.get("keystores", {})
 
 	# Store the dictionary so a retry attempt will use the same keystores
 	failed = {"keystores": copy.deepcopy(keystores)}
