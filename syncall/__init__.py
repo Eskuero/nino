@@ -15,6 +15,7 @@ def main():
 		"preserve": False,
 		"build": False,
 		"force": [],
+		"entrypoint": False,
 		"tasks": ["assembleRelease"],
 		"retry": False,
 		"resign": False,
@@ -92,17 +93,17 @@ def main():
 					pull, changed = project.sync(pconfig["preserve"], logfile)
 					# Remember we need to attempt syncing again
 					if pull == 1:
-						pending = set(pending).union(set(["fetch", "preserve", "build", "force", "tasks", "keystore", "keyalias", "resign", "deploylist", "deploy"]))
+						pending = set(pending).union(set(["fetch", "preserve", "build", "force", "entrypoint", "tasks", "keystore", "keyalias", "resign", "deploylist", "deploy"]))
 				# Only attempt gradle projects with build enabled and are either forced or have new changes
 				built = False
 				if pconfig["build"] and (changed or pconfig["force"]):
-					built, tasks = project.build(command, pconfig["tasks"], logfile)
+					built, tasks = project.build(command, pconfig["entrypoint"], pconfig["tasks"], logfile)
 					# Remember if we need to attempt some tasks again
 					if not built:
 						# Update tasks to only retry remaining, ensure we force rebuild
 						pconfig["force"] = True
 						pconfig["tasks"] = tasks
-						pending = set(pending).union(set(["build", "force", "tasks", "keystore", "keyalias", "resign", "deploylist", "deploy"]))
+						pending = set(pending).union(set(["build", "force", "entrypoint", "tasks", "keystore", "keyalias", "resign", "deploylist", "deploy"]))
 				# We search for apks to sign and merge them to the current list
 				apks = []
 				if built or pconfig["resign"]:
