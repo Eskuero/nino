@@ -1,3 +1,4 @@
+
 # Syncall: Keep your Android apps updated
 Do you like to get the latest features of the apps first than anyone?
 Do you want to manually build everything to confirm the source code matches the binaries distributed by the developer?
@@ -22,37 +23,39 @@ syncall.py
 ```
 
 ### Configuration file
-All the command line arguments specified below can be defined as defaults on a toml configuration file on the working directory named as syncall.toml.
-This requires the installation of the toml parser:
-```
-pip install toml
-```
-Per example the following content would disable retrying by default while enabling building for all the projects, using the key "mykey" inside keystore "default" (clave.jks) and trying to keep local changes. All the built output files will be deployed to the list of devices with the given ID, may it be an IP addresss/port combination or a serial number.
-It defines two keystores, one named "default" that contains "mykey" and "myke2" keys, and another named "otherkey" that only contains the "another" alias, but provides both passwords without prompting the user.
-For the Signal-Android project it would always force building of the app using the assemblePlayRelease and assembleWebsiteRelease tasks, in that order.
-It will also build the Conversations project with the assembleConversationsFreeSystemRelease task and sign it with the key "another" inside the store "otherkey" (keystore.jks)
+The recommended configuration format is to use a syncall.toml file in the working directory, as it allows granularity with per-project settings.
+
+- In the following example we enable **fetching remote** and **preserving local** changes.
+- We also enable **building for all the projects** and signing them using the **key "mykey"** from the **keystore "default"** (clave.jks).
+- All the **output files will be deployed** to the **list of devices with the given ID**, may it be an IP addresss/port combination or a serial number.
+- It defines **two keystores**, one named **"default"** that contains "mykey" and "myke2" keys, and another named **"otherkey"** that only contains the "another" alias, but provides both **passwords without prompting** the user.
+
+Per project specific we have the following settings:
+- **Signal-Android** project it would always force building of the app using the assemblePlayRelease and assembleWebsiteRelease tasks, in that order.
+- **Conversations** project it would attempt the assembleConversationsFreeSystemRelease task and sign it with the key "another" inside the store "otherkey" (keystore.jks)
+- **vlc-android** project it would use all the default values except that it will run "setup.sh" script as entrypoint before executing any gradle task.
+- **ghost-project** project will never build
 ```
 [default]
 fetch = true
 preserve = true
 build = true
-retry = false
 keystore = "default"
 keyalias = "mykey"
 deploy = ["DT456VP6T7", "192.168.10.40:5555"]
 
 [keystores]
-	[keystores.default]
-		path = "clave.jks"
-		[keystores.default.aliases]
-			[keystores.default.aliases.mykey]
-			[keystores.default.aliases.myke2]
-	[keystores.otherkey]
-		path = "keystore.jks"
-		password = "password"
-		[keystores.someother.aliases]
-			[keystores.someother.aliases.another]
-				password = "123456"
+        [keystores.default]
+                path = "clave.jks"
+                [keystores.default.aliases]
+                        [keystores.default.aliases.mykey]
+                        [keystores.default.aliases.myke2]
+        [keystores.otherkey]
+                path = "keystore.jks"
+                password = "password"
+                [keystores.someother.aliases]
+                        [keystores.someother.aliases.another]
+                                password = "123456"
 
 [Signal-Android]
 force = true
@@ -62,12 +65,18 @@ tasks = ["assemblePlayRelease", "assembleWebsiteRelease"]
 keystore = "otherkey"
 keyalias = "another"
 tasks = ["assembleConversationsFreeSystemRelease"]
+
+[vlc-android]
+entrypoint = "./setup.sh"
+
+[ghost-project]
+build = false
 ```
 
 ### Fetching
-By default the script will try to fetch changes for all projects, however you can skip that passing --fetch. This is very useful for situations where you just want to rebuild local changes without wanting to go through all the projects, per example:
+If enabled by default the script will try to fetch changes, however you can skip that passing --fetch. This is very useful for situations where you just want to rebuild local changes for a certain application without wanting to go through all the projects. Per example:
 ```
-syncall --fetch=n --build=/path/to/key.jks --force=Shelter
+syncall --fetch=n --force=Shelter
 ```
 Would force building of the Shelter project without fetching changes on any project.
 
@@ -77,7 +86,7 @@ If you want to not only the sync the source code but also to compile the app whe
 syncall.py --build=/path/to/key.jks,keyalias
 ```
 The --build argument expects to be passed alongside the absolute or relative path to a Java key store containing the key named as keyalias. You will be prompted to enter both passwords. It also accepts a value of n to disable building.
-All the output files will be automatically aligned and signed with the provided key, and then placed a SYNCALL-RELEASES folder on the working dir.
+All the output files will be automatically signed with the provided key, and then placed a SYNCALL-RELEASES folder on the working dir.
 
 ### Deploying
 The script can make use of adb to automatically deploy the built and signed apk on your devices. Each installation will timeout at 15 seconds if the specified device ID is not attached. You can override the configuration file defaults by providing a comma separated list of devices using the following command line argument:
@@ -89,24 +98,21 @@ For more information regarding adb usage and connection see the official documen
 <https://developer.android.com/studio/command-line/adb>
 
 ### Retrying
-The script will save a list of the failed projects in the previous interation in the .retry-projects of the working folder. It also will report to you a list of which specific task failed at the end of the run. This is so you can retry building after maybe figuring out any issues.
-To do so:
+The script will save a list of what failed for each project of the previous interation in a .last-syncall file at the working folder. This is so you can retry building after figuring what caused the issues.
 ```
-syncall.py --build=/path/to/key.jks --retry=y
+syncall.py --retry=y
 ```
-The --retry command does not need any value, but requires the keystore to be set with the --build command because otherwise the .apk would not be signed.
+Retrying is more of a mode rather than an option, any other command line arguments passed alongside will be ignored and the configuration file won't be parsed.
 
 ### Forcing
 Sometimes you may want to rebuild certain apps even if no upstream changes are received (offline project, no internet connection, just testing local changes...). You can do so by passing a list of comma joined project names (their folder name) alongside the --force argument:
 ```
-syncall.py --build=/path/to/key.jks --force=Signal-Android,Tusky,SomeOtherProject
+syncall.py --build=/path/to/key.jks,keyalias --force=Signal-Android,Tusky,SomeOtherProject
 ```
-Requires the keystore to be set with the --build command because otherwise the .apk would not be signed.
 
 ### Preserving local changes
-If you wish to preserve local changes tracked but not staged for commit you can use the --preserve flag, that commands the script to generate a diff of the current changes and to attempt on restoring it later. This is very useful to hold onto minor changes like gradle version bumps to fix compilation issues without having to reapply them on every update.
-Per example:
+If you wish to preserve local changes tracked but not staged for commit you can use the --preserve flag, that commands the script to generate a diff of the current changes and to attempt on restoring it later. This is very useful to hold onto minor customizations you may want to apply to the app:
 ```
-syncall --build=/path/to/key.jks --preserve=y
+syncall --build=/path/to/key.jks,keyalias --preserve=y
 ```
 Would attempt to build all projects with changes preserving local changes made to them
