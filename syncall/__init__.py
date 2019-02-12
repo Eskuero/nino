@@ -9,6 +9,9 @@ from .signing import signing
 from .utils import utils
 
 def main():
+	# Check everything is in place before even starting to retrieve information
+	utils.dpnds()
+
 	# We store the running config on a dictionary for ease on accesing the data
 	rconfig = {
 		"fetch": False,
