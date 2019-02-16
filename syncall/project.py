@@ -66,7 +66,7 @@ class project():
 			print("RUNNING GRADLE TASK: " + task + " ", end = "", flush = True)
 			print("\nRUNNING GRADLE TASK: " + task, file = logfile, flush = True)
 			# Attempt the task, we also redirect stderr to stdout to effectively merge them.
-			assemble = subprocess.call([command, task], stdout = logfile, stderr = subprocess.STDOUT)
+			assemble = subprocess.call([command, "--no-daemon", task], stdout = logfile, stderr = subprocess.STDOUT)
 			# If assembling fails we return to tell main
 			if assemble != 0:
 				print("- \033[91mFAILED\033[0m")
