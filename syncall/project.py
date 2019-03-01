@@ -17,7 +17,7 @@ class project():
 		if preserve:
 			diff = subprocess.Popen(["git", "diff"], stdout = subprocess.PIPE).communicate()[0];
 		# Always clean local changes beforehand
-		subprocess.Popen(["git", "checkout", "."])
+		subprocess.call(["git", "checkout", "."], stdout = logfile, stderr = subprocess.STDOUT)
 		# Pull changes and save output and return code of the command for checks
 		print("SYNCING SOURCE CODE ", end = "", flush = True)
 		print("SYNCING SOURCE CODE", file = logfile, flush = True)
