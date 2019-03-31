@@ -12,22 +12,57 @@ class project():
 		print("------------------------------------------")
 		print(name + " - last updated " + lastdate)
 
+	fetchmethods = {
+		".git": {
+			"diff": ["git", "diff"],
+			"clean": ["git", "checkout", "."],
+			"pull": ["git", "pull"],
+			"update": "",
+			"nonews": "Already up",
+			"apply": ["git", "apply"]
+		},
+		".hg": {
+			"diff": ["hg", "diff"],
+			"clean": ["hg", "revert", "--all"],
+			"pull": ["hg", "pull"],
+			"update": ["hg", "update"],
+			"nonews": "no changes found",
+			"apply": ["hg", "import", "--no-commit", "-"]
+		}
+	}
+	def getfetchmethod():
+		localdir = os.listdir()
+		# Check every predefined method to see what's usable
+		for method in project.fetchmethods:
+			if method in localdir:
+				return project.fetchmethods[method]
+		# Returning after the loop ended means no method is feasible
+		return 1
+
 	def sync(preserve, logfile):
-		# Store the current local diff to restore it later
-		if preserve:
-			diff = subprocess.Popen(["git", "diff"], stdout = subprocess.PIPE).communicate()[0];
-		# Always clean local changes beforehand
-		subprocess.call(["git", "checkout", "."], stdout = logfile, stderr = subprocess.STDOUT)
-		# Pull changes and save output and return code of the command for checks
 		print("SYNCING SOURCE CODE ", end = "", flush = True)
 		print("SYNCING SOURCE CODE", file = logfile, flush = True)
-		pull = subprocess.call(["git", "pull"], stdout = logfile, stderr = subprocess.STDOUT)
+		program = project.getfetchmethod()
+		# If no program is usable, report and return
+		if program == 1:
+			print("- \033[93mFETCH METHOD NOT FOUND\033[0m")
+			return 1, False
+		# Store the current local diff to restore it later
+		if preserve:
+			diff = subprocess.Popen(program["diff"], stdout = subprocess.PIPE).communicate()[0];
+		# Always clean local changes beforehand
+		subprocess.call(program["clean"], stdout = logfile, stderr = subprocess.STDOUT)
+		# Get changes and save output/return code of the command for checks
+		pull = subprocess.call(program["pull"], stdout = logfile, stderr = subprocess.STDOUT)
+		# Certain VCS (like mercurial) split syncing into pulling and updating so if a command is specified we need to execute it
+		if program["update"]:
+			pull = subprocess.call(program["update"], stdout = logfile, stderr = subprocess.STDOUT)
 		# We need to pull back to the start of the file to be able to read anything
 		logfile.seek(0)
 		# If something changed flag it for later checks
 		changed = False
 		if pull == 0:
-			if "Already up" not in logfile.read():
+			if program["nonews"] not in logfile.read():
 				print("- \033[92mUPDATED\033[0m")
 				changed = True
 			else:
@@ -38,7 +73,7 @@ class project():
 		if preserve and diff.decode() != "":
 			print("     PRESERVING LOCAL CHANGES ", end = "", flush = True)
 			print("\nPRESERVING LOCAL CHANGES\n" + diff.decode(), file = logfile, flush = True)
-			apply = subprocess.Popen(["git", "apply"], stdout = logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE)
+			apply = subprocess.Popen(program["apply"], stdout = logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE)
 			apply.communicate(input=diff)
 			if apply.returncode == 0:
 				print("- \033[92mSUCCESSFUL\033[0m")

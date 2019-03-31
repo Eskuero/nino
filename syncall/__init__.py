@@ -66,9 +66,9 @@ def main():
 	# For the enabled projects prompt and store passwords
 	signing.secrets(keystores)
 
-	# Loop for every folder that is a git repository on invocation dir
+	# Loop for every folder on invocation dir
 	for name in projects:
-		if os.path.isdir(name) and ".git" in os.listdir(name):
+		if os.path.isdir(name):
 			# Skip project if retrying but nothing to do
 			if rconfig["retry"] and name not in config:
 				continue
