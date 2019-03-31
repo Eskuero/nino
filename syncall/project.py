@@ -3,6 +3,7 @@ import os
 import glob
 import re
 import subprocess
+from .statics import statics
 
 class project():
 	def presentation(program, name):
@@ -15,32 +16,12 @@ class project():
 		print("------------------------------------------")
 		print(name + " - last updated " + lastdate)
 
-	fetchmethods = {
-		".git": {
-			"lastdate": ["git", "log", "-n", "1", "--format=%cr"],
-			"diff": ["git", "diff"],
-			"clean": ["git", "checkout", "."],
-			"pull": ["git", "pull"],
-			"update": "",
-			"nonews": "Already up",
-			"apply": ["git", "apply"]
-		},
-		".hg": {
-			"lastdate": ["hg", "log", "-l", "1", "-T", "{date|age}"],
-			"diff": ["hg", "diff"],
-			"clean": ["hg", "revert", "--all"],
-			"pull": ["hg", "pull"],
-			"update": ["hg", "update"],
-			"nonews": "no changes found",
-			"apply": ["hg", "import", "--no-commit", "-"]
-		}
-	}
 	def getfetchmethod():
 		localdir = os.listdir()
 		# Check every predefined method to see what's usable
-		for method in project.fetchmethods:
+		for method in statics.fetchmethods:
 			if method in localdir:
-				return project.fetchmethods[method]
+				return statics.fetchmethods[method]
 		# Returning after the loop ended means no method is feasible
 		return 1
 

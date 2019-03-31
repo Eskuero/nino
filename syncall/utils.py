@@ -1,22 +1,15 @@
 import sys
 import shutil
 import toml
+from .statics import statics
 
 class utils():
 	def dpnds():
-		dependencies = {
-			"keytool": "https://java.com/en/download/manual.jsp",
-			"git": "https://git-scm.com/book/en/v2/Getting-Started-Installing-Git",
-			"gradle": "https://gradle.org/install/",
-			"zipalign": "https://developer.android.com/studio/#downloads (build-tools)",
-			"apksigner": "https://developer.android.com/studio/#downloads (build-tools)",
-			"adb": "https://developer.android.com/studio/#downloads (platform-tools)"
-		}
 		ready = True
-		for dep in dependencies:
+		for dep in statics.dependencies:
 			if not shutil.which(dep):
 				ready = False
-				print("The required dependency '" + dep + "' is not in your PATH. Please refer to " + dependencies[dep])
+				print("The required dependency '" + dep + "' is not in your PATH. Please refer to " + statics.dependencies[dep])
 		if not ready:
 			sys.exit(1)
 
