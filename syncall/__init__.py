@@ -88,12 +88,14 @@ def main():
 			pending = []
 			# Open logfile to store all the output
 			with open("log.txt", "w+") as logfile:
+				# Retrieve fetch method
+				fetcher = project.getfetchmethod()
 				# Introduce the project
-				project.presentation(name)
+				project.presentation(fetcher, name)
 				# Sync the project
 				changed = False
 				if pconfig["fetch"]:
-					pull, changed = project.sync(pconfig["preserve"], logfile)
+					pull, changed = project.sync(fetcher, pconfig["preserve"], logfile)
 					# Remember we need to attempt syncing again
 					if pull == 1:
 						pending = set(pending).union(set(["fetch", "preserve", "build", "force", "entrypoint", "tasks", "keystore", "keyalias", "resign", "deploylist", "deploy"]))

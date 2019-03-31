@@ -5,15 +5,19 @@ import re
 import subprocess
 
 class project():
-	def presentation(name):
+	def presentation(program, name):
 		# Retrieve and show basic information about the project
-		log = subprocess.Popen(["git", "log", "-n", "1", "--format=%cr"], stdout = subprocess.PIPE)
-		lastdate = log.communicate()[0].decode('ascii').strip()
+		if program == 1:
+			lastdate = "age unknown"
+		else:
+			log = subprocess.Popen(program["lastdate"], stdout = subprocess.PIPE)
+			lastdate = log.communicate()[0].decode('ascii').strip()
 		print("------------------------------------------")
 		print(name + " - last updated " + lastdate)
 
 	fetchmethods = {
 		".git": {
+			"lastdate": ["git", "log", "-n", "1", "--format=%cr"],
 			"diff": ["git", "diff"],
 			"clean": ["git", "checkout", "."],
 			"pull": ["git", "pull"],
@@ -22,6 +26,7 @@ class project():
 			"apply": ["git", "apply"]
 		},
 		".hg": {
+			"lastdate": ["hg", "log", "-l", "1", "-T", "{date|age}"],
 			"diff": ["hg", "diff"],
 			"clean": ["hg", "revert", "--all"],
 			"pull": ["hg", "pull"],
@@ -39,10 +44,9 @@ class project():
 		# Returning after the loop ended means no method is feasible
 		return 1
 
-	def sync(preserve, logfile):
+	def sync(program, preserve, logfile):
 		print("SYNCING SOURCE CODE ", end = "", flush = True)
 		print("SYNCING SOURCE CODE", file = logfile, flush = True)
-		program = project.getfetchmethod()
 		# If no program is usable, report and return
 		if program == 1:
 			print("- \033[93mFETCH METHOD NOT FOUND\033[0m")
