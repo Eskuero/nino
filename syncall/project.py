@@ -117,19 +117,26 @@ class project():
 				displayname = name + "-" + displayname[0] + ".apk"
 			else:
 				displayname = name + ".apk"
-			# Sign the .apk with the provided key
-			sign = subprocess.Popen(["apksigner", "sign", "--ks", signinfo["path"], "--ks-key-alias", alias,"--out", workdir + "/SYNCALL-RELEASES/" + displayname, "--in", apk], stdout = logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
-			# Generate the input using the two passwords and feed it to the subprocess
-			secrets = signinfo["password"] + "\n" + signinfo["aliases"][alias]["password"]
-			sign.communicate(input=secrets.encode())
-			if sign.returncode == 0:
-				# If everything went fine add the new .apk to the list of releases
-				releases.append(displayname)
-				os.remove(apk)
-				print("- \033[92mSUCCESSFUL\033[0m")
-			else:
-				resign = True
-				print("- \033[91mFAILED\033[0m")
+				# Verify whether is needed or not to sign, as some outputs may come out of building process already signed
+				sign = subprocess.call(["apksigner", "verify", apk], stdout = logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+				if sign == 1:
+					# Sign the .apk with the provided key
+					sign = subprocess.Popen(["apksigner", "sign", "--ks", signinfo["path"], "--ks-key-alias", alias,"--out", workdir + "/SYNCALL-RELEASES/" + displayname, "--in", apk], stdout = logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+					# Generate the input using the two passwords and feed it to the subprocess
+					secrets = signinfo["password"] + "\n" + signinfo["aliases"][alias]["password"]
+					sign.communicate(input=secrets.encode())
+					if sign.returncode == 0:
+						# If everything went fine add the new .apk to the list of releases
+						releases.append(displayname)
+						os.remove(apk)
+						print("- \033[92mSUCCESSFUL\033[0m")
+					else:
+						resign = True
+						print("- \033[91mFAILED\033[0m")
+				else:
+					releases.append(displayname)
+					os.rename(apk, workdir + "/SYNCALL-RELEASES/" + displayname)
+					print("- \033[93mUNNEEDED\033[0m")
 		return releases, resign
 
 	def deploy(deploylist, workdir, logfile):
