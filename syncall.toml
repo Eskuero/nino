@@ -50,8 +50,8 @@ keyalias = "another"
 tasks = ["assembleConversationsFreeSystemRelease"]
 
 [vlc-android]
-# Use a sh script as entrypoint for the build before attempting any gradle task
-entrypoint = "./setup.sh"
+# Use a script as entrypoint for the build before attempting any gradle task
+entrypoint = true
 
 [ghost-project]
 # Never build this projects even when new changes or forcing is detected

@@ -33,7 +33,7 @@ The recommended configuration format is to use a syncall.toml file in the workin
 Per project specific we have the following settings:
 - **Signal-Android** project it would always force building of the app using the assemblePlayRelease and assembleWebsiteRelease tasks, in that order.
 - **Conversations** project it would attempt the assembleConversationsFreeSystemRelease task and sign it with the key "another" inside the store "otherkey" (keystore.jks)
-- **vlc-android** project it would use all the default values except that it will run "setup.sh" script as entrypoint before executing any gradle task.
+- **vlc-android** project it would use all the default values except that it will run the script named "entrypoint-syncall" from project's folder before executing any gradle task.
 - **ghost-project** project will never build
 ```
 [default]
@@ -67,7 +67,7 @@ keyalias = "another"
 tasks = ["assembleConversationsFreeSystemRelease"]
 
 [vlc-android]
-entrypoint = "./setup.sh"
+entrypoint = true
 
 [ghost-project]
 build = false

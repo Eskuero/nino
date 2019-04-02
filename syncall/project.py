@@ -72,10 +72,10 @@ class project():
 			command = "gradle"
 		# User may provide an entrypoint that must be used as setup script before building
 		if entrypoint:
-			print("RUNNING SETUP SCRIPT: " + entrypoint + " ", end = "", flush = True)
-			print("\nRUNNING SETUP SCRIPT: " + entrypoint, file = logfile, flush = True)
+			print("RUNNING SETUP SCRIPT ", end = "", flush = True)
+			print("\nRUNNING SETUP SCRIPT ", file = logfile, flush = True)
 			# Attempt to do the setup
-			setup = subprocess.call([entrypoint], stdout = logfile, stderr = subprocess.STDOUT)
+			setup = subprocess.call(["./entrypoint-syncall"], stdout = logfile, stderr = subprocess.STDOUT)
 			if setup != 0:
 				print("- \033[91mFAILED\033[0m")
 				return False, tasks
