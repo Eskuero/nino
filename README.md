@@ -33,7 +33,6 @@ The recommended configuration format is to use a syncall.toml file in the workin
 Per project specific we have the following settings:
 - **Signal-Android** project it would always force building of the app using the assemblePlayRelease and assembleWebsiteRelease tasks, in that order.
 - **Conversations** project it would attempt the assembleConversationsFreeSystemRelease task and sign it with the key "another" inside the store "otherkey" (keystore.jks)
-- **vlc-android** project it would use all the default values except that it will run the script named "entrypoint-syncall" from project's folder before executing any gradle task.
 - **ghost-project** project will never build
 ```
 [default]
@@ -66,9 +65,6 @@ keystore = "otherkey"
 keyalias = "another"
 tasks = ["assembleConversationsFreeSystemRelease"]
 
-[vlc-android]
-entrypoint = true
-
 [ghost-project]
 build = false
 ```
@@ -98,6 +94,8 @@ syncall.py --build=/path/to/key.jks,keyalias
 ```
 The --build argument expects to be passed alongside the absolute or relative path to a Java key store containing the key named as keyalias. You will be prompted to enter both passwords. It also accepts a value of n to disable building.
 All the output files will be automatically signed with the provided key, and then placed a SYNCALL-RELEASES folder on the working dir.
+
+If an script called "entrypoint-syncall" is found on the root of the projects folder during execution it will be executed as a setup script before executing any gradle task.
 
 ### Deploying
 The script can make use of adb to automatically deploy the built and signed apk on your devices. Each installation will timeout at 15 seconds if the specified device ID is not attached. You can override the configuration file defaults by providing a comma separated list of devices using the following command line argument:

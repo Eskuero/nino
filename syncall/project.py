@@ -66,14 +66,14 @@ class project():
 				print("- \033[91mFAILED\033[0m")
 		return pull, changed
 
-	def build(command, entrypoint, tasks, logfile):
+	def build(command, tasks, logfile):
 		# Check if gradle wrapper exists before falling back to system-wide gradle
 		if not os.path.isfile(command):
 			command = "gradle"
 		# User may provide an entrypoint that must be used as setup script before building
-		if entrypoint:
-			print("RUNNING SETUP SCRIPT ", end = "", flush = True)
-			print("\nRUNNING SETUP SCRIPT ", file = logfile, flush = True)
+		if os.path.isfile("./entrypoint-syncall"):
+			print("RUNNING ENTRYPOINT SCRIPT ", end = "", flush = True)
+			print("\nRUNNING ENTRYPOINT SCRIPT ", file = logfile, flush = True)
 			# Attempt to do the setup
 			setup = subprocess.call(["./entrypoint-syncall"], stdout = logfile, stderr = subprocess.STDOUT)
 			if setup != 0:
