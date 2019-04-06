@@ -13,11 +13,11 @@ $ cd syncall
 # pip install .
 ```
 
-The script depends on the toml python library (will be automatically installed by pip) and requires having keytool (Java OpenJDK), adb (Android Debug Bridge), apksigner (Android SDK build tools), zipalign (Android SDK Build Tools), gradle (in case any of the projects do not provide a gradle wrapper) and git on the PATH of your running operative system.
+The script depends on the toml python library (will be automatically installed by pip) and requires having keytool (Java OpenJDK), adb (Android Debug Bridge), apksigner (Android SDK build tools), zipalign (Android SDK Build Tools), gradle (in case any of the projects do not provide a gradle wrapper), git and hg (Mercurial) on the PATH of your running operative system.
 Each project may also have additional dependencies to build binaries.
 
 ## Usage
-By default executing the command without arguments/config file will result into it synchronizing all the git repositories in the immediate subfolders.
+By default executing the command without arguments/config file will result into it synchronizing all the repositories in the immediate subfolders using git/mercurial or custom scripts if available.
 ```
 syncall.py
 ```
@@ -79,6 +79,17 @@ If enabled by default the script will try to fetch changes, however you can skip
 syncall --fetch=n --force=Shelter
 ```
 Would force building of the Shelter project without fetching changes on any project.
+
+Supported sync methods are custom scripts named "fetch-syncall", git and hg. They are automatically detected and fall back to the next in that order.
+
+The custom script should be able to handle a few command line arguments as explained below:
+
+- lastdate: Print via stdout the age of the last time the project was updated
+- diff: Print via stdout local changes that are not committed
+- clean: Undo all the local-not-committed changes
+- pull: Retrieve all the new changes from the remote repository (Must print via stdout "Already up-date" if no changes are downloaded)
+- update: Apply all the new changes to the local copy (this may be implemented inside pull too)
+- apply: Read via stdin the local changes that were reported by diff and try to apply them again against the local copy
 
 ### Building
 If you want to not only the sync the source code but also to compile the app when new changes are detected during the current syncing interation you must use it like this:

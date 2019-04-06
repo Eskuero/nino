@@ -1,5 +1,14 @@
 class statics():
     fetchmethods = {
+        "fetch-syncall": {
+            "lastdate": ["./fetch-syncall", "lastdate"],
+            "diff": ["./fetch-syncall", "diff"],
+            "clean": ["./fetch-syncall", "clean"],
+            "pull": ["./fetch-syncall", "pull"],
+            "update": ["./fetch-syncall", "update"],
+            "nonews": "Already up-date",
+            "apply": ["./fetch-syncall", "apply"]
+        },
         ".git": {
             "lastdate": ["git", "log", "-n", "1", "--format=%cr"],
             "diff": ["git", "diff"],
