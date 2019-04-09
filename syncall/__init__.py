@@ -73,11 +73,9 @@ def main():
 			# Retrieve custom configuration for project
 			pconfig = config.get(name, {})
 			# Initialize project class falling back to running config
-			app = project(name, rconfig, pconfig)
+			app = project(name, rconfig, pconfig, keystores)
 			# Vessel for the retryable config, must always retain some configuration
 			failed[name] = {}
-			# If some steps fail even if the following run fine those previous may provide more work in a retry, so we register them again to check
-			pending = []
 			# Introduce the project
 			app.presentation()
 			# Sync the project
@@ -86,39 +84,34 @@ def main():
 				pull, changed = app.sync()
 				# Remember we need to attempt syncing again
 				if pull == 1:
-					pending = set(pending).union(set(["fetch", "preserve", "build", "force", "tasks", "keystore", "keyalias", "resign", "deploylist", "deploy"]))
+					failed[name].update({"fetch": None, "preserve": None, "build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 			# Only attempt gradle projects with build enabled and are either forced or have new changes
 			built = False
 			if app.build and (changed or app.force):
-				built, tasks = app.package(command)
+				built, app.tasks = app.package(command)
 				# Remember if we need to attempt some tasks again
 				if not built:
 					# Update tasks to only retry remaining, ensure we force rebuild
 					app.force = True
-					app.tasks = tasks
-					pending = set(pending).union(set(["build", "force", "tasks", "keystore", "keyalias", "resign", "deploylist", "deploy"]))
+					failed[name].update({"build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 			# We search for apks to sign and merge them to the current list
 			apks = []
 			if built or app.resign:
-				signinfo = keystores.get(app.keystore, {})
-				alias = app.keyalias
-				if signinfo["used"] and signinfo["aliases"][alias]["used"]:
-					apks, resign = app.sign(workdir, signinfo, alias)
-					if resign:
-						app.resign = True
-						pending = set(pending).union(set(["keystore", "keyalias", "resign", "deploylist", "deploy"]))
+				apks, app.resign = app.sign(workdir)
+				if app.resign:
+					failed[name].update({"keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 			# We deploy if we built something
 			for apk in apks:
 				app.deploylist[apk] = app.deploy
 			if len(app.deploylist) > 0:
 				app.deploylist = app.install(workdir)
 				if len(app.deploylist) > 0:
-					pending = set(pending).union(set(["deploylist", "deploy"]))
+					failed[name].update({"deploylist": None, "deploy": None})
 			# Append pending tasks
-			for entry in pending:
+			for entry in failed[name]:
 				failed[name][entry] = getattr(app, entry)
 			# If retriable config is empty, drop it
-			if len(failed[name]) < 1:
+			if not failed[name]:
 				failed.pop(name)
 			# Go back to the invocation directory before moving onto the next project
 			os.chdir(workdir)
