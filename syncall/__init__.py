@@ -64,57 +64,56 @@ def main():
 	signing.secrets(keystores)
 
 	# Loop for every folder on invocation dir
-	for name in projects:
-		if os.path.isdir(name):
-			# Skip project if retrying but nothing to do
-			if rconfig["retry"] and name not in config:
-				continue
-			os.chdir(name)
-			# Retrieve custom configuration for project
-			pconfig = config.get(name, {})
-			# Initialize project class falling back to running config
-			app = project(name, rconfig, pconfig, keystores)
-			# Vessel for the retryable config, must always retain some configuration
-			failed[name] = {}
-			# Introduce the project
-			app.presentation()
-			# Sync the project
-			changed = False
-			if app.fetch:
-				pull, changed = app.sync()
-				# Remember we need to attempt syncing again
-				if pull == 1:
-					failed[name].update({"fetch": None, "preserve": None, "build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
-			# Only attempt gradle projects with build enabled and are either forced or have new changes
-			built = False
-			if app.build and (changed or app.force):
-				built, app.tasks = app.package(command)
-				# Remember if we need to attempt some tasks again
-				if not built:
-					# Update tasks to only retry remaining, ensure we force rebuild
-					app.force = True
-					failed[name].update({"build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
-			# We search for apks to sign and merge them to the current list
-			apks = []
-			if built or app.resign:
-				apks, app.resign = app.sign(workdir)
-				if app.resign:
-					failed[name].update({"keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
-			# We deploy if we built something
-			for apk in apks:
-				app.deploylist[apk] = app.deploy
+	for name in [name for name in projects if os.path.isdir(name) and name != "SYNCALL-RELEASES"]:
+		# Skip project if retrying but nothing to do
+		if rconfig["retry"] and name not in config:
+			continue
+		os.chdir(name)
+		# Retrieve custom configuration for project
+		pconfig = config.get(name, {})
+		# Initialize project class falling back to running config
+		app = project(name, rconfig, pconfig, keystores)
+		# Vessel for the retryable config, must always retain some configuration
+		failed[name] = {}
+		# Introduce the project
+		app.presentation()
+		# Sync the project
+		changed = False
+		if app.fetch:
+			pull, changed = app.sync()
+			# Remember we need to attempt syncing again
+			if pull == 1:
+				failed[name].update({"fetch": None, "preserve": None, "build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
+		# Only attempt gradle projects with build enabled and are either forced or have new changes
+		built = False
+		if app.build and (changed or app.force):
+			built, app.tasks = app.package(command)
+			# Remember if we need to attempt some tasks again
+			if not built:
+				# Update tasks to only retry remaining, ensure we force rebuild
+				app.force = True
+				failed[name].update({"build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
+		# We search for apks to sign and merge them to the current list
+		apks = []
+		if built or app.resign:
+			apks, app.resign = app.sign(workdir)
+			if app.resign:
+				failed[name].update({"keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
+		# We deploy if we built something
+		for apk in apks:
+			app.deploylist[apk] = app.deploy
+		if len(app.deploylist) > 0:
+			app.deploylist = app.install(workdir)
 			if len(app.deploylist) > 0:
-				app.deploylist = app.install(workdir)
-				if len(app.deploylist) > 0:
-					failed[name].update({"deploylist": None, "deploy": None})
-			# Append pending tasks
-			for entry in failed[name]:
-				failed[name][entry] = getattr(app, entry)
-			# If retriable config is empty, drop it
-			if not failed[name]:
-				failed.pop(name)
-			# Go back to the invocation directory before moving onto the next project
-			os.chdir(workdir)
+				failed[name].update({"deploylist": None, "deploy": None})
+		# Append pending tasks
+		for entry in failed[name]:
+			failed[name][entry] = getattr(app, entry)
+		# If retriable config is empty, drop it
+		if not failed[name]:
+			failed.pop(name)
+		# Go back to the invocation directory before moving onto the next project
+		os.chdir(workdir)
 	# Save the report to file
 	with open(".last-syncall", "w") as file:
 		json.dump(failed, file)
