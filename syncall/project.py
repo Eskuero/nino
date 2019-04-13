@@ -3,7 +3,6 @@ import os
 import glob
 import re
 import subprocess
-import io
 from .statics import statics
 
 class project():
