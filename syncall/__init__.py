@@ -25,8 +25,6 @@ def main():
 		"deploy": [],
 	}
 
-	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
-	keystores = {}
 	# List of available projects on the current workdir, also saved
 	projects = os.listdir()
 	workdir = os.getcwd()
@@ -48,13 +46,14 @@ def main():
 		except FileNotFoundError:
 			pass
 		rconfig["retry"] = True
-		keystores = config.get("keystores", {})
 	else:
 		# Retrieve configuration file and load options
 		config = utils.cfgfile(rconfig)
-		keystores = config.get("keystores", {})
-		# Parse command line arguments and modify running config accordingly
-		utils.cmdargs(sys.argv, rconfig, keystores)
+
+	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
+	keystores = config.get("keystores", {})
+	# Parse command line arguments and modify running config accordingly
+	utils.cmdargs(sys.argv, rconfig, keystores) if not rconfig["retry"] else None
 
 	# Store the dictionary so a retry attempt will use the same keystores
 	failed = {"keystores": copy.deepcopy(keystores)}
