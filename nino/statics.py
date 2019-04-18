@@ -1,13 +1,13 @@
 class statics():
     fetchmethods = {
-        "fetch-syncall": {
-            "lastdate": ["./fetch-syncall", "lastdate"],
-            "diff": ["./fetch-syncall", "diff"],
-            "clean": ["./fetch-syncall", "clean"],
-            "pull": ["./fetch-syncall", "pull"],
-            "update": ["./fetch-syncall", "update"],
+        "nino-fetch": {
+            "lastdate": ["./nino-fetch", "lastdate"],
+            "diff": ["./nino-fetch", "diff"],
+            "clean": ["./nino-fetch", "clean"],
+            "pull": ["./nino-fetch", "pull"],
+            "update": ["./nino-fetch", "update"],
             "nonews": "Already up-date",
-            "apply": ["./fetch-syncall", "apply"]
+            "apply": ["./nino-fetch", "apply"]
         },
         ".git": {
             "lastdate": ["git", "log", "-n", "1", "--format=%cr"],

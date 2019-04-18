@@ -1,4 +1,4 @@
-# Basic configuration file for the syncall python script. It's expected to be locate don the working folder under the syncall.toml name
+# Basic configuration file for the nino python script. It's expected to be located on the working folder under the nino.toml name
 
 # Default options that apply for all projects
 [default]

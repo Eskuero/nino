@@ -34,14 +34,14 @@ def main():
 	if "Windows" in platform.system():
 		command += ".bat"
 	# Create the out directory in case it doesn't exist already
-	if not os.path.isdir("SYNCALL-RELEASES"):
-		os.mkdir("SYNCALL-RELEASES")
+	if not os.path.isdir("NINO-RELEASES"):
+		os.mkdir("NINO-RELEASES")
 
 	# When retrying we completely ignore configurations from file and cmdargs
 	if "--retry=y" in sys.argv:
 		config = {}
 		try:
-			with open(".last-syncall", "r") as file:
+			with open(".nino-last", "r") as file:
 				config = json.load(file)
 		except FileNotFoundError:
 			pass
@@ -63,7 +63,7 @@ def main():
 	signing.secrets(keystores)
 
 	# Loop for every folder on invocation dir
-	for name in [name for name in projects if os.path.isdir(name) and name != "SYNCALL-RELEASES"]:
+	for name in [name for name in projects if os.path.isdir(name) and name != "NINO-RELEASES"]:
 		# Skip project if retrying but nothing to do
 		if rconfig["retry"] and name not in config:
 			continue
@@ -114,5 +114,5 @@ def main():
 		# Go back to the invocation directory before moving onto the next project
 		os.chdir(workdir)
 	# Save the report to file
-	with open(".last-syncall", "w") as file:
+	with open(".nino-last", "w") as file:
 		json.dump(failed, file)

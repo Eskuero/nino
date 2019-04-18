@@ -17,7 +17,7 @@ class utils():
 		config = {}
 		# Retrieve entire configuration from local configuration file
 		try:
-			with open("syncall.toml", "r") as file:
+			with open("nino.toml", "r") as file:
 				content = file.read()
 				config = toml.loads(content)
 		# No config file is fine
