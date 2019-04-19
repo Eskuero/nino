@@ -131,9 +131,9 @@ class project():
 			# A path with a length of 3 means we have flavour names so we append them
 			displayname = displayname.split("/")
 			if len(displayname) == 3:
-				displayname = self.name + "-" + displayname[0] + ".apk"
+				displayname = self.name + "-" + displayname[0] + "-" + displayname[1] + ".apk"
 			else:
-				displayname = self.name + ".apk"
+				displayname = self.name + "-" + displayname[0] + ".apk"
 			# Verify whether is needed or not to sign, as some outputs may come out of building process already signed
 			verify = subprocess.call(["apksigner", "verify", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 			if verify == 1:
