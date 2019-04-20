@@ -14,7 +14,7 @@ def main():
 
 	# We store the running config on a dictionary for ease on accesing the data
 	rconfig = {
-		"fetch": False,
+		"sync": False,
 		"preserve": False,
 		"build": False,
 		"force": [],
@@ -78,11 +78,11 @@ def main():
 		app.presentation()
 		# Sync the project
 		changed = False
-		if app.fetch:
-			pull, changed = app.sync()
+		if app.sync:
+			pull, changed = app.fetch()
 			# Remember we need to attempt syncing again
 			if pull == 1:
-				failed[name].update({"fetch": None, "preserve": None, "build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
+				failed[name].update({"sync": None, "preserve": None, "build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 		# Only attempt gradle projects with build enabled and are either forced or have new changes
 		built = False
 		if app.build and (changed or app.force):

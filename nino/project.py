@@ -42,7 +42,7 @@ class project():
 		# Returning after the loop ended means no method is feasible
 		return False
 
-	def sync(self):
+	def fetch(self):
 		print("SYNCING SOURCE CODE ", end = "", flush = True)
 		print("SYNCING SOURCE CODE", file = self.logfile, flush = True)
 		# If no program is usable, report and return

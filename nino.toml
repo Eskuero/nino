@@ -3,7 +3,7 @@
 # Default options that apply for all projects
 [default]
 # Check and pull new changes from the remote
-fetch = true
+sync = true
 # Attempt to keep local unstaged changes on projects, otherwise they will be undone
 preserve = true
 # Enable building of the project if changes are detected or forcing/retrying is enabled

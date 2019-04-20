@@ -36,7 +36,7 @@ Per project specific we have the following settings:
 - **ghost-project** project will never build
 ```
 [default]
-fetch = true
+sync = true
 preserve = true
 build = true
 keystore = "default"
@@ -69,14 +69,14 @@ tasks = ["assembleConversationsFreeSystemRelease"]
 build = false
 ```
 
-### Fetching
-If enabled by default the script will try to fetch changes, however you can skip that passing --fetch. This is very useful for situations where you just want to rebuild local changes for a certain application without wanting to go through all the projects. Per example:
+### Syncing
+If enabled by default the script will try to sync remote changes, however you can skip that passing --sync. This is very useful for situations where you just want to rebuild local changes for a certain application without wanting to go through all the projects. Per example:
 ```
-nino --fetch=n --force=Shelter
+nino --sync=n --force=Shelter
 ```
-Would force building of the Shelter project without fetching changes on any project.
+Would force building of the Shelter project without syncing changes on any project.
 
-Supported sync methods are custom local scripts named "nino-fetch", git and hg. They are automatically detected and fall back to the next in that order.
+Supported sync methods are custom local scripts named "nino-sync", git and hg. They are automatically detected and fall back to the next in that order.
 
 The custom script should be able to handle a few command line arguments as explained below:
 
