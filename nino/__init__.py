@@ -38,7 +38,7 @@ def main():
 		os.mkdir("NINO-RELEASES")
 
 	# When retrying we completely ignore configurations from file and cmdargs
-	if "--retry=y" in sys.argv:
+	if not ({"-r", "--retry"}).isdisjoint(set(sys.argv)):
 		config = {}
 		try:
 			with open(".nino-last", "r") as file:

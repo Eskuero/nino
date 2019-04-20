@@ -1,5 +1,6 @@
 import sys
 import shutil
+import argparse
 import toml
 from .statics import statics
 
@@ -30,40 +31,32 @@ class utils():
 		return config
 
 	def cmdargs(args, rconfig, keystores):
-		# Check every argument and store arguments
-		for i, arg in enumerate(args):
-			# Skip first iteration (script name)
-			if i == 0:
-				continue
-			# We expect them to be splited in key/value pairs by a single equal symbol
-			arg = arg.split("=")
-			# Check both pair members exist.
-			try:
-				name = arg[0].lstrip("--")
-				value = arg[1]
-				# If not, report back and exit
-			except IndexError:
-				print("The argument " + arg[0] + " needs a value.")
-				sys.exit(1)
-			# Most arguments are boolean and follow the same logic
-			if name in rconfig:
-				# Deploy devices and forced projects are never boolean switches but lists to loop so just create the list
-				if name in ["deploy", "force"]:
-					rconfig[name] = value.split(",")
-				elif value in ["n", "N"]:
-					rconfig[name] = False
-				elif value in ["y", "Y"] or name == "build":
-					rconfig[name] = True
-					# In the case of build we also save keystore information
-					if name == "build":
-						value = value.split(",")
-						try:
-							keystores["overridestore"] = {"path": value[0],	"aliases": {value[1]: {}}}
-							rconfig["keystore"] = "overridestore"
-							rconfig["keyalias"] = value[1]
-						except IndexError:
-							print("No alias was given for keystore " + value[0] + " provided through command line")
-							sys.exit(1)
+		# Register each argument. Expect on/off for booleans, merge forced projects and deployment targets into lists and separately handle signinfo. Add an entry for retry just so is part of the help
+		parser = argparse.ArgumentParser()
+		parser.add_argument('-s', '--sync', choices=["on", "off"], help="Retrieve and apply changes on remote to local")
+		parser.add_argument('-p', '--preserve', choices=["on", "off"], help="Try to preserve local changes after syncing remotes")
+		parser.add_argument('-b', '--build', choices=["on", "off"], help="Enable building of projects")
+		parser.add_argument('-f', '--force', action="append", help="Force build of a project even without changes")
+		parser.add_argument('-k', '--keyinfo', help="Keystore path and alias used for signing outputs")
+		parser.add_argument('-d', '--deploy', action='append', help="ADB id of a device to deploy the outputs to")
+		parser.add_argument('-r', '--retry', action='store_true', help="Retry all the tasks that failed during last run")
+		parser.add_argument('--version', action='version', version='%(prog)s 1.1')
+		args = vars(parser.parse_args())
+		# We skip any argument that comes as None because that means it was not passed
+		for opt in [arg for arg in args if args[arg]]:
+			if opt in ["sync", "preserve", "build"]:
+				rconfig[opt] = True if args[opt] == "on" else False
+			# For signing information we expect a pathfile,aliasname format
+			elif opt == "keyinfo":
+				try:
+					storepath, rconfig["keyalias"] = args["keyinfo"].split(",")
+				except:
+					# Any error when retrieving the info means the format was not exactly what we expected
+					parser.error('Key info must provided with the format "keypath,alias"')
 				else:
-					print("The argument " + arg[0] + " is expected boolean (y|n). Received: " + value)
-					sys.exit(1)
+					# If everything was fine setup overridestore and enable it
+					keystores["overridestore"] = {"path": storepath, "aliases": {rconfig["keyalias"]: {}}}
+					rconfig["keystore"] = "overridestore"
+			# For everything else we store as it is
+			else:
+				rconfig[opt] = args[opt]
