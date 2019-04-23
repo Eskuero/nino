@@ -22,6 +22,8 @@ class project():
 		self.signsecrets = {"store": keystores[self.keystore]["password"], "alias": keystores[self.keystore]["aliases"][self.keyalias]} if self.build or self.resign else {}
 		# We need to store the output of every operation to a file
 		self.logfile = open("log.txt", "w+")
+		# Some properties are exclusive for the run
+		self.changed, self.pull, self.built, self.releases = False, 1, 1, []
 
 	def presentation(self):
 		# Retrieve and show basic information about the project
@@ -56,18 +58,17 @@ class project():
 		# Always clean local changes beforehand
 		subprocess.call(self.fetcher["clean"], stdout = self.logfile, stderr = subprocess.STDOUT)
 		# Get changes and save output/return code of the command for checks
-		pull = subprocess.call(self.fetcher["pull"], stdout = self.logfile, stderr = subprocess.STDOUT)
+		self.pull = subprocess.call(self.fetcher["pull"], stdout = self.logfile, stderr = subprocess.STDOUT)
 		# Certain VCS (like mercurial) split syncing into pulling and updating so if a command is specified we need to execute it
 		if self.fetcher["update"]:
-			pull = subprocess.call(self.fetcher["update"], stdout = self.logfile, stderr = subprocess.STDOUT)
+			self.pull = subprocess.call(self.fetcher["update"], stdout = self.logfile, stderr = subprocess.STDOUT)
 		# We need to pull back to the start of the file to be able to read anything
 		self.logfile.seek(0)
-		# If something changed flag it for later checks
-		changed = False
-		if pull == 0:
+		# If something changed flag it for later checks	
+		if self.pull == 0:
 			if self.fetcher["nonews"] not in self.logfile.read():
 				print("- \033[92mUPDATED\033[0m")
-				changed = True
+				self.changed = True
 			else:
 				print("- \033[93mUNCHANGED\033[0m")
 		else:
@@ -82,7 +83,6 @@ class project():
 				print("- \033[92mSUCCESSFUL\033[0m")
 			else:
 				print("- \033[91mFAILED\033[0m")
-		return pull, changed
 
 	def package(self, command):
 		# Check if gradle wrapper exists before falling back to system-wide gradle
@@ -93,36 +93,35 @@ class project():
 			print("RUNNING ENTRYPOINT SCRIPT ", end = "", flush = True)
 			print("\nRUNNING ENTRYPOINT SCRIPT ", file = self.logfile, flush = True)
 			# Attempt to do the setup
-			setup = subprocess.call(["./nino-entrypoint"], stdout = self.logfile, stderr = subprocess.STDOUT)
-			if setup != 0:
+			self.built = subprocess.call(["./nino-entrypoint"], stdout = self.logfile, stderr = subprocess.STDOUT)
+			if self.built != 0:
 				print("- \033[91mFAILED\033[0m")
-				return False, self.tasks
+				return self.tasks
 			else:
 				print("- \033[92mSUCCESSFUL\033[0m")
 		for task in self.tasks:
 			print("RUNNING GRADLE TASK: " + task + " ", end = "", flush = True)
 			print("\nRUNNING GRADLE TASK: " + task, file = self.logfile, flush = True)
 			# Attempt the task, we also redirect stderr to stdout to effectively merge them.
-			assemble = subprocess.call([command, "--no-daemon", task], stdout = self.logfile, stderr = subprocess.STDOUT)
+			self.built = subprocess.call([command, "--no-daemon", task], stdout = self.logfile, stderr = subprocess.STDOUT)
 			# If assembling fails we return to tell main
-			if assemble != 0:
+			if self.built != 0:
 				print("- \033[91mFAILED\033[0m")
 				# Return a list consisting of the failed task and the ones that would have follow
-				return False, [word for word in self.tasks if self.tasks.index(word) >= self.tasks.index(task)]
+				return [word for word in self.tasks if self.tasks.index(word) >= self.tasks.index(task)]
 			else:
 				print("- \033[92mSUCCESSFUL\033[0m")
 		# Arriving here means no task failed
-		return True, []
+		return []
 
 	def sign(self, workdir):
-		releases = []
 		# Retrieve all present .apk inside projects folder
 		apks = glob.glob("**/*.apk", recursive = True)
 		# Filter out those that are not result of the previous build
 		regex = re.compile(".*build/outputs/apk/*")
 		apks = list(filter(regex.match, apks))
 		# To tell main if we need to attempt signing again on retry
-		resign = False
+		self.resign = False
 		# Loop through the remaining apks (there may be different flavours)
 		for apk in apks:
 			displayname = re.sub(regex, "", apk)
@@ -144,17 +143,16 @@ class project():
 				sign.communicate(input=secrets.encode())
 				if sign.returncode == 0:
 					# If everything went fine add the new .apk to the list of releases
-					releases.append(displayname)
+					self.releases.append(displayname)
 					os.remove(apk)
 					print("- \033[92mSUCCESSFUL\033[0m")
 				else:
-					resign = True
+					self.resign = True
 					print("- \033[91mFAILED\033[0m")
 			else:
-				releases.append(displayname)
+				self.releases.append(displayname)
 				os.rename(apk, workdir + "/NINO-RELEASES/" + displayname)
 				print("- \033[93mUNNEEDED\033[0m")
-		return releases, resign
 
 	def install(self, workdir):
 		faileddeploylist = {}

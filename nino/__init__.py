@@ -83,29 +83,26 @@ def main():
 		# Introduce the project
 		app.presentation()
 		# Sync the project
-		changed = False
 		if app.sync:
-			pull, changed = app.fetch()
+			app.fetch()
 			# Remember we need to attempt syncing again
-			if pull == 1:
+			if app.pull == 1:
 				failed[name].update({"sync": None, "preserve": None, "build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 		# Only attempt gradle projects with build enabled and are either forced or have new changes
-		built = False
-		if app.build and (changed or app.force):
-			built, app.tasks = app.package(command)
+		if app.build and (app.changed or app.force):
+			app.tasks = app.package(command)
 			# Remember if we need to attempt some tasks again
-			if not built:
+			if app.built != 0:
 				# Update tasks to only retry remaining, ensure we force rebuild
 				app.force = True
 				failed[name].update({"build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 		# We search for apks to sign and merge them to the current list
-		apks = []
-		if built or app.resign:
-			apks, app.resign = app.sign(workdir)
+		if app.built == 0 or app.resign:
+			app.sign(workdir)
 			if app.resign:
 				failed[name].update({"keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 		# We deploy if we built something
-		for apk in apks:
+		for apk in app.releases:
 			app.deploylist[apk] = app.deploy
 		if len(app.deploylist) > 0:
 			app.deploylist = app.install(workdir)
