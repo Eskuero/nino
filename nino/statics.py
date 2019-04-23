@@ -1,4 +1,5 @@
 class statics():
+    validprops = ["sync", "preserve", "build", "tasks", "keystore", "keyalias", "deploy"]
     fetchmethods = {
         "nino-sync": {
             "lastdate": ["./nino-sync", "lastdate"],

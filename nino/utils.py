@@ -14,8 +14,7 @@ class utils():
 		if not ready:
 			sys.exit(1)
 
-	def cfgfile(rconfig):
-		config = {}
+	def cfgfile():
 		# Retrieve entire configuration from local configuration file
 		try:
 			with open("nino.toml", "r") as file:
@@ -23,14 +22,10 @@ class utils():
 				config = toml.loads(content)
 		# No config file is fine
 		except FileNotFoundError:
-			pass
-		# Update running config with avalaible values from valid definitions on config file
-		defconfig = config.get("default", {})
-		for option in [option for option in defconfig if option in rconfig]:
-			rconfig[option] = defconfig[option]
+			config = {}
 		return config
 
-	def cmdargs(args, rconfig, keystores):
+	def cmdargs(rconfig):
 		# Register each argument. Expect on/off for booleans, merge forced projects and deployment targets into lists and separately handle signinfo. Add an entry for retry just so is part of the help
 		parser = argparse.ArgumentParser()
 		parser.add_argument('-s', '--sync', choices=["on", "off"], help="Retrieve and apply changes on remote to local")
@@ -49,14 +44,10 @@ class utils():
 			# For signing information we expect a pathfile,aliasname format
 			elif opt == "keyinfo":
 				try:
-					storepath, rconfig["keyalias"] = args["keyinfo"].split(",")
+					rconfig["keystore"], rconfig["keyalias"] = args["keyinfo"].split(",")
 				except:
 					# Any error when retrieving the info means the format was not exactly what we expected
 					parser.error('Key info must provided with the format "keypath,alias"')
-				else:
-					# If everything was fine setup overridestore and enable it
-					keystores["overridestore"] = {"path": storepath, "aliases": {rconfig["keyalias"]: {}}}
-					rconfig["keystore"] = "overridestore"
 			# For everything else we store as it is
 			else:
 				rconfig[opt] = args[opt]

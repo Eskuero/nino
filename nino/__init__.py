@@ -12,17 +12,18 @@ def main():
 	# Check everything is in place before even starting to retrieve information
 	utils.dpnds()
 
-	# We store the running config on a dictionary for ease on accesing the data
-	rconfig = {
-		"sync": False,
-		"preserve": False,
-		"build": False,
-		"force": [],
-		"tasks": ["assembleRelease"],
-		"retry": False,
-		"keystore": False,
-		"keyalias": False,
-		"deploy": [],
+	# We store the configuration on a dictionary for ease on accesing the data
+	config = {
+		"default": {
+			"sync": False,
+			"preserve": False,
+			"build": False,
+			"force": [],
+			"tasks": ["assembleRelease"],
+			"keystore": False,
+			"keyalias": False,
+			"deploy": [],
+		}
 	}
 
 	# List of available projects on the current workdir, also saved
@@ -36,42 +37,47 @@ def main():
 	# Create the out directory in case it doesn't exist already
 	if not os.path.isdir("NINO-RELEASES"):
 		os.mkdir("NINO-RELEASES")
+	# Retryable config that will be dumped onto .nino-last
+	failed = {}
 
 	# When retrying we completely ignore configurations from file and cmdargs
 	if not ({"-r", "--retry"}).isdisjoint(set(sys.argv)):
-		config = {}
 		try:
 			with open(".nino-last", "r") as file:
-				config = json.load(file)
-		except FileNotFoundError:
-			pass
-		rconfig["retry"] = True
+				fileconfig = json.load(file)
+		except:
+			print("Failed to load retryable config from .nino-last so can't proceed")
+			sys.exit(1)
+		else:
+			retry = True
 	else:
+		retry = False
 		# Retrieve configuration file and load options
-		config = utils.cfgfile(rconfig)
+		fileconfig = utils.cfgfile()
+	# Update or append each project specifications to the config
+	for entry in fileconfig:
+		try:
+			config[entry].update(fileconfig[entry])
+		except KeyError:
+			config[entry] = fileconfig[entry]
 
-	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
-	keystores = config.get("keystores", {})
 	# Parse command line arguments and modify running config accordingly
-	utils.cmdargs(sys.argv, rconfig, keystores) if not rconfig["retry"] else None
-
-	# Store the dictionary so a retry attempt will use the same keystores
-	failed = {"keystores": copy.deepcopy(keystores)}
-	# Enable the keystores and keys that will be used
-	signing.enable(config, projects, keystores, rconfig)
+	utils.cmdargs(config["default"]) if not retry else None
+	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
+	keystores = signing.setup(projects, config)
 	# For the enabled projects prompt and store passwords
 	signing.secrets(keystores)
 
 	# Loop for every folder on invocation dir
 	for name in [name for name in projects if os.path.isdir(name) and name != "NINO-RELEASES"]:
 		# Skip project if retrying but nothing to do
-		if rconfig["retry"] and name not in config:
+		if retry and name not in config:
 			continue
 		os.chdir(name)
 		# Retrieve custom configuration for project
 		pconfig = config.get(name, {})
 		# Initialize project class falling back to running config
-		app = project(name, rconfig, pconfig, keystores)
+		app = project(name, config["default"], pconfig, keystores, retry)
 		# Vessel for the retryable config, must always retain some configuration
 		failed[name] = {}
 		# Introduce the project
