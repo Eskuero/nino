@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import sys
-import copy
 import platform
 import json
 from .project import project
