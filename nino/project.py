@@ -51,7 +51,8 @@ class project():
 		if not self.fetcher:
 			print("- \033[93mFETCH METHOD NOT FOUND\033[0m")
 			# Not neccessarily an error to retry
-			return 0, False
+			self.pull = 0
+			return
 		# Store the current local diff to restore it later
 		if self.preserve:
 			diff = subprocess.Popen(self.fetcher["diff"], stdout = subprocess.PIPE).communicate()[0];
