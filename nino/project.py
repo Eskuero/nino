@@ -85,16 +85,18 @@ class project():
 			else:
 				print("- \033[91mFAILED\033[0m")
 
-	def package(self, command):
+	def package(self):
 		# Check if gradle wrapper exists before falling back to system-wide gradle
-		if not os.path.isfile(command):
+		if not os.path.isfile("gradlew" + statics.execsuffix):
 			command = "gradle"
+		else:
+			command = statics.execprefix + "gradlew" + statics.execsuffix
 		# User may provide an entrypoint that must be used as setup script before building
-		if os.path.isfile("./nino-entrypoint"):
+		if os.path.isfile("nino-entrypoint" + statics.execsuffix):
 			print("RUNNING ENTRYPOINT SCRIPT ", end = "", flush = True)
 			print("\nRUNNING ENTRYPOINT SCRIPT ", file = self.logfile, flush = True)
 			# Attempt to do the setup
-			self.built = subprocess.call(["./nino-entrypoint"], stdout = self.logfile, stderr = subprocess.STDOUT)
+			self.built = subprocess.call([statics.execprefix + "nino-entrypoint"], stdout = self.logfile, stderr = subprocess.STDOUT)
 			if self.built != 0:
 				print("- \033[91mFAILED\033[0m")
 				return self.tasks
@@ -115,7 +117,7 @@ class project():
 		# Arriving here means no task failed
 		return []
 
-	def sign(self, workdir):
+	def sign(self):
 		# Retrieve all present .apk inside projects folder
 		apks = glob.glob("**/*.apk", recursive = True)
 		# Filter out those that are not result of the previous build
@@ -138,7 +140,7 @@ class project():
 			verify = subprocess.call(["apksigner", "verify", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 			if verify == 1:
 				# Sign the .apk with the provided key
-				sign = subprocess.Popen(["apksigner", "sign", "--ks", self.keystore, "--ks-key-alias", self.keyalias,"--out", workdir + "/NINO-RELEASES/" + displayname, "--in", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+				sign = subprocess.Popen(["apksigner", "sign", "--ks", self.keystore, "--ks-key-alias", self.keyalias,"--out", statics.workdir + "/NINO-RELEASES/" + displayname, "--in", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 				# Generate the input using the two passwords and feed it to the subprocess
 				secrets = self.signsecrets["store"] + "\n" + self.signsecrets["alias"]
 				sign.communicate(input=secrets.encode())
@@ -152,10 +154,10 @@ class project():
 					print("- \033[91mFAILED\033[0m")
 			else:
 				self.releases.append(displayname)
-				os.rename(apk, workdir + "/NINO-RELEASES/" + displayname)
+				os.rename(apk, statics.workdir + "/NINO-RELEASES/" + displayname)
 				print("- \033[93mUNNEEDED\033[0m")
 
-	def install(self, workdir):
+	def install(self):
 		faileddeploylist = {}
 		for apk in self.deploylist:
 			faileddeploylist[apk] = []
@@ -175,7 +177,7 @@ class project():
 				else:
 					print("     TO DEVICE: " + target + " - \033[93mDEPLOYING    \033[0m", end = "\r")
 					# We send the apk trying to override it on the system if neccessary
-					send = subprocess.call(["adb", "-s" , target, "install", "-r", workdir + "/NINO-RELEASES/" + apk], stdout = self.logfile, stderr=subprocess.STDOUT)
+					send = subprocess.call(["adb", "-s" , target, "install", "-r", statics.workdir + "/NINO-RELEASES/" + apk], stdout = self.logfile, stderr=subprocess.STDOUT)
 					if send == 0:
 						print("     TO DEVICE: " + target + " - \033[92mSUCCESSFUL   \033[0m")
 					else:

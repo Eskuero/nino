@@ -1,14 +1,21 @@
+import os
+import platform
+
 class statics():
     validprops = ["sync", "preserve", "build", "tasks", "keystore", "keyalias", "deploy"]
+    projects = os.listdir()
+    workdir = os.getcwd()
+    execprefix = "" if "Windows" in platform.system() else "./"
+    execsuffix = ".bat" if "Windows" in platform.system() else ""
     fetchmethods = {
         "nino-sync": {
-            "lastdate": ["./nino-sync", "lastdate"],
-            "diff": ["./nino-sync", "diff"],
-            "clean": ["./nino-sync", "clean"],
-            "pull": ["./nino-sync", "pull"],
-            "update": ["./nino-sync", "update"],
+            "lastdate": [execprefix + "nino-sync", "lastdate"],
+            "diff": [execprefix + "nino-sync", "diff"],
+            "clean": [execprefix + "nino-sync", "clean"],
+            "pull": [execprefix + "nino-sync", "pull"],
+            "update": [execprefix + "nino-sync", "update"],
             "nonews": "Already up-date",
-            "apply": ["./nino-sync", "apply"]
+            "apply": [execprefix + "nino-sync", "apply"]
         },
         ".git": {
             "lastdate": ["git", "log", "-n", "1", "--format=%cr"],

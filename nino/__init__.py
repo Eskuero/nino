@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import os
 import sys
-import platform
 import json
 from .project import project
 from .signing import signing
 from .utils import utils
+from .statics import statics
 
 def main():
 	# Check everything is in place before even starting to retrieve information
@@ -25,14 +25,6 @@ def main():
 		}
 	}
 
-	# List of available projects on the current workdir, also saved
-	projects = os.listdir()
-	workdir = os.getcwd()
-	# Default to gradle wrapper, then override on project basis if the script is not found
-	command = "./gradlew"
-	# On Windows the gradle script is written in batch so we append proper extension
-	if "Windows" in platform.system():
-		command += ".bat"
 	# Create the out directory in case it doesn't exist already
 	if not os.path.isdir("NINO-RELEASES"):
 		os.mkdir("NINO-RELEASES")
@@ -63,12 +55,12 @@ def main():
 	# Parse command line arguments and modify running config accordingly
 	utils.cmdargs(config["default"]) if not retry else None
 	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
-	keystores = signing.setup(projects, config)
+	keystores = signing.setup(statics.projects, config)
 	# For the enabled projects prompt and store passwords
 	signing.secrets(keystores)
 
 	# Loop for every folder on invocation dir
-	for name in [name for name in projects if os.path.isdir(name) and name != "NINO-RELEASES"]:
+	for name in [name for name in statics.projects if os.path.isdir(name) and name != "NINO-RELEASES"]:
 		# Skip project if retrying but nothing to do
 		if retry and name not in config:
 			continue
@@ -89,7 +81,7 @@ def main():
 				failed[name].update({"sync": None, "preserve": None, "build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 		# Only attempt gradle projects with build enabled and are either forced or have new changes
 		if app.build and (app.changed or app.force):
-			app.tasks = app.package(command)
+			app.tasks = app.package()
 			# Remember if we need to attempt some tasks again
 			if app.built != 0:
 				# Update tasks to only retry remaining, ensure we force rebuild
@@ -97,14 +89,14 @@ def main():
 				failed[name].update({"build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 		# We search for apks to sign and merge them to the current list
 		if app.built == 0 or app.resign:
-			app.sign(workdir)
+			app.sign()
 			if app.resign:
 				failed[name].update({"keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 		# We deploy if we built something
 		for apk in app.releases:
 			app.deploylist[apk] = app.deploy
 		if len(app.deploylist) > 0:
-			app.deploylist = app.install(workdir)
+			app.deploylist = app.install()
 			if len(app.deploylist) > 0:
 				failed[name].update({"deploylist": None, "deploy": None})
 		# Append pending tasks
@@ -114,7 +106,7 @@ def main():
 		if not failed[name]:
 			failed.pop(name)
 		# Go back to the invocation directory before moving onto the next project
-		os.chdir(workdir)
+		os.chdir(statics.workdir)
 	# Save the report to file
 	with open(".nino-last", "w") as file:
 		json.dump(failed, file)
