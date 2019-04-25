@@ -22,7 +22,7 @@ class project():
 		# We need to store the output of every operation to a file
 		self.logfile = open("log.txt", "w+")
 		# Some properties are exclusive for the run
-		self.changed, self.pull, self.built, self.releases = False, 1, 1, []
+		self.changed, self.pull, self.built, self.releases, self.failed = False, 1, 1, [], {}
 
 	def presentation(self):
 		# Retrieve and show basic information about the project
@@ -49,8 +49,6 @@ class project():
 		# If no program is usable, report and return
 		if not self.fetcher:
 			print("- \033[93mFETCH METHOD NOT FOUND\033[0m")
-			# Not neccessarily an error to retry
-			self.pull = 0
 			return
 		# Store the current local diff to restore it later
 		if self.preserve:
@@ -72,6 +70,7 @@ class project():
 			else:
 				print("- \033[93mUNCHANGED\033[0m")
 		else:
+			self.failed.update({"sync": self.sync, "preserve": self.preserve, "build": self.build, "force": self.force, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "resign": self.resign, "deploylist": self.deploylist, "deploy": self.deploy})
 			print("- \033[91mFAILED\033[0m")
 		# If we are preserving we pipe and apply the previous relevant diff again
 		if self.preserve and diff.decode() != "":
@@ -98,7 +97,8 @@ class project():
 			self.built = subprocess.call([statics.execprefix + "nino-entrypoint"], stdout = self.logfile, stderr = subprocess.STDOUT)
 			if self.built != 0:
 				print("- \033[91mFAILED\033[0m")
-				return self.tasks
+				self.failed.update({"build": self.build, "force": True, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "resign": self.resign, "deploylist": self.deploylist, "deploy": self.deploy})
+				return
 			else:
 				print("- \033[92mSUCCESSFUL\033[0m")
 		for task in self.tasks:
@@ -109,12 +109,10 @@ class project():
 			# If assembling fails we return to tell main
 			if self.built != 0:
 				print("- \033[91mFAILED\033[0m")
-				# Return a list consisting of the failed task and the ones that would have follow
-				return [word for word in self.tasks if self.tasks.index(word) >= self.tasks.index(task)]
+				# Save only the remaining tasks
+				self.failed.update({"build": self.build, "force": True, "tasks": [word for word in self.tasks if self.tasks.index(word) >= self.tasks.index(task)], "keystore": self.keystore, "keyalias": self.keyalias, "resign": self.resign, "deploylist": self.deploylist, "deploy": self.deploy})
 			else:
 				print("- \033[92mSUCCESSFUL\033[0m")
-		# Arriving here means no task failed
-		return []
 
 	def sign(self):
 		# Retrieve all present .apk inside projects folder
@@ -149,14 +147,18 @@ class project():
 					os.remove(apk)
 					print("- \033[92mSUCCESSFUL\033[0m")
 				else:
-					self.resign = True
+					self.failed.update({"keystore": self.keystore, "keyalias": self.keyalias, "resign": True, "deploylist": self.deploylist, "deploy": self.deploy})
 					print("- \033[91mFAILED\033[0m")
 			else:
 				self.releases.append(displayname)
 				os.rename(apk, statics.workdir + "/NINO-RELEASES/" + displayname)
 				print("- \033[93mUNNEEDED\033[0m")
+		# Append newer releases to deploylist
+		for apk in self.releases:
+			self.deploylist[apk] = self.deploy
 
 	def install(self):
+		# Store the list of failed to deploy outputs and devices on a different dict
 		faileddeploylist = {}
 		for apk in self.deploylist:
 			faileddeploylist[apk] = []
@@ -184,4 +186,5 @@ class project():
 						print("     TO DEVICE: " + target + " - \033[91mFAILED       \033[0m")
 			if len(faileddeploylist[apk]) < 1:
 				faileddeploylist.pop(apk)
-		return faileddeploylist
+			else:
+				self.failed.update({"deploylist": faileddeploylist, "deploy": self.deploy})

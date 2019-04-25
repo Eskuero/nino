@@ -68,42 +68,23 @@ def main():
 		pconfig = config.get(name, {})
 		# Initialize project class falling back to running config
 		app = project(name, config["default"], pconfig, keystores, retry)
-		# Vessel for the retryable config, must always retain some configuration
-		failed[name] = {}
 		# Introduce the project
 		app.presentation()
 		# Sync the project
 		if app.sync:
 			app.fetch()
-			# Remember we need to attempt syncing again
-			if app.pull == 1:
-				failed[name].update({"sync": None, "preserve": None, "build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 		# Only attempt gradle projects with build enabled and are either forced or have new changes
 		if app.build and (app.changed or app.force):
-			app.tasks = app.package()
-			# Remember if we need to attempt some tasks again
-			if app.built != 0:
-				# Update tasks to only retry remaining, ensure we force rebuild
-				app.force = True
-				failed[name].update({"build": None, "force": None, "tasks": None, "keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
+			app.package()
 		# We search for apks to sign and merge them to the current list
 		if app.built == 0 or app.resign:
 			app.sign()
-			if app.resign:
-				failed[name].update({"keystore": None, "keyalias": None, "resign": None, "deploylist": None, "deploy": None})
 		# We deploy if we built something
-		for apk in app.releases:
-			app.deploylist[apk] = app.deploy
-		if len(app.deploylist) > 0:
-			app.deploylist = app.install()
-			if len(app.deploylist) > 0:
-				failed[name].update({"deploylist": None, "deploy": None})
-		# Append pending tasks
-		for entry in failed[name]:
-			failed[name][entry] = getattr(app, entry)
-		# If retriable config is empty, drop it
-		if not failed[name]:
-			failed.pop(name)
+		if app.deploylist:
+			app.install()
+		# Store retriable config for project if not empty
+		if app.failed:
+			failed[name] = app.failed
 		# Go back to the invocation directory before moving onto the next project
 		os.chdir(statics.workdir)
 	# Save the report to file
