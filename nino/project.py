@@ -118,7 +118,7 @@ class project():
 		# Retrieve all present .apk inside projects folder
 		apks = glob.glob("**/*.apk", recursive = True)
 		# Filter out those that are not result of the previous build
-		regex = re.compile(".*build/outputs/apk/*")
+		regex = re.compile(".*build(\\\\|\/)outputs(\\\\|\/)apk(\\\\|\/)")
 		apks = list(filter(regex.match, apks))
 		# Loop through the remaining apks (there may be different flavours)
 		for apk in apks:
@@ -126,16 +126,16 @@ class project():
 			print("SIGNING OUTPUT: " + displayname + " ", end = "", flush = True)
 			print("\nSIGNING OUTPUT: " + displayname, file = self.logfile, flush = True)
 			# A path with a length of 3 means we have flavour names so we append them
-			displayname = displayname.split("/")
+			displayname = re.split("\\\\|\/", displayname)
 			if len(displayname) == 3:
 				displayname = self.name + "-" + displayname[0] + "-" + displayname[1] + ".apk"
 			else:
 				displayname = self.name + "-" + displayname[0] + ".apk"
 			# Verify whether is needed or not to sign, as some outputs may come out of building process already signed
-			verify = subprocess.call(["apksigner", "verify", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+			verify = subprocess.call(["apksigner" + statics.execsuffix, "verify", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 			if verify == 1:
 				# Sign the .apk with the provided key
-				sign = subprocess.Popen(["apksigner", "sign", "--ks", self.keystore, "--ks-key-alias", self.keyalias,"--out", statics.workdir + "/NINO-RELEASES/" + displayname, "--in", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+				sign = subprocess.Popen(["apksigner" + statics.execsuffix, "sign", "--ks", self.keystore, "--ks-key-alias", self.keyalias,"--out", statics.workdir + "/NINO-RELEASES/" + displayname, "--in", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 				# Generate the input using the two passwords and feed it to the subprocess
 				secrets = self.signsecrets["store"] + "\n" + self.signsecrets["alias"]
 				sign.communicate(input=secrets.encode())
