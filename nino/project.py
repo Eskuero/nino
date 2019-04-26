@@ -184,5 +184,6 @@ class project():
 						print("     TO DEVICE: " + target + " - \033[91mFAILED       \033[0m")
 			if len(faileddeploylist[apk]) < 1:
 				faileddeploylist.pop(apk)
-			else:
-				self.failed.update({"deploylist": faileddeploylist, "deploy": self.deploy})
+		# We need to retry if at least one output wasn't delivered
+		if faileddeploylist:
+			self.failed.update({"deploylist": faileddeploylist, "deploy": self.deploy})
