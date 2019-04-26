@@ -120,8 +120,6 @@ class project():
 		# Filter out those that are not result of the previous build
 		regex = re.compile(".*build/outputs/apk/*")
 		apks = list(filter(regex.match, apks))
-		# To tell main if we need to attempt signing again on retry
-		self.resign = False
 		# Loop through the remaining apks (there may be different flavours)
 		for apk in apks:
 			displayname = re.sub(regex, "", apk)
