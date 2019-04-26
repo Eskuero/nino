@@ -58,7 +58,7 @@ class project():
 		# Get changes and save output/return code of the command for checks
 		self.pull = subprocess.call(self.fetcher["pull"], stdout = self.logfile, stderr = subprocess.STDOUT)
 		# Certain VCS (like mercurial) split syncing into pulling and updating so if a command is specified we need to execute it
-		if self.fetcher["update"]:
+		if self.fetcher["update"] and self.pull == 0:
 			self.pull = subprocess.call(self.fetcher["update"], stdout = self.logfile, stderr = subprocess.STDOUT)
 		# If something changed flag it for later checks	
 		if self.pull == 0:
