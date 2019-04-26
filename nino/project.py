@@ -60,10 +60,10 @@ class project():
 		# Certain VCS (like mercurial) split syncing into pulling and updating so if a command is specified we need to execute it
 		if self.fetcher["update"]:
 			self.pull = subprocess.call(self.fetcher["update"], stdout = self.logfile, stderr = subprocess.STDOUT)
-		# We need to pull back to the start of the file to be able to read anything
-		self.logfile.seek(0)
 		# If something changed flag it for later checks	
 		if self.pull == 0:
+			# We need to pull back to the start of the file to be able to read anything
+			self.logfile.seek(0)
 			if self.fetcher["nonews"] not in self.logfile.read():
 				print("- \033[92mUPDATED\033[0m")
 				self.changed = True
