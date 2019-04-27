@@ -1,12 +1,16 @@
 import os
 import sys
 import json
+import colorama
 from .project import project
 from .signing import signing
 from .utils import utils
 from .statics import statics
 
 def main():
+	# Start colorama for ANSI escape codes under Windows
+	colorama.init()
+
 	# Check everything is in place before even starting to retrieve information
 	utils.dpnds()
 
