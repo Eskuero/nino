@@ -82,7 +82,8 @@ class project():
 				print("- \033[92mSUCCESSFUL\033[0m")
 			else:
 				print("- \033[91mFAILED\033[0m")
-
+				self.failed.update({"build": self.build, "force": self.changed, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "resign": self.resign, "deploylist": self.deploylist, "deploy": self.deploy})
+				self.build = False
 	def package(self):
 		# Check if gradle wrapper exists before falling back to system-wide gradle
 		if not os.path.isfile("gradlew" + statics.execsuffix):
