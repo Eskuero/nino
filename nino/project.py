@@ -160,6 +160,9 @@ class project():
 		# Store the list of failed to deploy outputs and devices on a different dict
 		faileddeploylist = {}
 		for apk in self.deploylist:
+			# If no target is specified for the output we skip this iteration
+			if not self.deploylist[apk]:
+				continue
 			faileddeploylist[apk] = []
 			print("DEPLOYING OUTPUT: " + apk)
 			for target in self.deploylist[apk]:
