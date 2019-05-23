@@ -15,7 +15,7 @@ class statics():
             "pull": [execprefix + "nino-sync", "pull"],
             "update": [execprefix + "nino-sync", "update"],
             "nonews": "Already up-date",
-            "apply": [execprefix + "nino-sync", "apply"]
+            "apply": [execprefix + "nino-sync", "apply", "--reject"]
         },
         ".git": {
             "lastdate": ["git", "log", "-n", "1", "--format=%cr"],
