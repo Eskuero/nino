@@ -1,0 +1,15 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 0b92c637..86d01edd 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -28,8 +28,8 @@ android {
+         applicationId "com.github.yeriomin.yalpstore"
+         minSdkVersion 5
+         targetSdkVersion 28
+-        versionCode 45
+-        versionName getVersionName()
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         vectorDrawables.useSupportLibrary = true
+         resConfigs "ar", "ast", "bg", "cs", "de", "el", "en", "es", "eu", "fr", "fr-rBE", "in", "it", "ja", "kk", "ko", "nl", "pl", "pt", "pt-rBR", "ru", "sk", "uk", "zh", "zh-rTW"
+     }

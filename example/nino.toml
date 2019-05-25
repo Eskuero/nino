@@ -1,0 +1,68 @@
+[default]
+sync = true
+preserve = true
+build = true
+retry = false
+fakeversion = true
+keystore = "clave.jks"
+keyalias = "mykey"
+
+[mpv-android]
+tasks = []
+
+[fenix]
+tasks = ["assembleAarch64Raptor"]
+
+[Telegram-FOSS]
+tasks = ["assembleAfatRelease"]
+
+[scrambled-exif]
+tasks = ["assembleStandardRelease"]
+
+[Osmand]
+tasks = ["assembleFullLegacyArm64Release"]
+
+[blokada]
+tasks = ["assembleAdblockerFdroidRelease"]
+
+[WhatsApp]
+tasks = []
+
+[wikipedia]
+tasks = ["assembleFdroidRelease"]
+
+[Signal-Android]
+tasks = ["assembleWebsiteRelease"]
+
+[screenrecorder]
+tasks = ["assembleFdroidRelease"]
+
+[tachiyomi]
+tasks = ["assembleFdroidRelease"]
+
+[tachiyomi-extensions]
+tasks = []
+
+[Conversations]
+tasks = ["assembleConversationsFreeSystemRelease"]
+
+[fdroidclient]
+tasks = ["assembleFullRelease"]
+
+[Tusky]
+tasks = ["assembleBlueRelease"]
+
+[markor]
+tasks = ["assembleFlavorDefaultRelease"]
+
+[AmazeFileManager]
+tasks = ["assembleFdroidRelease"]
+
+[open-keychain]
+tasks = ["assembleFdroidRelease"]
+
+[Twidere-Android]
+tasks = ["assembleFdroidRelease"]
+
+[YalpStore]
+tasks = ["assembleContemporaryRelease"]

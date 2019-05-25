@@ -1,0 +1,15 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index f89f1d00..c7e669a5 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -8,8 +8,8 @@ android {
+         applicationId "org.schabi.newpipe"
+         minSdkVersion 19
+         targetSdkVersion 28
+-        versionCode 720
+-        versionName "0.16.0"
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+ 
+         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+         vectorDrawables.useSupportLibrary = true

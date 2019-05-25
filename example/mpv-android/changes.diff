@@ -1,0 +1,15 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index cb10311..0f5083d 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -8,8 +8,8 @@ android {
+     defaultConfig {
+         minSdkVersion 21
+         targetSdkVersion 28
+-        versionCode 15
+-        versionName "2019-04-18-alpha"
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         vectorDrawables.useSupportLibrary = true
+     }
+     sourceSets {

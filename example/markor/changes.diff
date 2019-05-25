@@ -1,0 +1,26 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 784e4df2..f8adc5af 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -34,8 +34,8 @@ android {
+ 
+         resValue "string", "manifest_package_id", "net.gsantner.markor"
+         applicationId "net.gsantner.markor"
+-        versionName "1.8.0"
+-        versionCode 70
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+     }
+ 
+     flavorDimensions "default"
+@@ -47,8 +47,8 @@ android {
+         }
+         flavorTest {
+             applicationId "net.gsantner.markor_test"
+-            versionCode = Integer.parseInt(new Date().format('yyMMdd'))
+-            versionName = new Date().format('yyMMdd')
++            versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++            versionName new Date().format("yyyy.MM.dd-HH.mm")
+             buildConfigField "boolean", "IS_TEST_BUILD", "true"
+         }
+     }

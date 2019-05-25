@@ -1,0 +1,42 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 4bcdd08..dc31142 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -8,12 +8,12 @@ android {
+         applicationId "org.proninyaroslav.libretorrent"
+         minSdkVersion 15 /* Officially Android Jelly Bean (< 4.4) support is dropped in libtorrent4j */
+         targetSdkVersion 28
+-        versionCode 11
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+         /*
+          * Convection:
+          *  major.minor.[revision][-some_info]
+          */
+-        versionName "1.9.1"
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         vectorDrawables.useSupportLibrary = true
+         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+ 
+@@ -29,22 +29,11 @@ android {
+         }
+         debug {
+             applicationIdSuffix ".debug"
+-            versionNameSuffix "-DEBUG"
+-
+             testCoverageEnabled true
+             debuggable true
+         }
+     }
+ 
+-    splits {
+-        abi {
+-            enable true
+-            reset()
+-            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+-            universalApk true
+-        }
+-    }
+-
+     project.ext.versionCodes = ['armeabi-v7a': 1, 'arm64-v8a': 2, 'x86': 3, 'x86_64': 4]
+ 
+     android.applicationVariants.all { variant ->

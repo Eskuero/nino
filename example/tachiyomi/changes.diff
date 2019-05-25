@@ -1,0 +1,23 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 141e7ec6..86cadab8 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -38,8 +38,8 @@ android {
+         minSdkVersion 16
+         targetSdkVersion 27
+         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+-        versionCode 41
+-        versionName "0.8.4"
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+ 
+         buildConfigField "String", "COMMIT_COUNT", "\"${getCommitCount()}\""
+         buildConfigField "String", "COMMIT_SHA", "\"${getGitSha()}\""
+@@ -57,7 +57,6 @@ android {
+ 
+     buildTypes {
+         debug {
+-            versionNameSuffix "-${getCommitCount()}"
+             applicationIdSuffix ".debug"
+         }
+     }

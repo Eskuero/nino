@@ -1,0 +1,47 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 8d24b7b9..26d9aa07 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -3,10 +3,6 @@ apply plugin: 'kotlin-android'
+ apply plugin: 'kotlin-android-extensions'
+ apply plugin: 'kotlin-kapt'
+ 
+-def keystorePropertiesFile = rootProject.file("keystore.properties")
+-def keystoreProperties = new Properties()
+-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+-
+ android {
+     compileSdkVersion 28
+     buildToolsVersion "28.0.3"
+@@ -15,21 +11,12 @@ android {
+         applicationId "com.simplemobiletools.gallery.pro"
+         minSdkVersion 21
+         targetSdkVersion 28
+-        versionCode 249
+-        versionName "6.7.5"
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         multiDexEnabled true
+         setProperty("archivesBaseName", "gallery")
+     }
+ 
+-    signingConfigs {
+-        release {
+-            keyAlias keystoreProperties['keyAlias']
+-            keyPassword keystoreProperties['keyPassword']
+-            storeFile file(keystoreProperties['storeFile'])
+-            storePassword keystoreProperties['storePassword']
+-        }
+-    }
+-
+     buildTypes {
+         debug {
+             applicationIdSuffix ".debug"
+@@ -37,7 +24,6 @@ android {
+         release {
+             minifyEnabled true
+             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+-            signingConfig signingConfigs.release
+         }
+     }
+ 

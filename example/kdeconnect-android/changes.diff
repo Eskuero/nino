@@ -1,0 +1,34 @@
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index 644c6a17..3b1e32ce 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="org.kde.kdeconnect_tp"
+-    android:versionCode="11270"
+-    android:versionName="1.12.7">
++    package="org.kde.kdeconnect_tp">
+ 
+     <supports-screens
+         android:anyDensity="true"
+@@ -270,4 +268,4 @@
+ 
+     </application>
+ 
+-</manifest>
+\ No newline at end of file
++</manifest>
+diff --git a/build.gradle b/build.gradle
+index a6b54dbd..88b06b76 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -15,6 +15,8 @@ android {
+     defaultConfig {
+         minSdkVersion 14
+         targetSdkVersion 28
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+     }
+     dexOptions {
+         javaMaxHeapSize "2g"

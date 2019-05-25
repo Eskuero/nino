@@ -1,0 +1,39 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index c5f9299..637c111 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -43,8 +43,8 @@ android {
+         applicationId "org.blokada"
+         minSdkVersion 21
+         targetSdkVersion 27
+-        versionName androidGitVersion.name()
+-        versionCode androidGitVersion.code()
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+     }
+     lintOptions {
+@@ -116,14 +116,7 @@ android {
+         beta.res.srcDirs += 'src/build-official/res'
+         beta.java.srcDirs += 'src/build-official-imports/kotlin'
+     }
+-    signingConfigs {
+-        release {
+-            keyAlias 'blokada'
+-            keyPassword BLOKADA_KEY_PASSWORD
+-            storeFile file(BLOKADA_KEY_PATH)
+-            storePassword BLOKADA_STORE_PASSWORD
+-        }
+-    }
++
+     buildTypes {
+         debug {
+         }
+@@ -131,7 +124,6 @@ android {
+             minifyEnabled false
+             useProguard false
+             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+-            signingConfig signingConfigs.release
+         }
+         official {
+             initWith(release)

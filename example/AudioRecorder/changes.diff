@@ -1,0 +1,31 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 866efe3..c877642 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -9,16 +9,8 @@ android {
+         applicationId "com.github.axet.audiorecorder"
+         minSdkVersion 9
+         targetSdkVersion 26
+-        versionCode 322
+-        versionName "3.2.64"
+-    }
+-    signingConfigs {
+-        release {
+-            storeFile file(prop('RELEASE_STORE_FILE')?:'none')
+-            storePassword prop('RELEASE_STORE_PASSWORD')
+-            keyAlias prop('RELEASE_KEY_ALIAS')
+-            keyPassword prop('RELEASE_KEY_PASSWORD')
+-        }
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+     }
+     buildTypes {
+         debug {
+@@ -30,7 +22,6 @@ android {
+             shrinkResources true
+             minifyEnabled true
+             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+-            signingConfig signingConfigs.release
+         }
+     }
+     applicationVariants.all { variant ->

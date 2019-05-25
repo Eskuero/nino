@@ -1,0 +1,26 @@
+diff --git a/build.gradle b/build.gradle
+index a73473b..d9cacf7 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -42,6 +42,8 @@ android {
+ 
+ 		minSdkVersion 14
+ 		targetSdkVersion 27
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+ 
+ 		applicationId "org.quantumbadger.redreader"
+ 	}
+diff --git a/src/main/AndroidManifest.xml b/src/main/AndroidManifest.xml
+index d5d4fa6..a68622e 100644
+--- a/src/main/AndroidManifest.xml
++++ b/src/main/AndroidManifest.xml
+@@ -18,8 +18,6 @@
+ 
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+           package="org.quantumbadger.redreader"
+-          android:versionCode="87"
+-          android:versionName="1.9.10"
+           android:installLocation="auto">
+ 
+     <uses-feature android:glEsVersion="0x00020000" android:required="true" />

@@ -1,0 +1,30 @@
+diff --git a/OpenKeychain/build.gradle b/OpenKeychain/build.gradle
+index 9c06305b6..2da9b2571 100644
+--- a/OpenKeychain/build.gradle
++++ b/OpenKeychain/build.gradle
+@@ -177,8 +177,8 @@ android {
+     defaultConfig {
+         minSdkVersion 15
+         targetSdkVersion 28
+-        versionCode 53002
+-        versionName "5.3-beta3"
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         applicationId "org.sufficientlysecure.keychain"
+         // the androidjunitrunner is broken regarding coverage, see here:
+         // https://code.google.com/p/android/issues/detail?id=170607
+diff --git a/sshauthentication-api/build.gradle b/sshauthentication-api/build.gradle
+index 0969a3f71..3a84b5671 100644
+--- a/sshauthentication-api/build.gradle
++++ b/sshauthentication-api/build.gradle
+@@ -28,8 +28,8 @@ android {
+     defaultConfig {
+         minSdkVersion 9
+         targetSdkVersion 25
+-        versionCode 1
+-        versionName "1.0"
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+     }
+ 
+     // Do not abort build if lint finds errors

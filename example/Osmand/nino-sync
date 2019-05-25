@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+import sys
+import os
+import time
+import subprocess
+
+def lastdate():
+	try:
+		date = str(int((time.time() - os.path.getmtime('.lastdate'))/60)) + " minutes ago"
+	except:
+		date = "date unknown"
+	print(date)
+
+def diff(): pass
+
+def clean(): pass 
+
+def pull():
+	workdir = os.getcwd()
+	changed = False
+	for subproject in [subfolder for subfolder in os.listdir() if os.path.isdir(subfolder)]:
+		if ".git" in os.listdir(subproject):
+			os.chdir(subproject)
+			print("Syncing subproject " + subproject)
+			pull = subprocess.Popen(["git", "pull"], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+			output = pull.communicate()[0].decode()
+			if pull.returncode == 0 and "Already up" not in output:
+				changed = True
+			os.chdir(workdir)
+	if not changed:
+		print("Already up-date")
+
+def update(): pass
+
+def apply(): pass
+
+args = {
+	"lastdate": lastdate,
+	"diff": diff,
+	"clean": clean,
+	"pull": pull,
+	"update": update,
+	"apply": apply 
+}
+
+args[sys.argv[1]]()

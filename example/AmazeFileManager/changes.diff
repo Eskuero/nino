@@ -1,0 +1,15 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index b64c7e9f..cfe021c0 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -23,8 +23,8 @@ android {
+         applicationId "com.amaze.filemanager"
+         minSdkVersion 14
+         targetSdkVersion 28
+-        versionCode 65
+-        versionName "3.3.0RC1"
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+         multiDexEnabled true
+ 
+         vectorDrawables.useSupportLibrary = true

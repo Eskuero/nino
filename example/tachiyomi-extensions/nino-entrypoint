@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd src/en/mangarock;
+gradle --no-daemon assembleRelease;

@@ -1,0 +1,26 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index aade9be0..3ae1ad1e 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -12,6 +12,8 @@ android {
+         applicationId "ch.blinkenlights.android.vanilla"
+         minSdkVersion rootProject.ext.minSdkVersion
+         targetSdkVersion rootProject.ext.targetSdkVersion
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++		versionName new Date().format("yyyy.MM.dd-HH.mm")
+     }
+ 
+     buildTypes {
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index a473918f..b9d30402 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -23,8 +23,6 @@ THE SOFTWARE.
+ -->
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+ 	package="ch.blinkenlights.android.vanilla"
+-	android:versionName="1.0.83"
+-	android:versionCode="10830"
+ 	android:installLocation="auto">
+ 	<uses-permission android:name="android.permission.WAKE_LOCK" />
+ 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

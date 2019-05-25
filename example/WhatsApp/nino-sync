@@ -1,0 +1,32 @@
+#!/bin/sh
+
+if [ -n $1 ]; then
+	case $1 in
+		"lastdate")
+			if [ -f ".lastdate" ]; then
+				lastdate=$(cat .lastdate)
+				currentdate=$(date +%s)
+				string="$(((($currentdate - $lastdate))/60)) minutes ago"
+			else
+				string="date unknown"
+			fi
+			echo $string
+			;;
+		"pull")
+			wget https://www.whatsapp.com/android/ -O index.html
+			url=$(grep "WhatsApp.apk" index.html | awk -F "[=>]" '{print $2}')
+			wget $url -O build/outputs/apk/release/WhatsApp.apk
+			version=$(apkanalyzer -h manifest print build/outputs/apk/release/WhatsApp.apk | grep "versionName" | cut -d\" -f2)
+			if [ -f ".version" ]; then
+    			oldversion=$(cat .version)
+			else
+    			oldversion="0.0.0"
+			fi
+			echo $version > .version
+			if awk 'BEGIN{exit ARGV[1]>ARGV[2]}' $version $oldversion; then
+				echo "Already up-date"
+			fi
+			;;
+	esac
+fi
+exit 0

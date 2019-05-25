@@ -1,0 +1,28 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 701c6345..20f2bcc8 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -65,8 +65,8 @@ android {
+         applicationId "com.vrem.wifianalyzer"
+         minSdkVersion 19
+         targetSdkVersion 28
+-        versionCode
+-        versionName
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+     }
+ 
+diff --git a/app/build.properties b/app/build.properties
+deleted file mode 100644
+index e2b89f0f..00000000
+--- a/app/build.properties
++++ /dev/null
+@@ -1,7 +0,0 @@
+-#Build Properties
+-#Fri Apr 19 20:50:11 EDT 2019
+-version_minor=0
+-version_build=0
+-version_patch=4
+-version_store=45
+-version_major=2

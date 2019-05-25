@@ -1,0 +1,54 @@
+diff --git a/compile-libvlc.sh b/compile-libvlc.sh
+index bde7e8516..afaf9f9d8 100755
+--- a/compile-libvlc.sh
++++ b/compile-libvlc.sh
+@@ -556,7 +556,7 @@ STRIP="${CROSS_TOOLS}strip" \
+ RANLIB="${CROSS_TOOLS}ranlib" \
+ AR="${CROSS_TOOLS}ar" \
+ PKG_CONFIG_LIBDIR=$VLC_SRC_DIR/contrib/$TARGET_TUPLE/lib/pkgconfig \
+-PKG_CONFIG_PATH=$VLC_SRC_DIR/contrib/$TARGET_TUPLE/lib/pkgconfig \
++PKG_CONFIG_PATH=$VLC_SRC_DIR/contrib/$TARGET_TUPLE/lib/pkgconfig:/usr/lib/pkgconfig/ \
+ PATH=../contrib/bin:$PATH \
+ sh ../configure --host=$TARGET_TUPLE --build=x86_64-unknown-linux \
+     --with-contrib=${VLC_SRC_DIR}/contrib/${TARGET_TUPLE} \
+diff --git a/vlc-android/build.gradle b/vlc-android/build.gradle
+index 5d69375f5..438432c4a 100644
+--- a/vlc-android/build.gradle
++++ b/vlc-android/build.gradle
+@@ -61,8 +61,8 @@ android {
+ 
+         minSdkVersion rootProject.ext.minSdkVersion
+         targetSdkVersion rootProject.ext.targetSdkVersion
+-        versionCode rootProject.ext.versionCode
+-        versionName rootProject.ext.versionName
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+ 
+         tasks.whenTaskAdded { task ->
+             if (task.name.startsWith('merge')) {
+@@ -132,25 +132,6 @@ android {
+         }
+     }
+ 
+-    splits {
+-        abi {
+-            def isReleaseBuild = false
+-            gradle.startParameter.taskNames.find {
+-                // Enable split for release builds in different build flavors
+-                // (assemblePaidRelease, assembleFreeRelease, etc.).
+-                if (it.toLowerCase() ==~ /assemble.*Release/.toLowerCase()) {
+-                    isReleaseBuild = true
+-                    return true // break
+-                }
+-                return false // continue
+-            }
+-            enable isReleaseBuild
+-            reset()
+-            include "x86", "x86_64", "armeabi-v7a", "arm64-v8a"
+-//            universalApk !isReleaseBuild
+-        }
+-    }
+-
+     def abiCodes = ['x86':5, 'x86_64':8, 'armeabi-v7a':4, 'arm64-v8a':7]
+     // make per-variant version code
+     applicationVariants.all { variant ->

@@ -1,0 +1,8 @@
+#!/bin/sh
+mkdir -p build/outputs/apk/release/
+wget https://www.whatsapp.com/android/ -O index.html
+url=$(grep "WhatsApp.apk" index.html | awk -F "[=>]" '{print $2}')
+wget $url -O build/outputs/apk/release/WhatsApp.apk
+version=$(apkanalyzer -h manifest print build/outputs/apk/release/WhatsApp.apk | grep "versionName" | cut -d\" -f2)
+echo $version > .version
+echo $(date +%s) > .lastdate

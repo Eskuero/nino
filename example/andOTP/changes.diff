@@ -1,0 +1,24 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index bf39a2b..fa70977 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -8,8 +8,8 @@ android {
+         applicationId "org.shadowice.flocke.andotp"
+         minSdkVersion 19
+         targetSdkVersion 27
+-        versionCode 22
+-        versionName "0.6.1"
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         vectorDrawables.useSupportLibrary = true
+     }
+     buildTypes {
+@@ -19,7 +19,7 @@ android {
+         }
+         debug {
+             applicationIdSuffix = ".dev"
+-            versionNameSuffix = "-dev"
++            versionNamenew Date().format("yyyy.MM.dd-HH.mm")
+             testCoverageEnabled = true
+         }
+     }

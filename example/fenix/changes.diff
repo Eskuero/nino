@@ -1,0 +1,38 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 4bcb651..81a8e9a 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -16,8 +16,8 @@ android {
+         applicationId "org.mozilla.fenix"
+         minSdkVersion Config.minSdkVersion
+         targetSdkVersion Config.targetSdkVersion
+-        versionCode 1
+-        versionName Config.generateDebugVersionName()
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+         testInstrumentationRunnerArguments clearPackageData: 'true'
+         manifestPlaceholders.isRaptorEnabled = "false"
+@@ -123,21 +123,7 @@ android.applicationVariants.all { variant ->
+     def isReleased = releaseChannels.contains(buildType)
+ 
+     if (isReleased) {
+-        versionCode = generatedVersionCode
+-
+-        // The Google Play Store does not allow multiple APKs for the same app that all have the
+-        // same version code. Therefore we need to have different version codes for our ARM and x86
+-        // builds.
+-
+-        // Our generated version code now has a length of 9 (See automation/gradle/versionCode.gradle).
+-        // Our x86 builds need a higher version code to avoid installing ARM builds on an x86 device
+-        // with ARM compatibility mode.
+-
+-        if (variant.flavorName.contains("x86")) {
+-            versionCode = versionCode + 2
+-        } else if (variant.flavorName.contains("aarch64")) {
+-            versionCode = versionCode + 1
+-        }// else variant.flavorName.contains("Arm")) use generated version code
++        versionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
+ 
+         variant.outputs.all {
+             versionCodeOverride = versionCode

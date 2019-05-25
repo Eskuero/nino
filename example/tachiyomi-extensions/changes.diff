@@ -1,0 +1,15 @@
+diff --git a/common.gradle b/common.gradle
+index d5a2b40..0817647 100644
+--- a/common.gradle
++++ b/common.gradle
+@@ -32,8 +32,8 @@ android {
+         minSdkVersion 16
+         targetSdkVersion 27
+         applicationIdSuffix pkgNameSuffix
+-        versionCode extVersionCode
+-        versionName "$libVersion.$extVersionCode"
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         setProperty("archivesBaseName", "tachiyomi-$pkgNameSuffix-v$versionName")
+         manifestPlaceholders = [
+                 appName: appName,

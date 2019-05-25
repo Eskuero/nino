@@ -1,0 +1,15 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 7967bc9c..b2867306 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -18,8 +18,8 @@ android {
+         applicationId "com.keylesspalace.tusky"
+         minSdkVersion 21
+         targetSdkVersion 28
+-        versionCode 62
+-        versionName "7.1"
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+         vectorDrawables.useSupportLibrary = true
+ 
