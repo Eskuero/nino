@@ -3,7 +3,7 @@ import platform
 
 class statics():
     validprops = ["sync", "preserve", "build", "tasks", "keystore", "keyalias", "deploy"]
-    projects = os.listdir()
+    projects = [name for name in os.listdir() if os.path.isdir(name) and name != "NINO-RELEASES"]
     workdir = os.getcwd()
     execprefix = "" if "Windows" in platform.system() else "./"
     execsuffix = ".bat" if "Windows" in platform.system() else ""

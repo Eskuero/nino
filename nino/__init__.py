@@ -1,9 +1,9 @@
 import os
 import sys
 import json
+import copy
 import colorama
 from .project import project
-from .signing import signing
 from .utils import utils
 from .statics import statics
 
@@ -15,63 +15,68 @@ def main():
 	utils.dpnds()
 
 	# We store the configuration on a dictionary for ease on accesing the data
-	config = {
-		"default": {
-			"sync": False,
-			"preserve": False,
-			"build": False,
-			"force": [],
-			"tasks": ["assembleRelease"],
-			"keystore": False,
-			"keyalias": False,
-			"deploy": [],
-		}
+	config = {"projects": {"default": {}}, "keystores": {}, "devices": {}, "retry": False, "force": []}
+	# Global defaults for all projects
+	defconfig = {
+		"sync": False,
+		"preserve": False,
+		"build": False,
+		"tasks": {
+			"release": {
+				"exec": "assembleRelease"
+			}
+		},
+		"keystore": False,
+		"keyalias": False,
+		"deploy": []
 	}
 
 	# Create the out directory in case it doesn't exist already
 	if not os.path.isdir("NINO-RELEASES"):
 		os.mkdir("NINO-RELEASES")
-	# Retryable config that will be dumped onto .nino-last
-	failed = {}
+
+	# Parse command line arguments and modify running config accordingly
+	utils.cmdargs(config)
 
 	# When retrying we completely ignore configurations from file and cmdargs
-	if not ({"-r", "--retry"}).isdisjoint(set(sys.argv)):
+	if config["retry"]:
 		try:
 			with open(".nino-last", "r") as file:
-				fileconfig = json.load(file)
+				config.update(json.load(file))
 		except:
 			print("Failed to load retryable config from .nino-last so can't proceed")
 			sys.exit(1)
-		else:
-			retry = True
 	else:
-		retry = False
 		# Retrieve configuration file and load options
-		fileconfig = utils.cfgfile()
-	# Update or append each project specifications to the config
-	for entry in fileconfig:
-		try:
-			config[entry].update(fileconfig[entry])
-		except KeyError:
-			config[entry] = fileconfig[entry]
+		config.update(utils.cfgfile())
 
-	# Parse command line arguments and modify running config accordingly
-	utils.cmdargs(config["default"]) if not retry else None
-	# This dictionary will contain the keystore/password used for each projects, plus the default for all of them
-	keystores = signing.setup(statics.projects, config)
-	# For the enabled projects prompt and store passwords
-	signing.secrets(keystores)
+	# Add missing fields in default project config using values from defconfig
+	for entry in defconfig:
+		if entry not in config["projects"]["default"]:
+			config["projects"]["default"][entry] = defconfig[entry]
+
+	# Retryable config that will be dumped onto .nino-last at the end, must retain keystore (before enables and promps) and device list
+	failed = {
+		"projects": {
+			"default": copy.deepcopy(config["projects"]["default"])
+		},
+		"keystores": copy.deepcopy(config["keystores"]),
+		"devices": copy.deepcopy(config["devices"])
+	}
+
+	# Enable keystores and aliases that will be used during the run
+	utils.enablesigns(config)
+	# Retrieve passwords for each keystore and key that may be used
+	utils.promptpasswd(config["keystores"])
 
 	# Loop for every folder on invocation dir
-	for name in [name for name in statics.projects if os.path.isdir(name) and name != "NINO-RELEASES"]:
+	for name in statics.projects:
 		# Skip project if retrying but nothing to do
-		if retry and name not in config:
+		if config["retry"] and name not in config["projects"]:
 			continue
 		os.chdir(name)
-		# Retrieve custom configuration for project
-		pconfig = config.get(name, {})
-		# Initialize project class falling back to running config
-		app = project(name, config["default"], pconfig, keystores, retry)
+		# Initialize project class
+		app = project(name, config)
 		# Introduce the project
 		app.presentation()
 		# Sync the project
@@ -81,14 +86,14 @@ def main():
 		if app.build and (app.changed or app.force):
 			app.package()
 		# We search for apks to sign and merge them to the current list
-		if app.built == 0 or app.resign:
+		if app.built == 0 or app.signlist:
 			app.sign()
 		# We deploy if we built something
 		if app.deploylist:
 			app.install()
 		# Store retriable config for project if not empty
 		if app.failed:
-			failed[name] = app.failed
+			failed["projects"][name] = app.failed
 		# Go back to the invocation directory before moving onto the next project
 		os.chdir(statics.workdir)
 	# Save the report to file
