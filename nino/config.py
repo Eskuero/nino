@@ -6,7 +6,7 @@ import getpass
 import subprocess
 import argparse
 import toml
-from .statics import statics
+from .statics import projects, defconfig
 
 running = {"projects": {"default": {}}, "keystores": {}, "devices": {}, "retry": False, "force": []}
 
@@ -33,9 +33,9 @@ except:
 	sys.exit(1)
 
 # Add missing fields in default project config using values from defconfig
-for entry in statics.defconfig:
+for entry in defconfig:
 	if entry not in running["projects"]["default"]:
-		running["projects"]["default"][entry] = statics.defconfig[entry]
+		running["projects"]["default"][entry] = defconfig[entry]
 
 # Retryable config that will be dumped onto .nino-last at the end, must retain keystore (before enables and promps) and device list
 failed = {
@@ -47,8 +47,9 @@ failed = {
 }
 
 defconfig = running["projects"]["default"]
+keystores = running["keystores"]
 wentwrong = False
-for project in statics.projects:
+for project in projects:
 	# Tasks and project are referenced a couple of times so store them temporarily
 	pconfig = running["projects"].get(project, {})
 	tasks = pconfig.get("tasks", defconfig["tasks"])
@@ -64,17 +65,17 @@ for project in statics.projects:
 				continue
 			try:
 				# Confirm that both store and alias have entries on configuration file
-				running["keystores"][store]["used"] = True
-				running["keystores"][store]["aliases"][alias]["used"] = True
+				keystores[store]["used"] = True
+				keystores[store]["aliases"][alias]["used"] = True
 			except KeyError:
 				print(project + ": " + store + "/" + alias + " is not a valid keystore/keyalias combination. Please review your configuration file.")
 				wentwrong = True
 				continue
 			else:
-				path = running["keystores"][store].get("path", ".")
+				path = keystores[store].get("path", ".")
 				# Make sure the absolute filesystem path exists
 				if os.path.isfile(path):
-					running["keystores"][store]["path"] = os.path.abspath(path)
+					keystores[store]["path"] = os.path.abspath(path)
 				else:
 					print(project + ": " + task + ": Path " + os.path.abspath(path) + " for keystore " + store + " does not exist. Please review your configuration file.")
 					wentwrong = True

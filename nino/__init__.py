@@ -2,8 +2,8 @@ import os
 import json
 import colorama
 from .project import project
-from .utils import utils
-from .statics import statics
+from .utils import dpnds
+from .statics import projects, workdir
 from .config import running, failed
 
 def main():
@@ -17,7 +17,7 @@ def main():
 		os.mkdir("NINO-RELEASES")
 
 	# Loop for every folder on invocation dir
-	for name in statics.projects:
+	for name in projects:
 		# Skip project if retrying but nothing to do
 		if running["retry"] and name not in running["projects"]:
 			continue
@@ -42,7 +42,7 @@ def main():
 		if app.failed:
 			failed["projects"][name] = app.failed
 		# Go back to the invocation directory before moving onto the next project
-		os.chdir(statics.workdir)
+		os.chdir(workdir)
 	# Save the report to file
 	with open(".nino-last", "w") as file:
 		json.dump(failed, file)

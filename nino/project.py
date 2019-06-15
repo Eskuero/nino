@@ -4,14 +4,14 @@ import re
 import subprocess
 import copy
 from .config import running
-from .statics import statics
+from .statics import execprefix, execsuffix, workdir, fetchmethods, defconfig
 
 class project():
 	def __init__(self, name):
 		self.name = name
 		pconfig = running["projects"].get(name, {})
 		# Retrieve value for each property except for force because has different types
-		for prop in statics.defconfig:
+		for prop in defconfig:
 			setattr(self, prop, pconfig.get(prop, running["projects"]["default"][prop]))
 		# Detect the valid fetching method even when fetching is disabled because is needed on presentation
 		self.fetcher = self.getfetchmethod()
@@ -38,9 +38,9 @@ class project():
 	def getfetchmethod(self):
 		localdir = os.listdir()
 		# Check every predefined method to see what's usable
-		for method in statics.fetchmethods:
+		for method in fetchmethods:
 			if method in localdir:
-				return statics.fetchmethods[method]
+				return fetchmethods[method]
 		# Returning after the loop ended means no method is feasible
 		return False
 
@@ -88,15 +88,15 @@ class project():
 	def package(self):
 		print("BUILDING PACKAGE:")
 		# Check if gradle wrapper exists before falling back to system-wide gradle
-		if not os.path.isfile("gradlew" + statics.execsuffix):
+		if not os.path.isfile("gradlew" + execsuffix):
 			command = "gradle"
 		else:
-			command = statics.execprefix + "gradlew" + statics.execsuffix
+			command = execprefix + "gradlew" + execsuffix
 		# User may provide an entrypoint that must be used as setup script before building
-		if os.path.isfile("nino-entrypoint" + statics.execsuffix):
+		if os.path.isfile("nino-entrypoint" + execsuffix):
 			print("     ENTRYPOINT SCRIPT ", end = "", flush = True)
 			# Attempt to do the setup
-			self.built = subprocess.call([statics.execprefix + "nino-entrypoint"], stdout = self.logfile, stderr = subprocess.STDOUT)
+			self.built = subprocess.call([execprefix + "nino-entrypoint"], stdout = self.logfile, stderr = subprocess.STDOUT)
 			if self.built != 0:
 				print("- \033[91mFAILED\033[0m")
 				self.failed.update({"build": self.build, "force": True, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
@@ -186,10 +186,10 @@ class project():
 		for apk in self.signlist:
 			print("     " + self.signlist[apk]["displayname"] + " ", end = "", flush = True)
 			# Verify whether is needed or not to sign, as some outputs may come out of building process already signed
-			verify = subprocess.call(["apksigner" + statics.execsuffix, "verify", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+			verify = subprocess.call(["apksigner" + execsuffix, "verify", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 			if verify == 1:
 				# Sign the .apk with the provided key
-				sign = subprocess.Popen(["apksigner" + statics.execsuffix, "sign", "--ks", running["keystores"][self.signlist[apk]["keystore"]]["path"], "--ks-key-alias", running["keystores"][self.signlist[apk]["keystore"]]["aliases"][self.signlist[apk]["keyalias"]]["name"],"--out", statics.workdir + "/NINO-RELEASES/" + self.signlist[apk]["displayname"], "--in", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+				sign = subprocess.Popen(["apksigner" + execsuffix, "sign", "--ks", running["keystores"][self.signlist[apk]["keystore"]]["path"], "--ks-key-alias", running["keystores"][self.signlist[apk]["keystore"]]["aliases"][self.signlist[apk]["keyalias"]]["name"],"--out", workdir + "/NINO-RELEASES/" + self.signlist[apk]["displayname"], "--in", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 				# Generate the input using the two passwords and feed it to the subprocess
 				secrets = running["keystores"][self.signlist[apk]["keystore"]]["password"] + "\n" + running["keystores"][self.signlist[apk]["keystore"]]["aliases"][self.signlist[apk]["keyalias"]]["password"]
 				sign.communicate(input=secrets.encode())
@@ -203,7 +203,7 @@ class project():
 					print("- \033[91mFAILED\033[0m")
 			else:
 				self.updatedeploylist(self.signlist[apk]["displayname"], self.signlist[apk]["deploy"])
-				os.rename(apk, statics.workdir + "/NINO-RELEASES/" + self.signlist[apk]["displayname"])
+				os.rename(apk, workdir + "/NINO-RELEASES/" + self.signlist[apk]["displayname"])
 				print("- \033[93mUNNEEDED\033[0m")
 		# If we failed at least on one output we need to save it for the retry run
 		if failedsignlist:
@@ -242,7 +242,7 @@ class project():
 				else:
 					print("          TO DEVICE " + target + " - \033[93mDEPLOYING    \033[0m", end = "\r")
 					# We send the apk trying to override it on the system if neccessary
-					send = subprocess.call(["adb", "-s" , target, "install", "-r", statics.workdir + "/NINO-RELEASES/" + apk], stdout = self.logfile, stderr=subprocess.STDOUT)
+					send = subprocess.call(["adb", "-s" , target, "install", "-r", workdir + "/NINO-RELEASES/" + apk], stdout = self.logfile, stderr=subprocess.STDOUT)
 					if send == 0:
 						print("          TO DEVICE " + target + " - \033[92mSUCCESSFUL   \033[0m")
 					else:
