@@ -2,7 +2,6 @@ import os
 import platform
 
 class statics():
-	validprops = ["sync", "preserve", "build", "tasks", "keystore", "keyalias", "deploy"]
 	projects = [name for name in os.listdir() if os.path.isdir(name) and name != "NINO-RELEASES"]
 	workdir = os.getcwd()
 	execprefix = "" if "Windows" in platform.system() else "./"
@@ -36,7 +35,6 @@ class statics():
 			"apply": ["hg", "import", "--no-commit", "-"]
 		}
 	}
-
 	dependencies = {
 		"keytool": "https://java.com/en/download/manual.jsp",
 		"git": "https://git-scm.com/book/en/v2/Getting-Started-Installing-Git",
@@ -45,4 +43,17 @@ class statics():
 		"zipalign": "https://developer.android.com/studio/#downloads (build-tools)",
 		"apksigner": "https://developer.android.com/studio/#downloads (build-tools)",
 		"adb": "https://developer.android.com/studio/#downloads (platform-tools)"
+	}
+	defconfig = {
+		"sync": False,
+		"preserve": False,
+		"build": False,
+		"tasks": {
+			"release": {
+				"exec": "assembleRelease"
+			}
+		},
+		"keystore": False,
+		"keyalias": False,
+		"deploy": []
 	}
