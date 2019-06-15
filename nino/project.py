@@ -214,7 +214,7 @@ class project():
 	def updatedeploylist(self, apk, targets):
 		devices = set()
 		for roster in targets:
-			devices.union(set(self.devices.get(roster, {}).get("list", [])))
+			devices = devices.union(set(self.devices.get(roster, {}).get("list", [])))
 		self.deploylist[apk] = list(devices)
 
 	def install(self):
@@ -222,11 +222,14 @@ class project():
 		# Store the list of failed to deploy outputs and devices on a different dict
 		faileddeploylist = {}
 		for apk in self.deploylist:
+			print("     " + apk, end = "", flush = True)
 			# If no target is specified for the output we skip this iteration
 			if not self.deploylist[apk]:
+				print(" - \033[93mNO TARGETS\033[0m")
 				continue
+			else:
+				print()
 			faileddeploylist[apk] = []
-			print("     " + apk)
 			for target in self.deploylist[apk]:
 				print("          TO DEVICE " + target + " ", end = "\r")
 				try:
