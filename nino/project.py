@@ -212,7 +212,7 @@ class project():
 	def updatedeploylist(self, apk, targets):
 		devices = set()
 		for roster in targets:
-			devices = devices.union(set(running["devices"].get(roster, {}).get("list", [])))
+			devices = devices.union(set(running["devices"].get(roster, [])))
 		self.deploylist[apk] = list(devices)
 
 	def install(self):
