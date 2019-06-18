@@ -1,23 +1,15 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 47fa26d11..be7735b8d 100644
+index e569ff743..ab086b4d5 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -25,8 +25,8 @@ android {
      buildToolsVersion '27.0.3'
  
      defaultConfig {
--        versionCode 1007000
+-        versionCode 1007001
 -        versionName getVersionName()
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")
  
          testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
          /*
-@@ -52,7 +52,6 @@ android {
-         debug {
-             applicationIdSuffix ".debug"
-             resValue "string", "applicationId", fullApplicationId + applicationIdSuffix
--            versionNameSuffix "-debug"
-             println 'buildTypes.debug defaultConfig.versionCode ' + defaultConfig.versionCode
-         }
-     }

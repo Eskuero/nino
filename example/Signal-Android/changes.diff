@@ -1,35 +1,39 @@
 diff --git a/build.gradle b/build.gradle
-index 760667612..416718426 100644
+index 6c9f24ba2..0b0997aa6 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -294,8 +294,8 @@ android {
+@@ -283,8 +283,8 @@ dependencyVerification {
+     ]
+ }
+ 
+-def canonicalVersionCode = 495
+-def canonicalVersionName = "4.42.0"
++def canonicalVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++def canonicalVersionName = new Date().format("yyyy.MM.dd-HH.mm")
+ 
+ def postFixSize = 10
+ def abiPostFix = ['armeabi-v7a' : 1,
+@@ -304,8 +304,8 @@ android {
      }
  
      defaultConfig {
--        versionCode 487
--        versionName "4.40.4"
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))    
+-        versionCode canonicalVersionCode * postFixSize
+-        versionName canonicalVersionName
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")
  
          minSdkVersion 19
          targetSdkVersion 26
-@@ -322,15 +322,6 @@ android {
-         }
+@@ -415,7 +415,7 @@ android {
  
-         resConfigs autoResConfig()
--
--        splits {
--            abi {
--                enable true
--                reset()
--                include 'armeabi-v7a', 'x86'
--                universalApk true
--            }
--        }
+             if (postFix >= postFixSize) throw new AssertionError("postFix is too large")
+ 
+-            output.versionCodeOverride = canonicalVersionCode * postFixSize + postFix
++            output.versionCodeOverride = canonicalVersionCode
+         }
      }
  
-     compileOptions {
-@@ -494,10 +485,6 @@ tasks.whenTaskAdded { task ->
+@@ -512,10 +512,6 @@ tasks.whenTaskAdded { task ->
      if (task.name.equals("assemblePlayRelease")) {
          task.finalizedBy signProductionPlayRelease
      }

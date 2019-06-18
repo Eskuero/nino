@@ -1,0 +1,6 @@
+diff --git a/extern/GmsLib b/extern/GmsLib
+--- a/extern/GmsLib
++++ b/extern/GmsLib
+@@ -1 +1 @@
+-Subproject commit 39d20ec1f28bcc4b134d76f43296bad587362c69
++Subproject commit 39d20ec1f28bcc4b134d76f43296bad587362c69-dirty

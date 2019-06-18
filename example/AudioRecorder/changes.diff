@@ -1,13 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 866efe3..c877642 100644
+index fe8feb1..dcf40fb 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -9,16 +9,8 @@ android {
          applicationId "com.github.axet.audiorecorder"
          minSdkVersion 9
          targetSdkVersion 26
--        versionCode 322
--        versionName "3.2.64"
+-        versionCode 323
+-        versionName "3.2.65"
 -    }
 -    signingConfigs {
 -        release {

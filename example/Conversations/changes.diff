@@ -1,13 +1,13 @@
 diff --git a/build.gradle b/build.gradle
-index 65410e1b0..230ae357c 100644
+index 4699bc065..230ae357c 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -81,8 +81,8 @@ android {
      defaultConfig {
          minSdkVersion 16
          targetSdkVersion 28
--        versionCode 329
--        versionName "2.5.2"
+-        versionCode 330
+-        versionName "2.5.3"
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
          archivesBaseName += "-$versionName"

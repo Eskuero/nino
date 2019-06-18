@@ -1,13 +1,13 @@
 diff --git a/AndroidManifest.xml b/AndroidManifest.xml
-index 644c6a17..3b1e32ce 100644
+index 5e6c2cb2..3b1e32ce 100644
 --- a/AndroidManifest.xml
 +++ b/AndroidManifest.xml
 @@ -1,8 +1,6 @@
  <?xml version="1.0" encoding="utf-8"?>
  <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 -    package="org.kde.kdeconnect_tp"
--    android:versionCode="11270"
--    android:versionName="1.12.7">
+-    android:versionCode="11292"
+-    android:versionName="1.12.9">
 +    package="org.kde.kdeconnect_tp">
  
      <supports-screens
@@ -20,7 +20,7 @@ index 644c6a17..3b1e32ce 100644
 \ No newline at end of file
 +</manifest>
 diff --git a/build.gradle b/build.gradle
-index a6b54dbd..88b06b76 100644
+index 96d2e014..9c204613 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -15,6 +15,8 @@ android {

@@ -1,7 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 7cc82a5..4b0d405 100644
+index 1a821ab..f69be7f 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
+@@ -14,8 +14,8 @@ android {
+ 		applicationId "net.frju.flym"
+ 		minSdkVersion 21
+ 		targetSdkVersion 27
+-		versionCode 23
+-		versionName "2.2.8"
++		versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++		versionName new Date().format("yyyy.MM.dd-HH.mm")
+ 	}
+ 
+ 	lintOptions {
 @@ -26,31 +26,11 @@ android {
  	Properties properties = new Properties()
  	properties.load(project.rootProject.file('local.properties').newDataInputStream())

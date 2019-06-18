@@ -1,10 +1,10 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 35a98af..1cce8bb 100644
+index 4b4db69..1af6e2f 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -24,8 +24,8 @@ android {
          applicationId "com.orpheusdroid.screenrecorder"
-         minSdkVersion 21
+         minSdkVersion 22
          targetSdkVersion 28
 -        versionCode 33
 -        versionName "2.0.3"
