@@ -1,13 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index bd03c4f6..dc05ae43 100644
+index fb1e4572..dc05ae43 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -34,8 +34,8 @@ android {
              minSdkVersion 16
              applicationId 'org.torproject.android'
              targetSdkVersion 28
--            versionCode 16104000
--            versionName '16.1.0-BETA-4-tor-0.4.0.4-rc'
+-            versionCode 16105000
+-            versionName '16.1.0-BETA-5-tor-0.4.0.4-rc'
 +            versionName new Date().format("yyyy.MM.dd-HH.mm")
 +            versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
              archivesBaseName = "Orbot-$versionName"
