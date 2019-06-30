@@ -1,12 +1,12 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index e569ff743..ab086b4d5 100644
+index fe05f7308..ab086b4d5 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -25,8 +25,8 @@ android {
      buildToolsVersion '27.0.3'
  
      defaultConfig {
--        versionCode 1007001
+-        versionCode 1007002
 -        versionName getVersionName()
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")

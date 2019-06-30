@@ -1,15 +1,15 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index ad81f11..927b602 100644
+index a8fc76a..c4a6793 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -13,8 +13,8 @@ android {
  		applicationId "net.frju.flym"
  		minSdkVersion 21
  		targetSdkVersion 29
--		versionCode 23
--		versionName "2.2.8"
+-		versionCode 24
+-		versionName "2.3.0"
 +		versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
++		versionName new Date().format("yyyy.MM.dd-HH.mm")
  	}
  
  	compileOptions {

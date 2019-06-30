@@ -1,5 +1,5 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index b64c7e9f..cfe021c0 100644
+index 3bd90348..810cff4a 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -23,8 +23,8 @@ android {
@@ -8,8 +8,8 @@ index b64c7e9f..cfe021c0 100644
          targetSdkVersion 28
 -        versionCode 65
 -        versionName "3.3.0RC1"
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
          multiDexEnabled true
  
          vectorDrawables.useSupportLibrary = true

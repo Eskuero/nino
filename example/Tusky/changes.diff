@@ -1,13 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 9e2347b1..17170653 100644
+index fc41a42b..9ecc58ce 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -18,8 +18,8 @@ android {
          applicationId "com.keylesspalace.tusky"
          minSdkVersion 21
          targetSdkVersion 28
--        versionCode 62
--        versionName "7.1"
+-        versionCode 64
+-        versionName "8.0"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")
          testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

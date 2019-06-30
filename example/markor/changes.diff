@@ -1,15 +1,15 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 776403f2..0295278e 100644
+index dad0e5ef..23dfea32 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -34,8 +34,8 @@ android {
- 
+@@ -26,8 +26,8 @@ android {
+     defaultConfig {
          resValue "string", "manifest_package_id", "net.gsantner.markor"
          applicationId "net.gsantner.markor"
--        versionName "1.8.1"
--        versionCode 71
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+-        versionName "1.8.3"
+-        versionCode 75
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")
-     }
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm")) 
  
-     flavorDimensions "default"
+         minSdkVersion rootProject.ext.version_minSdk
+         targetSdkVersion rootProject.ext.version_compileSdk

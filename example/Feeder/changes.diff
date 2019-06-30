@@ -1,0 +1,15 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 2a5a304..8c1e234 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -24,8 +24,8 @@ android {
+ 
+   defaultConfig {
+     applicationId "com.nononsenseapps.feeder"
+-    versionCode 57
+-    versionName "1.8.18"
++    versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++    versionName new Date().format("yyyy.MM.dd-HH.mm")
+     compileSdkVersion 28
+     minSdkVersion 18
+     targetSdkVersion 28
