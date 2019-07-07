@@ -39,9 +39,7 @@ for entry in defconfig:
 
 # Retryable config that will be dumped onto .nino-last at the end, must retain keystore (before enables and promps) and device list
 failed = {
-	"projects": {
-		"default": copy.deepcopy(running["projects"]["default"])
-		},
+	"projects": {"default" : {}},
 	"keystores": copy.deepcopy(running["keystores"]),
 	"devices": copy.deepcopy(running["devices"])
 }
