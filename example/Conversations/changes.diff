@@ -1,15 +1,15 @@
 diff --git a/build.gradle b/build.gradle
-index 4699bc065..230ae357c 100644
+index 994a799a2..d325c621e 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -81,8 +81,8 @@ android {
      defaultConfig {
          minSdkVersion 16
          targetSdkVersion 28
--        versionCode 330
--        versionName "2.5.3"
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+-        versionCode 332
+-        versionName "2.5.4-beta.2"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++        versionName new Date().format("yyyy.MM.dd-HH.mm")
          archivesBaseName += "-$versionName"
          applicationId "eu.siacs.conversations"
          resValue "string", "applicationId", applicationId

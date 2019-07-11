@@ -1,13 +1,13 @@
 diff --git a/build.gradle b/build.gradle
-index d6381281e..819b3effd 100644
+index 63925b47b..d93cf1736 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -293,8 +293,8 @@ dependencyVerification {
      ]
  }
  
--def canonicalVersionCode = 503
--def canonicalVersionName = "4.43.4"
+-def canonicalVersionCode = 507
+-def canonicalVersionName = "4.43.8"
 +def canonicalVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
 +def canonicalVersionName = new Date().format("yyyy.MM.dd-HH.mm")
  

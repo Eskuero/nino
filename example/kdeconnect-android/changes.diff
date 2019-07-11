@@ -1,14 +1,14 @@
 diff --git a/AndroidManifest.xml b/AndroidManifest.xml
-index 5e6c2cb2..3b1e32ce 100644
+index d1439a06..ade4401b 100644
 --- a/AndroidManifest.xml
 +++ b/AndroidManifest.xml
 @@ -1,8 +1,6 @@
  <?xml version="1.0" encoding="utf-8"?>
  <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 -    package="org.kde.kdeconnect_tp"
--    android:versionCode="11292"
--    android:versionName="1.12.9">
-+    package="org.kde.kdeconnect_tp">
+-    android:versionCode="11293"
+-    android:versionName="1.12.93">
++	package="org.kde.kdeconnect_tp">
  
      <supports-screens
          android:anyDensity="true"
@@ -20,15 +20,15 @@ index 5e6c2cb2..3b1e32ce 100644
 \ No newline at end of file
 +</manifest>
 diff --git a/build.gradle b/build.gradle
-index 96d2e014..9c204613 100644
+index 96d2e014..6bd0319f 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -15,6 +15,8 @@ android {
+@@ -13,6 +13,8 @@ buildscript {
+ android {
+     compileSdkVersion 28
      defaultConfig {
-         minSdkVersion 14
-         targetSdkVersion 28
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         minSdkVersion 14
+         targetSdkVersion 28
      }
-     dexOptions {
-         javaMaxHeapSize "2g"

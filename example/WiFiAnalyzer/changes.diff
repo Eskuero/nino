@@ -1,35 +1,15 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index efe53b56..70e68c61 100644
+index efe53b56..8ea97fa8 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -65,8 +65,8 @@ android {
-         applicationId "com.vrem.wifianalyzer"
-         minSdkVersion 19
-         targetSdkVersion 28
--        versionCode
--        versionName
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
-         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+@@ -159,8 +159,8 @@ def updateVersion() {
+         applicationId = applicationId + android.buildTypes.debug.applicationIdSuffix
      }
- 
-@@ -123,7 +123,6 @@ if (project.hasProperty("keyAlias")) {
+     System.out.println(">>> " + project.parent.name + " " + versionName + " (" + versionStore + ") " + applicationId)
+-    android.defaultConfig.versionCode = versionStore
+-    android.defaultConfig.versionName = versionName
++    android.defaultConfig.versionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.defaultConfig.versionName = new Date().format("yyyy.MM.dd-HH.mm")
  }
  
- // version -------------------------------------------------
--updateVersion()
- 
- def updateVersion() {
-     def propertiesFile = file("build.properties")
-diff --git a/app/build.properties b/app/build.properties
-index be50cf8b..e69de29b 100644
---- a/app/build.properties
-+++ b/app/build.properties
-@@ -1,7 +0,0 @@
--#Build Properties
--#Sat Jun 29 11:42:08 EDT 2019
--version_minor=0
--version_build=0
--version_patch=5
--version_store=46
--version_major=2
+ def isCompileTask() {
