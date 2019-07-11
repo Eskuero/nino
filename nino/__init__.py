@@ -4,7 +4,7 @@ import colorama
 from .project import project
 from .utils import dpnds
 from .statics import projects, workdir
-from .config import running, failed
+from .config import running, retryconfig, failed
 
 def main():
 	# Start colorama for ANSI escape codes under Windows
@@ -26,20 +26,26 @@ def main():
 		app = project(name)
 		# Introduce the project
 		app.presentation()
-		# Initialize logging to file for output of each operation
-		with open("log.txt", "w+") as app.logfile:
-			# Sync the project
-			if app.sync:
-				app.fetch()
-			# Only attempt gradle projects with build enabled and are either forced or have new changes
-			if app.build and (app.changed or app.force):
-				app.package()
-			# We search for apks to sign and merge them to the current list
-			if app.built == 0 or app.signlist:
-				app.sign()
-			# We deploy if we built something
-			if app.deploylist:
-				app.install()
+		# If the project is set for retry skip normal execution and save previous config
+		if name in retryconfig and not app.force:
+			print("\033[93mProject is set for retry, skipping.\033[0m")
+			print("\033[93mOnce fixed, rebuild via 'nino -r' or 'nino -f " + name + "'\033[0m")
+			app.failed = retryconfig[name]
+		else:
+			# Initialize logging to file for output of each operation
+			with open("log.txt", "w+") as app.logfile:
+				# Sync the project
+				if app.sync:
+					app.fetch()
+				# Only attempt gradle projects with build enabled and are either forced or have new changes
+				if app.build and (app.changed or app.force):
+					app.package()
+				# We search for apks to sign and merge them to the current list
+				if app.built == 0 or app.signlist:
+					app.sign()
+				# We deploy if we built something
+				if app.deploylist:
+					app.install()
 		# Store retriable config for project if not empty
 		if app.failed:
 			failed["projects"][name] = app.failed

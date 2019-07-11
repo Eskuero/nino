@@ -32,6 +32,15 @@ except:
 	print("Failed to load config from file " + filename + ". Halting")
 	sys.exit(1)
 
+# Setup a set-for-retry list of projects so we skip those during a normal running
+retryconfig = {}
+if not running["retry"]:
+	try:
+		with open(".nino-last", "r") as file:
+			retryconfig = json.load(file)["projects"]
+	except:
+		pass
+
 # Add missing fields in default project config using values from defconfig
 for entry in defconfig:
 	if entry not in running["projects"]["default"]:
