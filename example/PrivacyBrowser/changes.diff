@@ -1,22 +1,22 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 3b8c832a..e5422fe7 100644
+index c2562fe9..2dfc9090 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -26,8 +26,8 @@ android {
      defaultConfig {
          minSdkVersion 19
          targetSdkVersion 28
--        versionCode 45
--        versionName "3.1"
+-        versionCode 46
+-        versionName "3.2"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")
      }
  
      buildTypes {
-@@ -87,4 +87,4 @@ dependencies {
+@@ -82,4 +82,4 @@ dependencies {
  
      // Only compile Firebase ads for the free flavor.
-     freeImplementation 'com.google.firebase:firebase-ads:18.0.0'
+     freeImplementation 'com.google.firebase:firebase-ads:18.1.0'
 -}
 \ No newline at end of file
 +}

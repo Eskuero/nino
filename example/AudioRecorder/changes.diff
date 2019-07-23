@@ -1,13 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 309a169..9d6d151 100644
+index 2cac15d..4e73628 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -9,16 +9,8 @@ android {
+@@ -9,16 +9,9 @@ android {
          applicationId "com.github.axet.audiorecorder"
          minSdkVersion 9
          targetSdkVersion 26
--        versionCode 329
--        versionName "3.3.4"
+-        versionCode 330
+-        versionName "3.3.5"
 -    }
 -    signingConfigs {
 -        release {
@@ -18,10 +18,11 @@ index 309a169..9d6d151 100644
 -        }
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")
++
      }
      buildTypes {
          debug {
-@@ -30,7 +22,6 @@ android {
+@@ -30,7 +23,6 @@ android {
              shrinkResources true
              minifyEnabled true
              proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -29,3 +30,11 @@ index 309a169..9d6d151 100644
          }
      }
      applicationVariants.all { variant ->
+@@ -53,6 +45,6 @@ android {
+ 
+ dependencies {
+     testImplementation 'junit:junit:4.12'
+-    implementation 'com.github.axet:android-audio-library:1.0.168' // implementation project(':android-audio-library')
++    implementation 'com.github.axet:android-audio-library:1.0.167' // implementation project(':android-audio-library')
+     assets('com.google.android.exoplayer:exoplayer:2.7.3') { exclude group: 'com.android.support' }
+ }

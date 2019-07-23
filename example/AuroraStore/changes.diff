@@ -1,13 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 1ddcc253..ac41f21c 100644
+index ff0f3712..ac41f21c 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -28,8 +28,8 @@ android {
          applicationId "com.aurora.store"
          minSdkVersion 21
          targetSdkVersion 28
--        versionCode 6
--        versionName "3.0.6"
+-        versionCode 7
+-        versionName "3.0.7"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")
  

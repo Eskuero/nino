@@ -1,13 +1,14 @@
 diff --git a/build.gradle b/build.gradle
-index a73473b..d9cacf7 100644
+index a73473b..a9be423 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -42,6 +42,8 @@ android {
+@@ -42,6 +42,9 @@ android {
  
  		minSdkVersion 14
  		targetSdkVersion 27
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
++		versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
++		versionName new Date().format("yyyy.MM.dd-HH.mm")
++
  
  		applicationId "org.quantumbadger.redreader"
  	}
