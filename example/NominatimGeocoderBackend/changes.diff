@@ -1,0 +1,35 @@
+diff --git a/build.gradle b/build.gradle
+index 78f2639..8bebbc7 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -16,10 +16,11 @@
+ 
+ buildscript {
+     repositories {
++        google()
+         jcenter()
+     }
+     dependencies {
+-        classpath 'com.android.tools.build:gradle:2.3.1'
++        classpath 'com.android.tools.build:gradle:3.1.1'
+     }
+ }
+ 
+@@ -51,6 +52,7 @@ int getMyVersionCode() {
+ }
+ 
+ repositories {
++    google()
+     jcenter()
+ }
+ 
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+index 3754efb..a2a62fb 100755
+--- a/gradle/wrapper/gradle-wrapper.properties
++++ b/gradle/wrapper/gradle-wrapper.properties
+@@ -3,4 +3,4 @@ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-3.3-all.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-4.4-all.zip

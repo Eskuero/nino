@@ -1,13 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 1c19d7a..7903d61 100644
+index 01cc747..7903d61 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -30,8 +30,8 @@ android {
          applicationId "com.jarsilio.android.scrambledeggsif"
          minSdkVersion 15
          targetSdkVersion 28
--        versionCode 27
--        versionName "1.4.0"
+-        versionCode 28
+-        versionName "1.4.1"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
 +        versionName new Date().format("yyyy.MM.dd-HH.mm")
          testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
