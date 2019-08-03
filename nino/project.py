@@ -1,5 +1,5 @@
 import os
-import glob
+import pathlib
 import re
 import subprocess
 import copy
@@ -119,7 +119,7 @@ class project():
 
 	def updatesignlist(self, task):
 		# Retrieve all present .apk inside projects folder
-		apks = glob.glob("**/*.apk", recursive = True)
+		apks = [str(apk) for apk in pathlib.Path().glob("**/*.apk")]
 		# Filter out those that are not result of a Gradle task
 		validroutes = re.compile(".*build(\\\\|\/)outputs(\\\\|\/)apk(\\\\|\/)")
 		# Filter out those remaining from a previous failed task
