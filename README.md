@@ -41,15 +41,15 @@ The following utils must be avalaible from PATH during execution
 - Mercurial - [https://www.mercurial-scm.org/downloads](https://www.mercurial-scm.org/downloads)
 
 #### Windows
-The easiest integration with Windows is achieved by installing everything via chocolatey on a PS terminal:
+The easiest integration with Windows is achieved by installing everything via chocolatey on an elevated PS terminal:
 ```
 > choco install git hg python3 gradle jdk8 android-sdk
 ```
 Then you will need to manually install the latest build-tools and add them to your PATH:
 ```
-> sdkmanager "build-tools;28.0.3"
+> sdkmanager.bat "build-tools;29.0.1"
 > $oldpath = (Get-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Environment' -Name PATH).path
-> $newpath ="$oldpath;C:\Android\android-sdk\build-tools\28.0.3"
+> $newpath ="$oldpath;C:\Android\android-sdk\build-tools\29.0.1"
 > Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Environment' -name PATH -Value $newpath
 ```
 Logging off and in may be required for the changes to be applied.
