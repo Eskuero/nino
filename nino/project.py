@@ -74,6 +74,7 @@ class project():
 		# If we are preserving we pipe and apply the previous relevant diff again
 		if self.preserve and diff.decode() != "":
 			print("     PRESERVING LOCAL CHANGES ", end = "", flush = True)
+			print("\n" + diff.decode(), file = self.logfile, flush = True)
 			apply = subprocess.Popen(self.fetcher["apply"], stdout = self.logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE)
 			apply.communicate(input=diff)
 			if apply.returncode == 0:
