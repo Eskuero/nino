@@ -1,18 +1,16 @@
 diff --git a/build.gradle b/build.gradle
-index bac57a0c4..cf9115132 100644
+index 4bf45a240..8b83018f2 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -288,8 +288,8 @@ dependencyVerification {
+@@ -288,7 +288,7 @@ dependencyVerification {
      ]
  }
  
--def canonicalVersionCode = 512
--def canonicalVersionName = "4.44.4"
+-def canonicalVersionCode = 517
 +def canonicalVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
-+def canonicalVersionName = new Date().format("yyyy.MM.dd-HH.mm")
+ def canonicalVersionName = "4.45.1"
  
  def postFixSize = 10
- def abiPostFix = ['armeabi-v7a' : 1,
 @@ -309,7 +309,7 @@ android {
      }
  
@@ -22,16 +20,36 @@ index bac57a0c4..cf9115132 100644
          versionName canonicalVersionName
  
          minSdkVersion 19
-@@ -419,7 +419,7 @@ android {
+@@ -333,10 +333,6 @@ android {
+         buildConfigField "String[]", "LANGUAGES", "new String[]{\"" + autoResConfig().collect { s -> s.replace('-r', '_') }.join('", "') + '"}'
+         buildConfigField "int", "CANONICAL_VERSION_CODE", "$canonicalVersionCode"
+ 
+-        ndk {
+-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+-        }
+-
+         resConfigs autoResConfig()
+ 
+         splits {
+@@ -344,7 +340,7 @@ android {
+                 enable true
+                 reset()
+                 include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+-                universalApk true
++                universalApk false
+             }
+         }
+     }
+@@ -419,7 +415,7 @@ android {
  
              if (postFix >= postFixSize) throw new AssertionError("postFix is too large")
  
 -            output.versionCodeOverride = canonicalVersionCode * postFixSize + postFix
-+            output.versionCodeOverride = canonicalVersionCode
++            output.versionCodeOverride = canonicalVersionCode + postFix
          }
      }
  
-@@ -516,10 +516,6 @@ tasks.whenTaskAdded { task ->
+@@ -516,10 +512,6 @@ tasks.whenTaskAdded { task ->
      if (task.name.equals("assemblePlayRelease")) {
          task.finalizedBy signProductionPlayRelease
      }

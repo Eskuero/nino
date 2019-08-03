@@ -1,15 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index bf6cbbd..8ab58f5 100644
+index bf6cbbd..5f9ba75 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -14,8 +14,8 @@ android {
+@@ -14,7 +14,7 @@ android {
          applicationId "com.termux"
          minSdkVersion 21
          targetSdkVersion 28
 -        versionCode 72
--        versionName "0.72"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         versionName "0.72"
      }
  
-     buildTypes {

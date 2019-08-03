@@ -1,32 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 4b4db69..1af6e2f 100644
+index 4b4db69..2cd4c01 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -24,8 +24,8 @@ android {
+@@ -24,7 +24,7 @@ android {
          applicationId "com.orpheusdroid.screenrecorder"
          minSdkVersion 22
          targetSdkVersion 28
 -        versionCode 33
--        versionName "2.0.3"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         versionName "2.0.3"
          testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
      }
-     lintOptions {
-@@ -50,16 +50,13 @@ android {
-     productFlavors {
-         playstore {
-             dimension "tier"
--            versionNameSuffix '-playstore'
-             buildConfigField "String", "APP_PUB_KEY", getAppKey("app_pub_key")
-         }
-         fdroid {
-             dimension "tier"
--            versionNameSuffix '-fdroid'
-         }
-         playstoreDonate {
-             dimension "tier"
--            versionNameSuffix '-playstore Donate'
-             applicationIdSuffix '.donate'
-             buildConfigField "String", "APP_PUB_KEY", getAppKey("app_pub_key_donate")
-         }

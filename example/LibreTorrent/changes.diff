@@ -1,8 +1,8 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 4bcdd08..163357d 100644
+index 4bcdd08..cf27b7d 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -8,12 +8,12 @@ android {
+@@ -8,7 +8,7 @@ android {
          applicationId "org.proninyaroslav.libretorrent"
          minSdkVersion 15 /* Officially Android Jelly Bean (< 4.4) support is dropped in libtorrent4j */
          targetSdkVersion 28
@@ -11,17 +11,32 @@ index 4bcdd08..163357d 100644
          /*
           * Convection:
           *  major.minor.[revision][-some_info]
-          */
--        versionName "1.9.1"
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+@@ -16,10 +16,6 @@ android {
+         versionName "1.9.1"
          vectorDrawables.useSupportLibrary = true
          testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+-
+-        ndk {
+-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+-        }
+     }
  
-@@ -29,7 +29,6 @@ android {
+     buildTypes {
+@@ -41,7 +37,7 @@ android {
+             enable true
+             reset()
+             include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+-            universalApk true
++            universalApk false
          }
-         debug {
-             applicationIdSuffix ".debug"
--            versionNameSuffix "-DEBUG"
+     }
  
-             testCoverageEnabled true
-             debuggable true
+@@ -50,7 +46,7 @@ android {
+     android.applicationVariants.all { variant ->
+         variant.outputs.all { output ->
+             output.versionCodeOverride =
+-                    project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) * 1000000 + android.defaultConfig.versionCode
++                    project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) + android.defaultConfig.versionCode
+         }
+     }
+ 

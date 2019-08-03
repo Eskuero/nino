@@ -1,5 +1,0 @@
-#!/bin/sh
-export ANDROID_NDK=$HOME/Android/Ndk/r18b
-git -C vlc pull
-sh compile.sh -a arm64-v8a release
-find . -name tools-release-unsigned.apk -exec rm {} \;

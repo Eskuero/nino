@@ -1,15 +1,40 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index cb10311..0f5083d 100644
+index cb10311..f6cf3a4 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -8,8 +8,8 @@ android {
+@@ -8,7 +8,7 @@ android {
      defaultConfig {
          minSdkVersion 21
          targetSdkVersion 28
 -        versionCode 15
--        versionName "2019-04-18-alpha"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         versionName "2019-04-18-alpha"
          vectorDrawables.useSupportLibrary = true
      }
-     sourceSets {
+diff --git a/buildscripts/buildall.sh b/buildscripts/buildall.sh
+index b33a7cb..fab70fd 100755
+--- a/buildscripts/buildall.sh
++++ b/buildscripts/buildall.sh
+@@ -122,7 +122,7 @@ loadarch $arch
+ setup_prefix
+ build $target
+ 
+-[ "$target" == "mpv-android" ] && \
+-	ls -lh ../app/build/outputs/apk/{debug,release}/*.apk
++#[ "$target" == "mpv-android" ] && \
++#	ls -lh ../app/build/outputs/apk/{debug,release}/*.apk
+ 
+ exit 0
+diff --git a/buildscripts/scripts/mpv-android.sh b/buildscripts/scripts/mpv-android.sh
+index 1074fee..8e32db8 100755
+--- a/buildscripts/scripts/mpv-android.sh
++++ b/buildscripts/scripts/mpv-android.sh
+@@ -30,7 +30,7 @@ prefix_x86=$(nativeprefix "x86")
+ 
+ PREFIX=$BUILD/prefix/armv7l PREFIX64=$prefix64 PREFIX_X64=$prefix_x64 PREFIX_X86=$prefix_x86 \
+ ndk-build -C app/src/main -j$cores
+-./gradlew assembleDebug assembleRelease
++#./gradlew assembleDebug assembleRelease
+ 
+ if [ -n "${ANDROID_SIGNING_KEY:-}" ]; then
+ 	cp "${MPV_ANDROID}/app/build/outputs/apk/release/app-release-unsigned.apk" "${MPV_ANDROID}/app/build/outputs/apk/release/app-release-signed.apk"

@@ -1,14 +1,12 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 7930021..8b39a01 100644
+index 7930021..3a288a8 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -46,8 +46,8 @@ android {
-         applicationId "org.blokada"
+@@ -47,7 +47,7 @@ android {
          minSdkVersion 21
          targetSdkVersion 28
--        versionName androidGitVersion.name()
+         versionName androidGitVersion.name()
 -        versionCode androidGitVersion.code()
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
          testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
          ndk {

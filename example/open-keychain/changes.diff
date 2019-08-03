@@ -1,15 +1,13 @@
 diff --git a/OpenKeychain/build.gradle b/OpenKeychain/build.gradle
-index dee2bb0ad..2da9b2571 100644
+index dee2bb0ad..ac054b886 100644
 --- a/OpenKeychain/build.gradle
 +++ b/OpenKeychain/build.gradle
-@@ -177,8 +177,8 @@ android {
+@@ -177,7 +177,7 @@ android {
      defaultConfig {
          minSdkVersion 15
          targetSdkVersion 28
 -        versionCode 53004
--        versionName "5.3"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         versionName "5.3"
          applicationId "org.sufficientlysecure.keychain"
          // the androidjunitrunner is broken regarding coverage, see here:
-         // https://code.google.com/p/android/issues/detail?id=170607

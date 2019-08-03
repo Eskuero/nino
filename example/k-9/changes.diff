@@ -1,15 +1,13 @@
 diff --git a/app/k9mail/build.gradle b/app/k9mail/build.gradle
-index ddd224a02..6b235d658 100644
+index ddd224a02..7671e5bf7 100644
 --- a/app/k9mail/build.gradle
 +++ b/app/k9mail/build.gradle
-@@ -42,8 +42,8 @@ android {
+@@ -42,7 +42,7 @@ android {
          applicationId "com.fsck.k9"
          testApplicationId "com.fsck.k9.tests"
  
 -        versionCode 27000
--        versionName '5.700-SNAPSHOT'
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         versionName '5.700-SNAPSHOT'
  
          minSdkVersion buildConfig.minSdk
-         targetSdkVersion 23

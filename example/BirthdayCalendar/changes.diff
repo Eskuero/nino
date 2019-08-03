@@ -1,5 +1,5 @@
 diff --git a/mobile/build.gradle b/mobile/build.gradle
-index 84c2166..5ef9cd5 100644
+index 84c2166..22e51a6 100644
 --- a/mobile/build.gradle
 +++ b/mobile/build.gradle
 @@ -28,22 +28,13 @@ android {
@@ -7,9 +7,8 @@ index 84c2166..5ef9cd5 100644
          minSdkVersion 17
          targetSdkVersion 27
 -        versionCode 160177
--        versionName '1.7.7'
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         versionName '1.7.7'
          archivesBaseName = "${applicationId}-${versionName}"
          testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
          vectorDrawables.useSupportLibrary = true

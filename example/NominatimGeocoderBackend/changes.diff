@@ -1,5 +1,5 @@
 diff --git a/build.gradle b/build.gradle
-index 78f2639..8bebbc7 100644
+index 78f2639..d29c8e2 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -16,10 +16,11 @@
@@ -23,6 +23,15 @@ index 78f2639..8bebbc7 100644
      jcenter()
  }
  
+@@ -66,7 +68,7 @@ android {
+ 
+     defaultConfig {
+         versionName getMyVersionName()
+-        versionCode(20000 + getMyVersionCode())
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+         minSdkVersion 9
+         targetSdkVersion 25
+     }
 diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
 index 3754efb..a2a62fb 100755
 --- a/gradle/wrapper/gradle-wrapper.properties

@@ -1,15 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index c8bdd37..cacfd30 100644
+index c8bdd37..978355b 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -8,8 +8,8 @@ android {
+@@ -8,7 +8,7 @@ android {
          applicationId "org.shadowice.flocke.andotp"
          minSdkVersion 19
          targetSdkVersion 28
 -        versionCode 23
--        versionName "0.6.2"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm") 
+         versionName "0.6.2"
          vectorDrawables.useSupportLibrary = true
      }
-     buildTypes {

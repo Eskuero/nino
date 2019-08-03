@@ -1,18 +1,16 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index a8fc76a..c4a6793 100644
+index a8fc76a..5500580 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -13,8 +13,8 @@ android {
+@@ -13,7 +13,7 @@ android {
  		applicationId "net.frju.flym"
  		minSdkVersion 21
  		targetSdkVersion 29
 -		versionCode 24
--		versionName "2.3.0"
 +		versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+		versionName new Date().format("yyyy.MM.dd-HH.mm")
+ 		versionName "2.3.0"
  	}
  
- 	compileOptions {
 @@ -54,7 +54,6 @@ android {
  			minifyEnabled true
  			shrinkResources true

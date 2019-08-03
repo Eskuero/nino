@@ -1,15 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 01cc747..7903d61 100644
+index 01cc747..58c908d 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -30,8 +30,8 @@ android {
+@@ -30,7 +30,7 @@ android {
          applicationId "com.jarsilio.android.scrambledeggsif"
          minSdkVersion 15
          targetSdkVersion 28
 -        versionCode 28
--        versionName "1.4.1"
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         versionName "1.4.1"
          testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
          vectorDrawables.useSupportLibrary = true
-     }

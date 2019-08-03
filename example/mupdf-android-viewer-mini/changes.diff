@@ -1,24 +1,20 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 9d40aa4..d34e792 100644
+index 9d40aa4..586eb30 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -16,8 +16,8 @@ android {
- 	defaultConfig {
+@@ -17,13 +17,13 @@ android {
  		minSdkVersion 16
  		targetSdkVersion 26
--		versionName '1.15.0'
+ 		versionName '1.15.0'
 -		versionCode 50
-+		versionName new Date().format("yyyy.MM.dd-HH.mm")
 +		versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
  	}
  
  	splits {
-@@ -33,7 +33,7 @@ android {
- 		variant.outputs.each { output ->
- 			def offset = abiOffsets.get(output.getFilter(com.android.build.OutputFile.ABI))
- 			if (offset != null)
--				output.versionCodeOverride = variant.versionCode + offset
-+				output.versionCodeOverride = variant.versionCode
+ 		abi {
+ 			enable true
+-			universalApk true
++			universalApk false
  		}
  	}
  

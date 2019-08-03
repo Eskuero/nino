@@ -1,7 +1,0 @@
-#!/bin/bash
-cd orbotservice/src/main;
-$ANDROID_NDK/build/ndk-build;
-mv libs/arm64-v8a/pdnsd libs/arm64-v8a/pdnsd.so
-mv libs/armeabi-v7a/pdnsd libs/armeabi-v7a/pdnsd.so
-mv libs/x86/pdnsd libs/x86/pdnsd.so
-mv libs/x86_64/pdnsd libs/x86_64/pdnsd.so

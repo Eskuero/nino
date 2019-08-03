@@ -1,9 +1,0 @@
-#!/bin/bash
-exit 0;
-cd TMessagesProj/jni;
-export NDK=/home/eskuero/Android/Sdk/ndk-bundle
-export NINJA_PATH=/usr/bin/ninja
-./build_ffmpeg_clang.sh
-./patch_ffmpeg.sh
-./patch_boringssl.sh
-./build_boringssl.sh

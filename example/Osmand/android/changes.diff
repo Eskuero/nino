@@ -1,0 +1,50 @@
+diff --git a/OsmAnd/build.gradle b/OsmAnd/build.gradle
+index 1b1d8bc060..e930de2161 100644
+--- a/OsmAnd/build.gradle
++++ b/OsmAnd/build.gradle
+@@ -33,28 +33,11 @@ android {
+ 	buildToolsVersion "27.0.3"
+ 	// compileNdkVersion "android-ndk-r17b"
+ 
+-	signingConfigs {
+-		development {
+-			storeFile file("../keystores/debug.keystore")
+-			storePassword "android"
+-			keyAlias "androiddebugkey"
+-			keyPassword "android"
+-		}
+-
+-		publishing {
+-			storeFile file("/var/lib/jenkins/osmand_key")
+-			storePassword System.getenv("OSMAND_APK_PASSWORD")
+-			keyAlias "osmand"
+-			keyPassword System.getenv("OSMAND_APK_PASSWORD")
+-		}
+-	}
+-
+ 	defaultConfig {
+ 		minSdkVersion System.getenv("MIN_SDK_VERSION") ? System.getenv("MIN_SDK_VERSION").toInteger() :
+ 				 (analytics ? 15 : 14)
+ 		targetSdkVersion 26
+-		versionCode 330
+-		versionCode System.getenv("APK_NUMBER_VERSION") ? System.getenv("APK_NUMBER_VERSION").toInteger() : versionCode
++		versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+ 		multiDexEnabled true
+ 		versionName "3.3.0"
+ 		versionName System.getenv("APK_VERSION")? System.getenv("APK_VERSION").toString(): versionName
+@@ -197,15 +180,6 @@ android {
+ 		}
+ 	}
+ 
+-	buildTypes {
+-		debug {
+-			signingConfig signingConfigs.development
+-		}
+-		release {
+-			signingConfig signingConfigs.publishing
+-		}
+-	}
+-
+ }
+ 
+ def replaceNoTranslate(line) {

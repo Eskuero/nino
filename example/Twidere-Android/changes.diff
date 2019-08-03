@@ -1,5 +1,5 @@
 diff --git a/twidere/build.gradle b/twidere/build.gradle
-index a8206494a..b6f44bc9b 100644
+index a8206494a..58ec4a243 100644
 --- a/twidere/build.gradle
 +++ b/twidere/build.gradle
 @@ -18,10 +18,6 @@ buildscript {
@@ -13,17 +13,15 @@ index a8206494a..b6f44bc9b 100644
      }
  }
  
-@@ -34,8 +30,8 @@ android {
+@@ -34,7 +30,7 @@ android {
          applicationId "org.mariotaku.twidere"
          minSdkVersion 14
          targetSdkVersion 26
 -        versionCode projectVersionCode
--        versionName projectVersionName
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         versionName projectVersionName
          multiDexEnabled true
  
-         buildConfigField 'boolean', 'LEAK_CANARY_ENABLED', 'Boolean.parseBoolean("false")'
 @@ -56,11 +52,6 @@ android {
      flavorDimensions 'channel'
  

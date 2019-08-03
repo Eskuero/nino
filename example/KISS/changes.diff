@@ -1,15 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 968d9275..6268b36d 100644
+index 95a2912a..24977a54 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -19,8 +19,8 @@ android {
+@@ -19,7 +19,7 @@ android {
          applicationId 'fr.neamar.kiss'
          minSdkVersion 15
          targetSdkVersion 28
--        versionCode 156
--        versionName "3.10.0"
+-        versionCode 158
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-+        versionName new Date().format("yyyy.MM.dd-HH.mm")
+         versionName "3.10.2"
          testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
      }
-     buildTypes {

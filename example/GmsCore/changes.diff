@@ -1,3 +1,18 @@
+diff --git a/build.gradle b/build.gradle
+index 76056a0..7fd06db 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -42,9 +42,7 @@ def androidTargetSdk() { return 28 }
+ def androidMinSdk() { return 14 }
+ 
+ def versionCode() {
+-    def stdout = new ByteArrayOutputStream()
+-    exec { commandLine 'git', 'rev-list', '--count', "HEAD"; standardOutput = stdout }
+-    return Integer.parseInt(stdout.toString().trim())
++    return Integer.parseInt(new Date().format("yyMMddHHmm"))
+ }
+ 
+ def versionName() {
 diff --git a/extern/GmsLib b/extern/GmsLib
 --- a/extern/GmsLib
 +++ b/extern/GmsLib

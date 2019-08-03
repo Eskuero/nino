@@ -1,6 +1,5 @@
 #!/bin/bash
 cd buildscripts;
-#bash download.sh;
-bash buildall.sh --arch arm64 mpv;
-bash buildall.sh
-find . -name "app-debug.apk" -exec rm {} \;
+./buildall.sh --arch arm64 mpv
+./buildall.sh --arch x86_64 mpv
+./buildall.sh
