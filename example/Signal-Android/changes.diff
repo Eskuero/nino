@@ -1,14 +1,14 @@
 diff --git a/build.gradle b/build.gradle
-index 4bf45a240..8b83018f2 100644
+index 4ed42c580..cee4643e3 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -288,7 +288,7 @@ dependencyVerification {
      ]
  }
  
--def canonicalVersionCode = 517
+-def canonicalVersionCode = 518
 +def canonicalVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
- def canonicalVersionName = "4.45.1"
+ def canonicalVersionName = "4.45.2"
  
  def postFixSize = 10
 @@ -309,7 +309,7 @@ android {

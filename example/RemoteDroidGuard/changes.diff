@@ -1,0 +1,39 @@
+diff --git a/build.gradle b/build.gradle
+index ebb79fa..b3dd2f3 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -16,11 +16,11 @@
+ 
+ buildscript {
+     repositories {
+-        jcenter()
+         google()
++        jcenter()
+     }
+     dependencies {
+-        classpath 'com.android.tools.build:gradle:3.0.1'
++        classpath 'com.android.tools.build:gradle:3.1.1'
+     }
+ }
+ 
+@@ -39,6 +39,7 @@ def androidMinSdk() { return 9 }
+ subprojects {
+     group = 'org.microg'
+     repositories {
++        google()
+         jcenter()
+     }
+ }
+diff --git a/remote-droid-guard/build.gradle b/remote-droid-guard/build.gradle
+index 9ecbb7b..37d3bf9 100644
+--- a/remote-droid-guard/build.gradle
++++ b/remote-droid-guard/build.gradle
+@@ -38,7 +38,7 @@ android {
+ 
+     defaultConfig {
+         versionName getMyVersionName()
+-        versionCode getMyVersionCode()
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+         minSdkVersion androidMinSdk()
+         targetSdkVersion androidTargetSdk()
+     }

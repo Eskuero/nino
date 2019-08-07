@@ -1,17 +1,17 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index f13bfd3a..ea556328 100644
+index c1ddabff..54f1fe9e 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -34,7 +34,7 @@ android {
              minSdkVersion 16
              applicationId 'org.torproject.android'
              targetSdkVersion 28
--            versionCode 16108000
+-            versionCode 16109000
 +            versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-             versionName '16.1.0-RC-2-tor-0.4.0.4-rc'
+             versionName '16.1.0-RC-3-tor-0.4.0.4-rc'
              archivesBaseName = "Orbot-$versionName"
          }
-@@ -58,12 +58,22 @@ android {
+@@ -58,11 +58,20 @@ android {
              include "x86", "armeabi", "armeabi-v7a", "x86_64", "arm64-v8a"
  
              // Specifies that we do not want to also generate a universal APK that includes all ABIs.
@@ -21,7 +21,6 @@ index f13bfd3a..ea556328 100644
  
  
      }
- 
 +    // Increment version code for each ABI variant
 +    def abiOffsets = [ 'armeabi': 1, 'armeabi-v7a':2, 'arm64-v8a':3, 'x86':4, 'x86_64':5, ]
 +    applicationVariants.all { variant ->
@@ -31,7 +30,6 @@ index f13bfd3a..ea556328 100644
 +                output.versionCodeOverride = variant.versionCode + offset
 +        }
 +    }
-+
+ 
  }
  
- dependencies {
