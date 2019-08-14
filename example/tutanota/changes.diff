@@ -1,13 +1,13 @@
 diff --git a/app-android/app/build.gradle b/app-android/app/build.gradle
-index fb6cb495..68084d91 100644
+index 5808575c..07007ab3 100644
 --- a/app-android/app/build.gradle
 +++ b/app-android/app/build.gradle
 @@ -7,7 +7,7 @@ android {
          applicationId "de.tutao.tutanota"
          minSdkVersion 21
          targetSdkVersion 26
--        versionCode 357010
+-        versionCode 357060
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "3.57.1"
+         versionName "3.57.6"
          testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
      }

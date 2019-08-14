@@ -11,6 +11,3 @@ index ad8fb759..1610b072 100644
          versionName = "2.5.0.0beta19"
          multiDexEnabled true
  
-diff --git a/gradlew b/gradlew
-old mode 100644
-new mode 100755

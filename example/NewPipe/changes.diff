@@ -1,13 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index cb57a31b..bd260a03 100644
+index 2ddfecab..3ddbafd6 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -8,7 +8,7 @@ android {
          applicationId "org.schabi.newpipe"
          minSdkVersion 19
          targetSdkVersion 28
--        versionCode 740
+-        versionCode 750
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "0.16.2"
+         versionName "0.17.0"
  
          testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
