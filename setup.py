@@ -18,8 +18,7 @@ setuptools.setup(
         ]
     },
     install_requires = [
-        'toml',
-		'colorama'
+        'toml'
     ],
     project_urls = {
         'Documentation': 'https://github.com/Eskuero/nino/blob/master/README.md',

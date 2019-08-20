@@ -4,6 +4,7 @@ import re
 import subprocess
 import copy
 from .config import running
+from .utils import cprint
 from .statics import execprefix, execsuffix, workdir, fetchmethods, defconfig
 
 class project():
@@ -44,10 +45,10 @@ class project():
 
 	def fetch(self):
 		print("SYNCING SOURCE CODE:")
-		print("     FETCHING REMOTE ", end = "", flush = True)
+		print("     FETCHING REMOTE - ", end = "", flush = True)
 		# If no program is usable, report and return
 		if not self.fetcher:
-			print("- \033[93mFETCH METHOD NOT FOUND\033[0m")
+			cprint("FETCH METHOD NOT FOUND", "warning")
 			return
 		# Store the current local diff to restore it later
 		if self.preserve:
@@ -64,23 +65,23 @@ class project():
 			# We need to pull back to the start of the file to be able to read anything
 			self.logfile.seek(0)
 			if self.fetcher["nonews"] not in self.logfile.read():
-				print("- \033[92mUPDATED\033[0m")
+				cprint("UPDATED", "correct")
 				self.changed = True
 			else:
-				print("- \033[93mUNCHANGED\033[0m")
+				cprint("UNCHANGED", "warning")
 		else:
 			self.failed.update({"sync": self.sync, "preserve": self.preserve, "build": self.build, "force": self.force, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
-			print("- \033[91mFAILED\033[0m")
+			cprint("FAILED", "error")
 		# If we are preserving we pipe and apply the previous relevant diff again
 		if self.preserve and diff.decode() != "":
-			print("     PRESERVING LOCAL CHANGES ", end = "", flush = True)
+			print("     PRESERVING LOCAL CHANGES - ", end = "", flush = True)
 			print("\n" + diff.decode(), file = self.logfile, flush = True)
 			apply = subprocess.Popen(self.fetcher["apply"], stdout = self.logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE)
 			apply.communicate(input=diff)
 			if apply.returncode == 0:
-				print("- \033[92mSUCCESSFUL\033[0m")
+				cprint("SUCCESSFUL", "correct")
 			else:
-				print("- \033[91mFAILED\033[0m")
+				cprint("FAILED", "error")
 				self.failed.update({"build": self.build, "force": self.changed, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 				self.build = False
 
@@ -93,22 +94,22 @@ class project():
 			command = execprefix + "gradlew" + execsuffix
 		# User may provide an entrypoint that must be used as setup script before building
 		if os.path.isfile("nino-entrypoint" + execsuffix):
-			print("     ENTRYPOINT SCRIPT ", end = "", flush = True)
+			print("     ENTRYPOINT SCRIPT - ", end = "", flush = True)
 			# Attempt to do the setup
 			self.built = subprocess.call([execprefix + "nino-entrypoint"], stdout = self.logfile, stderr = subprocess.STDOUT)
 			if self.built != 0:
-				print("- \033[91mFAILED\033[0m")
+				cprint("FAILED", "error")
 				self.failed.update({"build": self.build, "force": True, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 				return
 			else:
-				print("- \033[92mSUCCESSFUL\033[0m")
+				cprint("SUCCESSFUL", "correct")
 		for task in self.tasks:
-			print("     GRADLE TASK " + task + " ", end = "", flush = True)
+			print("     GRADLE TASK " + task + " - ", end = "", flush = True)
 			# Attempt the task, we also redirect stderr to stdout to effectively merge them.
 			self.built = subprocess.call([command, "--no-daemon", self.tasks[task]["exec"]], stdout = self.logfile, stderr = subprocess.STDOUT)
 			# If assembling fails we return to tell main
 			if self.built != 0:
-				print("- \033[91mFAILED\033[0m")
+				cprint("FAILED", "error")
 				# Save for retry only the failed tasks
 				if "tasks" not in self.failed:
 					self.failed["tasks"] = {}
@@ -116,7 +117,7 @@ class project():
 				self.failed.update({"build": self.build, "force": True, "tasks": self.failed["tasks"], "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 			else:
 				self.updatesignlist(task)
-				print("- \033[92mSUCCESSFUL\033[0m")
+				cprint("SUCCESSFUL", "correct")
 
 	def updatesignlist(self, task):
 		# Retrieve all present .apk inside projects folder
@@ -183,7 +184,7 @@ class project():
 		failedsignlist = {}
 		# Loop through the remaining apks (there may be different flavours)
 		for apk in self.signlist:
-			print("     " + self.signlist[apk]["displayname"] + " ", end = "", flush = True)
+			print("     " + self.signlist[apk]["displayname"] + " - ", end = "", flush = True)
 			# Verify whether is needed or not to sign, as some outputs may come out of building process already signed
 			verify = subprocess.call(["apksigner" + execsuffix, "verify", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 			if verify == 1:
@@ -196,14 +197,14 @@ class project():
 					# If everything went fine add the new .apk to the list of releases
 					self.updatedeploylist(self.signlist[apk]["displayname"], self.signlist[apk]["deploy"])
 					os.remove(apk)
-					print("- \033[92mSUCCESSFUL\033[0m")
+					cprint("SUCCESSFUL", "correct")
 				else:
 					failedsignlist[apk] = self.signlist[apk]
-					print("- \033[91mFAILED\033[0m")
+					cprint("FAILED", "error")
 			else:
 				self.updatedeploylist(self.signlist[apk]["displayname"], self.signlist[apk]["deploy"])
 				os.rename(apk, workdir + "/NINO-RELEASES/" + self.signlist[apk]["displayname"])
-				print("- \033[93mUNNEEDED\033[0m")
+				cprint("UNNEEDED", "warning")
 		# If we failed at least on one output we need to save it for the retry run
 		if failedsignlist:
 			self.failed.update({"keystore": self.keystore, "keyalias": self.keyalias, "signlist": failedsignlist, "deploylist": self.deploylist, "deploy": self.deploy})
@@ -219,34 +220,34 @@ class project():
 		# Store the list of failed to deploy outputs and devices on a different dict
 		faileddeploylist = {}
 		for apk in self.deploylist:
-			print("     " + apk, end = "", flush = True)
+			print("     " + apk + " - ", end = "", flush = True)
 			# If no target is specified for the output we skip this iteration
 			if not self.deploylist[apk]:
-				print(" - \033[93mNO TARGETS\033[0m")
+				cprint("NO TARGETS", "warning")
 				continue
 			else:
 				print()
 			faileddeploylist[apk] = []
 			for target in self.deploylist[apk]:
-				print("          TO DEVICE " + target + " ", end = "\r")
+				print("          TO DEVICE " + target + " - ", end = "\r")
 				try:
 					# Make sure the device is online before proceeding, timeout after 15 secs of waiting
-					print("          TO DEVICE " + target + " - \033[93mCONNECTING   \033[0m", end = "\r")
+					cprint("          TO DEVICE " + target + " CONNECTING   ", "warning", "\r")
 					subprocess.call(["adb", "-s", target, "wait-for-device"], timeout = 15, stdout = self.logfile, stderr = subprocess.STDOUT)
 				# If the adb subprocess timed out we skip this device
 				except subprocess.TimeoutExpired:
 					faileddeploylist[apk].append(target)
-					print("          TO DEVICE " + target + " - \033[91mNOT REACHABLE\033[0m")
+					cprint("          TO DEVICE " + target + " NOT REACHABLE", "error")
 					print("Not reachable", file = self.logfile, flush = True)
 				else:
-					print("          TO DEVICE " + target + " - \033[93mDEPLOYING    \033[0m", end = "\r")
+					cprint("          TO DEVICE " + target + " DEPLOYING    ", "warning", "\r")
 					# We send the apk trying to override it on the system if neccessary
 					send = subprocess.call(["adb", "-s" , target, "install", "-r", workdir + "/NINO-RELEASES/" + apk], stdout = self.logfile, stderr=subprocess.STDOUT)
 					if send == 0:
-						print("          TO DEVICE " + target + " - \033[92mSUCCESSFUL   \033[0m")
+						cprint("          TO DEVICE " + target + " SUCCESSFUL   ", "correct")
 					else:
 						faileddeploylist[apk].append(target)
-						print("          TO DEVICE " + target + " - \033[91mFAILED       \033[0m")
+						cprint("          TO DEVICE " + target + " FAILED       ", "error")
 			if len(faileddeploylist[apk]) < 1:
 				faileddeploylist.pop(apk)
 		# We need to retry if at least one output wasn't delivered

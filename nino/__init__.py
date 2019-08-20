@@ -1,16 +1,13 @@
 import os
 import json
-import colorama
 from .project import project
-from .utils import dpnds
+from .utils import dpnds, cprint
 from .statics import projects, workdir
 from .config import running, retryconfig, failed
 
 def main():
-	# Start colorama for ANSI escape codes under Windows
-	colorama.init()
 	# Check everything is in place before even starting to retrieve information
-	utils.dpnds()
+	dpnds()
 
 	# Create the out directory in case it doesn't exist already
 	if not os.path.isdir("NINO-RELEASES"):
@@ -28,8 +25,8 @@ def main():
 		app.presentation()
 		# If the project is set for retry skip normal execution and save previous config
 		if name in retryconfig and not app.force:
-			print("\033[93mProject is set for retry, skipping.\033[0m")
-			print("\033[93mOnce fixed, rebuild via 'nino -r' or 'nino -f " + name + "'\033[0m")
+			cprint("Project is set for retry, skipping.", "warning")
+			cprint("Once fixed, rebuild via 'nino -r' or 'nino -f " + name, "warning")
 			app.failed = retryconfig[name]
 		else:
 			# Initialize logging to file for output of each operation

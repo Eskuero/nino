@@ -1,6 +1,6 @@
 import sys
 import shutil
-from .statics import fetchmethods, dependencies
+from .statics import fetchmethods, dependencies, ansiescape
 
 def dpnds():
 	ready = True
@@ -14,3 +14,6 @@ def dpnds():
 			print("The required dependency '" + dep + "' is not in your PATH. Please refer to " + dependencies[dep])
 	if not ready:
 		sys.exit(1)
+
+def cprint(msg, color, end = "\n"):
+    print(ansiescape[color] + msg + ansiescape["close"], end = end)
