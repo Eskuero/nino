@@ -1,13 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index ad8fb759..1610b072 100644
+index a3480f34..876d9393 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -11,7 +11,7 @@ android {
          applicationId "com.kunzisoft.keepass"
          minSdkVersion 14
          targetSdkVersion 27
--        versionCode = 19
+-        versionCode = 22
 +        versionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName = "2.5.0.0beta19"
+         versionName = "2.5.0.0beta22"
          multiDexEnabled true
  
