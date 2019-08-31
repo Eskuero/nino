@@ -1,26 +1,8 @@
 diff --git a/build.gradle b/build.gradle
-index 4ed42c580..cee4643e3 100644
+index d73c2dc4d..3509c2f22 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -288,7 +288,7 @@ dependencyVerification {
-     ]
- }
- 
--def canonicalVersionCode = 518
-+def canonicalVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
- def canonicalVersionName = "4.45.2"
- 
- def postFixSize = 10
-@@ -309,7 +309,7 @@ android {
-     }
- 
-     defaultConfig {
--        versionCode canonicalVersionCode * postFixSize
-+        versionCode canonicalVersionCode
-         versionName canonicalVersionName
- 
-         minSdkVersion 19
-@@ -333,10 +333,6 @@ android {
+@@ -337,10 +337,6 @@ android {
          buildConfigField "String[]", "LANGUAGES", "new String[]{\"" + autoResConfig().collect { s -> s.replace('-r', '_') }.join('", "') + '"}'
          buildConfigField "int", "CANONICAL_VERSION_CODE", "$canonicalVersionCode"
  
@@ -31,7 +13,7 @@ index 4ed42c580..cee4643e3 100644
          resConfigs autoResConfig()
  
          splits {
-@@ -344,7 +340,7 @@ android {
+@@ -348,7 +344,7 @@ android {
                  enable true
                  reset()
                  include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
@@ -40,16 +22,16 @@ index 4ed42c580..cee4643e3 100644
              }
          }
      }
-@@ -419,7 +415,7 @@ android {
+@@ -423,7 +419,7 @@ android {
  
              if (postFix >= postFixSize) throw new AssertionError("postFix is too large")
  
 -            output.versionCodeOverride = canonicalVersionCode * postFixSize + postFix
-+            output.versionCodeOverride = canonicalVersionCode + postFix
++            output.versionCodeOverride = Integer.parseInt(new Date().format("yyMMddHHmm")) + postFix
          }
      }
  
-@@ -516,10 +512,6 @@ tasks.whenTaskAdded { task ->
+@@ -520,10 +516,6 @@ tasks.whenTaskAdded { task ->
      if (task.name.equals("assemblePlayRelease")) {
          task.finalizedBy signProductionPlayRelease
      }

@@ -1,8 +1,8 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 573b1918..f5c72685 100644
+index 188b4150..b99bded4 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -1,24 +1,6 @@
+@@ -1,28 +1,6 @@
  apply plugin: 'com.android.application'
  
 -// Create a variable called keystorePropertiesFile, and initialize it to your
@@ -13,21 +13,25 @@ index 573b1918..f5c72685 100644
 -def keystoreProperties = new Properties()
 -
 -// Load your keystore.properties file into the keystoreProperties object.
--keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+-if (keystorePropertiesFile.canRead()) {
+-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+-}
 -
  android {
 -   signingConfigs {
 -        release {
--            keyAlias keystoreProperties['keyAlias']
--            keyPassword keystoreProperties['keyPassword']
--            storeFile file(keystoreProperties['storeFile'])
--            storePassword keystoreProperties['storePassword']
+-            if (keystorePropertiesFile.canRead()) {
+-                keyAlias keystoreProperties['keyAlias']
+-                keyPassword keystoreProperties['keyPassword']
+-                storeFile file(keystoreProperties['storeFile'])
+-                storePassword keystoreProperties['storePassword']
+-            }
 -        }
 -    }
  
      compileSdkVersion 28
      buildToolsVersion '28.0.3'
-@@ -38,7 +20,6 @@ android {
+@@ -42,7 +20,6 @@ android {
              minifyEnabled false
              shrinkResources false
              proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
@@ -35,7 +39,7 @@ index 573b1918..f5c72685 100644
          }
      }
  
-@@ -54,7 +35,7 @@ android {
+@@ -58,7 +35,7 @@ android {
              minSdkVersion 16
              applicationId 'org.torproject.android'
              targetSdkVersion 28
@@ -44,10 +48,12 @@ index 573b1918..f5c72685 100644
              versionName '16.1.1-BETA-2-tor-0.4.0.4-rc'
              archivesBaseName = "Orbot-$versionName"
          }
-@@ -83,6 +64,15 @@ android {
+@@ -87,7 +64,16 @@ android {
  
  
      }
+-
++    
 +    // Increment version code for each ABI variant
 +    def abiOffsets = [ 'armeabi': 1, 'armeabi-v7a':2, 'arm64-v8a':3, 'x86':4, 'x86_64':5, ]
 +    applicationVariants.all { variant ->
@@ -57,10 +63,10 @@ index 573b1918..f5c72685 100644
 +                output.versionCodeOverride = variant.versionCode + offset
 +        }
 +    }
- 
  }
  
-@@ -96,20 +86,3 @@ dependencies {
+ 
+@@ -100,20 +86,3 @@ dependencies {
      androidTestImplementation "tools.fastlane:screengrab:1.2.0"
  }
  

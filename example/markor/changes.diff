@@ -1,12 +1,12 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index de62ef38..f54d28e8 100644
+index c71f4b5f..50c73da4 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -27,7 +27,7 @@ android {
          resValue "string", "manifest_package_id", "net.gsantner.markor"
          applicationId "net.gsantner.markor"
-         versionName "2.0.6"
--        versionCode 85
+         versionName "2.0.8"
+-        versionCode 87
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
  
          minSdkVersion rootProject.ext.version_minSdk

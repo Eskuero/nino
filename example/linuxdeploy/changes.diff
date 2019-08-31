@@ -1,12 +1,12 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 7a64aee..53629f3 100644
+index 5c74759..53629f3 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -8,7 +8,7 @@ android {
          applicationId 'ru.meefik.linuxdeploy'
          minSdkVersion 15
          targetSdkVersion 28
--        versionCode 248
+-        versionCode 251
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
          versionName "2.4.0"
      }

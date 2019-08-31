@@ -1,8 +1,8 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index efe53b56..bfc7e4b6 100644
+index 4d7bcd9d..dd33eeb7 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -159,7 +159,7 @@ def updateVersion() {
+@@ -146,7 +146,7 @@ def updateVersion() {
          applicationId = applicationId + android.buildTypes.debug.applicationIdSuffix
      }
      System.out.println(">>> " + project.parent.name + " " + versionName + " (" + versionStore + ") " + applicationId)
@@ -12,35 +12,17 @@ index efe53b56..bfc7e4b6 100644
  }
  
 diff --git a/app/build.properties b/app/build.properties
-index 10d8535a..2aa046be 100644
+index 6fdf752d..c2500af0 100644
 --- a/app/build.properties
 +++ b/app/build.properties
-@@ -1,25 +1,7 @@
--#
--# WiFiAnalyzer
--# Copyright (C) 2019  VREM Software Development <VREMSoftwareDevelopment@gmail.com>
--#
--# This program is free software: you can redistribute it and/or modify
--# it under the terms of the GNU General Public License as published by
--# the Free Software Foundation, either version 3 of the License, or
--# (at your option) any later version.
--#
--# This program is distributed in the hope that it will be useful,
--# but WITHOUT ANY WARRANTY; without even the implied warranty of
--# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--# GNU General Public License for more details.
--#
--# You should have received a copy of the GNU General Public License
--# along with this program.  If not, see <http://www.gnu.org/licenses/>
--#
--
+@@ -1,7 +1,7 @@
  #Build Properties
--#Mon Jul 08 20:24:32 EDT 2019
-+#Wed Jul 31 15:44:06 WEST 2019
+-#Sat Aug 31 09:04:14 EDT 2019
++#Sat Aug 31 20:18:25 WEST 2019
  version_minor=0
  version_build=0
--version_patch=7
--version_store=48
-+version_patch=8
+-version_patch=8
++version_patch=10
  version_major=2
-+version_store=49
+-version_store=49
++version_store=51
