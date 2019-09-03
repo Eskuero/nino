@@ -1,8 +1,8 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index aa3a0b0c..b3020039 100644
+index 295b804b..bd3380e2 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -142,7 +142,7 @@ android {
+@@ -163,7 +163,7 @@ android {
      }
  }
  
@@ -11,11 +11,3 @@ index aa3a0b0c..b3020039 100644
  
  android.applicationVariants.all { variant ->
  
-@@ -222,6 +222,7 @@ android.applicationVariants.all { variant ->
-         }
-     }
- 
-+
-     println("----------------------------------------------")
-     println("Variant name:      " + variant.name)
-     println("Build type:        " + variant.buildType.name)

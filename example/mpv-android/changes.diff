@@ -1,14 +1,14 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index cb10311..f6cf3a4 100644
+index 3672673..b5af8c0 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -8,7 +8,7 @@ android {
      defaultConfig {
          minSdkVersion 21
          targetSdkVersion 28
--        versionCode 15
+-        versionCode 16
 +        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "2019-04-18-alpha"
+         versionName "2019-09-02-alpha"
          vectorDrawables.useSupportLibrary = true
      }
 diff --git a/buildscripts/buildall.sh b/buildscripts/buildall.sh
@@ -26,7 +26,7 @@ index b33a7cb..fab70fd 100755
  
  exit 0
 diff --git a/buildscripts/scripts/mpv-android.sh b/buildscripts/scripts/mpv-android.sh
-index 1074fee..8e32db8 100755
+index 696a25c..253a38a 100755
 --- a/buildscripts/scripts/mpv-android.sh
 +++ b/buildscripts/scripts/mpv-android.sh
 @@ -30,7 +30,7 @@ prefix_x86=$(nativeprefix "x86")
@@ -37,4 +37,4 @@ index 1074fee..8e32db8 100755
 +#./gradlew assembleDebug assembleRelease
  
  if [ -n "${ANDROID_SIGNING_KEY:-}" ]; then
- 	cp "${MPV_ANDROID}/app/build/outputs/apk/release/app-release-unsigned.apk" "${MPV_ANDROID}/app/build/outputs/apk/release/app-release-signed.apk"
+ 	cd "${MPV_ANDROID}/app/build/outputs"

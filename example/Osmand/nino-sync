@@ -4,6 +4,9 @@ import os
 import time
 import subprocess
 
+workdir = os.getcwd()
+subprojects = [subfolder for subfolder in os.listdir() if os.path.isdir(subfolder) and ".git" in os.listdir(subfolder)]
+
 def lastdate():
 	try:
 		date = str(int((time.time() - os.path.getmtime('.lastdate'))/60)) + " minutes ago"
@@ -11,36 +14,59 @@ def lastdate():
 		date = "date unknown"
 	print(date)
 
-def diff(): pass
+def changes():
+	for subproject in subprojects:
+		changes = subprocess.Popen(["git", "-C", subproject, "diff"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
+		if changes != "":
+			with open(subproject + "/changes.diff", "w") as diff:
+				print(changes, file = diff)
 
-def clean(): pass 
+def fetch():
+	fetched = 0
+	for subproject in subprojects:
+		print("Fetching subproject " + subproject)
+		fetched += subprocess.call(["git", "-C", subproject, "fetch"])
+	sys.exit(fetched)
 
-def pull():
-	workdir = os.getcwd()
-	changed = False
-	for subproject in [subfolder for subfolder in os.listdir() if os.path.isdir(subfolder)]:
-		if ".git" in os.listdir(subproject):
-			os.chdir(subproject)
-			print("Syncing subproject " + subproject)
-			pull = subprocess.Popen(["git", "pull"], stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-			output = pull.communicate()[0].decode()
-			if pull.returncode == 0 and "Already up" not in output:
-				changed = True
-			os.chdir(workdir)
-	if not changed:
-		print("Already up-date")
+def updated():
+	count = 0
+	for subproject in subprojects:
+		# Branch and remote name on current local repository
+		branch = subprocess.Popen(["git", "-C", subproject, "branch", "--show-current"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
+		remote = subprocess.Popen(["git", "-C", subproject, "remote"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
+		# Amount of commits the remote is ahead of the local copy
+		count += int(subprocess.Popen(["git", "-C", subproject, "rev-list", branch + ".." + remote, "--count"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip())
+	# If everything went find touch the .lastdate file to mark date of update
+	if count > 0:
+		open('.lastdate', 'w').close()
+	sys.exit(0 if count > 0 else 1)
 
-def update(): pass
+def merge():
+	merged = 0
+	for subproject in subprojects:
+		print("Cleaning subproject " + subproject)
+		subprocess.call(["git", "-C", subproject, "checkout", "."])
+		print("Merging subproject " + subproject)
+		merged += subprocess.call(["git", "-C", subproject, "merge"])
+	sys.exit(merged)
 
-def apply(): pass
+def restore():
+	restored = 0
+	for subproject in subprojects:
+		if os.path.isfile(subproject + "/changes.diff"):
+			print("Restoring subproject " + subproject)
+			with open(subproject + "/changes.diff", "r") as file:
+				print(file.read())
+			restored += subprocess.call(["git", "-C", subproject, "apply", "changes.diff"])
+	sys.exit(restored)
 
 args = {
 	"lastdate": lastdate,
-	"diff": diff,
-	"clean": clean,
-	"pull": pull,
-	"update": update,
-	"apply": apply 
+	"changes": changes,
+	"fetch": fetch,
+	"updated": updated,
+	"merge": merge,
+	"restore": restore 
 }
 
 args[sys.argv[1]]()

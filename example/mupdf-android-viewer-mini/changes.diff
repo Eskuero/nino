@@ -1,12 +1,12 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 9d40aa4..586eb30 100644
+index 40d4524..154352f 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -17,13 +17,13 @@ android {
  		minSdkVersion 16
- 		targetSdkVersion 26
- 		versionName '1.15.0'
--		versionCode 50
+ 		targetSdkVersion 29
+ 		versionName '1.16.1'
+-		versionCode 60
 +		versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
  	}
  
@@ -19,7 +19,7 @@ index 9d40aa4..586eb30 100644
  	}
  
 diff --git a/build.gradle b/build.gradle
-index 99228c3..c1c9b29 100644
+index d691e44..6a9e9d9 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -1,7 +1,7 @@
@@ -30,7 +30,7 @@ index 99228c3..c1c9b29 100644
 +		jcenter()
  	}
  	dependencies {
- 		classpath 'com.android.tools.build:gradle:3.1.0'
+ 		classpath 'com.android.tools.build:gradle:3.5.0'
 @@ -13,8 +13,8 @@ allprojects {
  		if (project.hasProperty('MAVEN_REPO')) {
  			maven { url MAVEN_REPO }

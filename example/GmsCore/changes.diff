@@ -1,15 +1,12 @@
 diff --git a/build.gradle b/build.gradle
-index 76056a0..7fd06db 100644
+index 76056a0..99b0316 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -42,9 +42,7 @@ def androidTargetSdk() { return 28 }
- def androidMinSdk() { return 14 }
- 
- def versionCode() {
--    def stdout = new ByteArrayOutputStream()
--    exec { commandLine 'git', 'rev-list', '--count', "HEAD"; standardOutput = stdout }
--    return Integer.parseInt(stdout.toString().trim())
-+    return Integer.parseInt(new Date().format("yyMMddHHmm"))
+@@ -45,6 +45,7 @@ def versionCode() {
+     def stdout = new ByteArrayOutputStream()
+     exec { commandLine 'git', 'rev-list', '--count', "HEAD"; standardOutput = stdout }
+     return Integer.parseInt(stdout.toString().trim())
++
  }
  
  def versionName() {
@@ -19,3 +16,16 @@ diff --git a/extern/GmsLib b/extern/GmsLib
 @@ -1 +1 @@
 -Subproject commit 39d20ec1f28bcc4b134d76f43296bad587362c69
 +Subproject commit 39d20ec1f28bcc4b134d76f43296bad587362c69-dirty
+diff --git a/play-services-core/build.gradle b/play-services-core/build.gradle
+index 2598b53..16c6a76 100644
+--- a/play-services-core/build.gradle
++++ b/play-services-core/build.gradle
+@@ -83,7 +83,7 @@ android {
+ 
+     defaultConfig {
+         versionName ourVersionName
+-        versionCode ourVersionCode
++        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+ 
+         minSdkVersion androidMinSdk()
+         targetSdkVersion androidTargetSdk()
