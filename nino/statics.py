@@ -12,33 +12,9 @@ ansiescape = {
     "close": "" if "Windows" in platform.system() else "\u001b[0m"
 }
 fetchmethods = {
-	"nino-sync": {
-		"lastdate": [execprefix + "nino-sync", "lastdate"],
-		"diff": [execprefix + "nino-sync", "diff"],
-		"clean": [execprefix + "nino-sync", "clean"],
-		"pull": [execprefix + "nino-sync", "pull"],
-		"update": [execprefix + "nino-sync", "update"],
-		"nonews": "Already up-date",
-		"apply": [execprefix + "nino-sync", "apply", "--reject"]
-	},
-	".git": {
-		"lastdate": ["git", "log", "-n", "1", "--format=%cr"],
-		"diff": ["git", "diff"],
-		"clean": ["git", "checkout", "."],
-		"pull": ["git", "pull"],
-		"update": "",
-		"nonews": "Already up",
-		"apply": ["git", "apply"]
-	},
-	".hg": {
-		"lastdate": ["hg", "log", "-l", "1", "-T", "{date|age}"],
-		"diff": ["hg", "diff"],
-		"clean": ["hg", "revert", "--all"],
-		"pull": ["hg", "pull"],
-		"update": ["hg", "update"],
-		"nonews": "no changes found",
-		"apply": ["hg", "import", "--no-commit", "-"]
-	}
+	"nino-sync": "custom",
+	".git": "git",
+	".hg": "mercurial"
 }
 dependencies = {
 	"keytool": "https://java.com/en/download/manual.jsp",

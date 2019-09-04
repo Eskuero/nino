@@ -6,7 +6,7 @@ def dpnds():
 	ready = True
 	for dep in dependencies:
 		if not shutil.which(dep):
-			# Do not consider missing fetchmethods and critical failure and just disable it
+			# Do not consider missing fetchmethods a critical failure and just disable them
 			if dep in ["git", "hg"]:
 				fetchmethods.pop("." + dep)
 			else:
