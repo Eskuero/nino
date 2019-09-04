@@ -23,7 +23,8 @@ class custom():
 	def lastdate():
 		return subprocess.Popen([execprefix + "nino-sync", "lastdate"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
 	def changes():
-		return subprocess.call([execprefix + "nino-sync", "changes"])
+		modified = subprocess.call([execprefix + "nino-sync", "changes"])
+		return "Diff restore managed by custom script".encode() if modified == 0 else "".encode()
 	def fetch(logfile):
 		pull = subprocess.call([execprefix + "nino-sync", "fetch"], stdout = logfile, stderr = subprocess.STDOUT)
 		return True if pull == 0 else False

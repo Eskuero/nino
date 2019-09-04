@@ -65,7 +65,6 @@ class project():
 						self.build = False
 						cprint("FAILED", "error")
 			else:
-
 				cprint("UNCHANGED", "warning")
 				return
 		else:
