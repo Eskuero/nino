@@ -1,13 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index c71f4b5f..50c73da4 100644
+index 82b0b9c0..0ae94c6e 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -27,7 +27,7 @@ android {
-         resValue "string", "manifest_package_id", "net.gsantner.markor"
-         applicationId "net.gsantner.markor"
-         versionName "2.0.8"
--        versionCode 87
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+@@ -100,6 +100,13 @@ android {
+         disable 'InvalidPackage'
+         abortOnError false
+     }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
  
-         minSdkVersion rootProject.ext.version_minSdk
-         targetSdkVersion rootProject.ext.version_compileSdk
+ dependencies {

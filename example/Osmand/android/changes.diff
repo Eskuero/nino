@@ -1,8 +1,8 @@
 diff --git a/OsmAnd/build.gradle b/OsmAnd/build.gradle
-index 1b1d8bc060..e930de2161 100644
+index 70fdff66b5..2c3a06b4ab 100644
 --- a/OsmAnd/build.gradle
 +++ b/OsmAnd/build.gradle
-@@ -33,28 +33,11 @@ android {
+@@ -27,26 +27,10 @@ android {
  	buildToolsVersion "27.0.3"
  	// compileNdkVersion "android-ndk-r17b"
  
@@ -23,16 +23,14 @@ index 1b1d8bc060..e930de2161 100644
 -	}
 -
  	defaultConfig {
- 		minSdkVersion System.getenv("MIN_SDK_VERSION") ? System.getenv("MIN_SDK_VERSION").toInteger() :
- 				 (analytics ? 15 : 14)
+ 		minSdkVersion System.getenv("MIN_SDK_VERSION") ? System.getenv("MIN_SDK_VERSION").toInteger() : 14
  		targetSdkVersion 26
--		versionCode 330
--		versionCode System.getenv("APK_NUMBER_VERSION") ? System.getenv("APK_NUMBER_VERSION").toInteger() : versionCode
+-		versionCode 340
 +		versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+ 		versionCode System.getenv("APK_NUMBER_VERSION") ? System.getenv("APK_NUMBER_VERSION").toInteger() : versionCode
  		multiDexEnabled true
- 		versionName "3.3.0"
- 		versionName System.getenv("APK_VERSION")? System.getenv("APK_VERSION").toString(): versionName
-@@ -197,15 +180,6 @@ android {
+ 		versionName "3.4.0"
+@@ -190,15 +174,6 @@ android {
  		}
  	}
  

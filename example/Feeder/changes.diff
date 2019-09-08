@@ -1,13 +1,25 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 700cc66..6bd75d2 100644
+index 0f025e4..250ef7c 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -24,7 +24,7 @@ android {
+@@ -108,6 +108,13 @@ android {
+   kotlinOptions {
+     jvmTarget = "1.8"
+   }
++
++  def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++  android.applicationVariants.all { variant ->
++      variant.outputs.all { output ->
++          output.versionCodeOverride = DateVersionCode
++      }
++  }
+ }
  
-   defaultConfig {
-     applicationId "com.nononsenseapps.feeder"
--    versionCode 59
-+    versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-     versionName "1.8.20"
-     compileSdkVersion 28
-     minSdkVersion 18
+ play {
+diff --git a/rome b/rome
+index 4fc77f0..be7a3ed 160000
+--- a/rome
++++ b/rome
+@@ -1 +1 @@
+-Subproject commit 4fc77f089f090f32618cc228ccaa9c7b41326112
++Subproject commit be7a3ed50bc75787c1aa104dd790bca4fa210ee5

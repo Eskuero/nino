@@ -1,13 +1,18 @@
 diff --git a/app-android/app/build.gradle b/app-android/app/build.gradle
-index 0e5c4e39..5ffce1c8 100644
+index 203f73a9..808b32bd 100644
 --- a/app-android/app/build.gradle
 +++ b/app-android/app/build.gradle
-@@ -7,7 +7,7 @@ android {
-         applicationId "de.tutao.tutanota"
-         minSdkVersion 21
-         targetSdkVersion 26
--        versionCode 359050
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "3.59.5"
-         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+@@ -56,6 +56,13 @@ android {
+         exclude 'META-INF/LICENSE'
+         exclude 'META-INF/ASL2.0'
      }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
+ 
+ task copyResourcesToClasses(type: Copy) {

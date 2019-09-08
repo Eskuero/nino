@@ -1,31 +1,18 @@
-diff --git a/AndroidManifest.xml b/AndroidManifest.xml
-index 756d0475..a69f3609 100644
---- a/AndroidManifest.xml
-+++ b/AndroidManifest.xml
-@@ -1,7 +1,6 @@
- <?xml version="1.0" encoding="utf-8"?>
- <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-     package="org.kde.kdeconnect_tp"
--    android:versionCode="11293"
-     android:versionName="1.12.93">
- 
-     <supports-screens
-@@ -271,4 +270,4 @@
- 
-     </application>
- 
--</manifest>
-\ No newline at end of file
-+</manifest>
 diff --git a/build.gradle b/build.gradle
-index 8e614118..e874b37f 100644
+index 1e61cb39..9859a70d 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -15,6 +15,7 @@ android {
-     defaultConfig {
-         minSdkVersion 14
-         targetSdkVersion 28
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
+@@ -64,6 +64,13 @@ android {
+             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+         }
      }
-     dexOptions {
-         javaMaxHeapSize "2g"
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
+ 
+ dependencies {

@@ -1,0 +1,3 @@
+#!/bin/sh
+cd libsignal-service-java;
+./gradlew --no-daemon tasks installArchives;

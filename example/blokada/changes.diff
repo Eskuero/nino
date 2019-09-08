@@ -1,21 +1,13 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 7930021..3a288a8 100644
+index 7249979..4b29f48 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -47,7 +47,7 @@ android {
-         minSdkVersion 21
-         targetSdkVersion 28
-         versionName androidGitVersion.name()
--        versionCode androidGitVersion.code()
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-         ndk {
-             abiFilters 'arm64-v8a', 'armeabi-v7a'
-@@ -134,14 +134,6 @@ android {
-         beta.res.srcDirs += 'src/build-official/res'
-         beta.java.srcDirs += 'src/build-official-imports/kotlin'
+@@ -67,16 +67,6 @@ android {
+         abortOnError false
      }
+ 
 -    signingConfigs {
+-        // Set the BLOKADA_* constants in your ~/.gradle/gradle.properties to point to your keystore.
 -        release {
 -            keyAlias 'blokada'
 -            keyPassword BLOKADA_KEY_PASSWORD
@@ -23,14 +15,29 @@ index 7930021..3a288a8 100644
 -            storePassword BLOKADA_STORE_PASSWORD
 -        }
 -    }
+-
      buildTypes {
          debug {
-         }
-@@ -149,7 +141,6 @@ android {
+             // By default it is a 'debuggable' build, signed with a debug key.
+@@ -91,7 +81,6 @@ android {
              minifyEnabled false
-             useProguard false
+             useProguard false // We don't use Proguard for now.
              proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 -            signingConfig signingConfigs.release
          }
+ 
          official {
-             initWith(release)
+@@ -235,6 +224,13 @@ android {
+         beta.java.srcDirs += 'src/official/kotlin'
+         beta.res.srcDirs += 'src/official/res'
+     }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
+ 
+ dependencies {
