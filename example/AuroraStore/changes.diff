@@ -1,13 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 1227dc46..ce45df2a 100644
+index 189170d7..1bf6d913 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -28,7 +28,7 @@ android {
-         applicationId "com.aurora.store"
-         minSdkVersion 21
-         targetSdkVersion 29
--        versionCode 9
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "3.0.9"
+@@ -54,6 +54,13 @@ android {
+         checkReleaseBuilds false
+         abortOnError false
+     }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
  
-         resConfigs "ar-rSA", "b+ast", "bh-rIN", "bg-rBG", "ca-rES", "de-rDE", "es-rES", "el-rGR", "fr-rFR", "gl-rES", "hi-rIN", "hr-rHR", "hu-rHU", "in-rID", "it-rIT", "iw-rIL", "ja-rJP", "ko-rKR", "lt-rLT",
+ configurations.all {

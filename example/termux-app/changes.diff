@@ -1,13 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 4f4d0fb..7008f31 100644
+index b3b1d12..8af73b1 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -14,7 +14,7 @@ android {
-         applicationId "com.termux"
-         minSdkVersion 21
-         targetSdkVersion 28
--        versionCode 74
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "0.74"
+@@ -30,6 +30,13 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_8
+         targetCompatibility JavaVersion.VERSION_1_8
      }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
  
+ dependencies {
