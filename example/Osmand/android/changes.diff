@@ -1,8 +1,8 @@
 diff --git a/OsmAnd/build.gradle b/OsmAnd/build.gradle
-index 70fdff66b5..2c3a06b4ab 100644
+index 81f1a8e6c3..c66abea9d2 100644
 --- a/OsmAnd/build.gradle
 +++ b/OsmAnd/build.gradle
-@@ -27,26 +27,10 @@ android {
+@@ -26,26 +26,10 @@ android {
  	buildToolsVersion "27.0.3"
  	// compileNdkVersion "android-ndk-r17b"
  
@@ -30,7 +30,7 @@ index 70fdff66b5..2c3a06b4ab 100644
  		versionCode System.getenv("APK_NUMBER_VERSION") ? System.getenv("APK_NUMBER_VERSION").toInteger() : versionCode
  		multiDexEnabled true
  		versionName "3.4.0"
-@@ -190,15 +174,6 @@ android {
+@@ -196,15 +180,6 @@ android {
  		}
  	}
  

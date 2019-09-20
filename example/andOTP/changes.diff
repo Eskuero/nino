@@ -1,13 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index c8bdd37..978355b 100644
+index 0596ad1..37cf8cd 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -8,7 +8,7 @@ android {
-         applicationId "org.shadowice.flocke.andotp"
-         minSdkVersion 19
-         targetSdkVersion 28
--        versionCode 23
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "0.6.2"
-         vectorDrawables.useSupportLibrary = true
+@@ -29,6 +29,13 @@ android {
+     dataBinding {
+         enabled = true
      }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
+ 
+ dependencies {

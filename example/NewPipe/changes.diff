@@ -1,13 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 00970ecf..9f3c9db5 100644
+index 614d49ac..21702d6b 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -8,7 +8,7 @@ android {
-         applicationId "org.schabi.newpipe"
-         minSdkVersion 19
-         targetSdkVersion 28
--        versionCode 760
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "0.17.1"
+@@ -40,6 +40,13 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_8
+         targetCompatibility JavaVersion.VERSION_1_8
+     }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
  
-         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+ ext {

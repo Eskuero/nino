@@ -1,13 +1,17 @@
 diff --git a/build.gradle b/build.gradle
-index 1863c43f7..aa6f26e97 100644
+index e24b05d42..8bc9eb5ae 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -83,7 +83,7 @@ android {
-     defaultConfig {
-         minSdkVersion 16
-         targetSdkVersion 28
--        versionCode 337
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "2.5.7"
-         archivesBaseName += "-$versionName"
-         applicationId "eu.siacs.conversations"
+@@ -236,4 +236,12 @@ android {
+         exclude 'META-INF/BCKEY.DSA'
+         exclude 'META-INF/BCKEY.SF'
+     }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
++
+ }
