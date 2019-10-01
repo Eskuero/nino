@@ -1,5 +1,5 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 943214ec..40493e8e 100644
+index e769648e..cf5b0989 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -3,10 +3,6 @@ apply plugin: 'kotlin-android'
@@ -51,3 +51,6 @@ index 943214ec..40493e8e 100644
  }
  
  dependencies {
+diff --git a/gradlew b/gradlew
+old mode 100644
+new mode 100755

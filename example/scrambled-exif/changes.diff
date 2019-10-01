@@ -1,13 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index d11c8e7..f8cb2b4 100644
+index 71273d3..6717a1e 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -11,7 +11,7 @@ android {
-         applicationId "com.jarsilio.android.scrambledeggsif"
-         minSdkVersion 15
-         targetSdkVersion 28
--        versionCode 33
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "1.4.6"
-         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-         vectorDrawables.useSupportLibrary = true
+@@ -63,6 +63,13 @@ android {
+         sourceCompatibility 1.8
+         targetCompatibility 1.8
+     }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
+ 
+ dependencies {
