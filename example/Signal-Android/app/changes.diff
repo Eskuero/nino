@@ -1,5 +1,5 @@
 diff --git a/build.gradle b/build.gradle
-index 80bc34bf3..f9506e3a2 100644
+index 958909c44..ce3c6776d 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -18,6 +18,7 @@ apply plugin: 'com.android.application'

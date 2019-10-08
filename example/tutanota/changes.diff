@@ -1,18 +1,18 @@
 diff --git a/app-android/app/build.gradle b/app-android/app/build.gradle
-index 60958477..8376e9c8 100644
+index fcf970e2..db2f5255 100644
 --- a/app-android/app/build.gradle
 +++ b/app-android/app/build.gradle
 @@ -56,6 +56,13 @@ android {
-         exclude 'META-INF/LICENSE'
-         exclude 'META-INF/ASL2.0'
-     }
+ 		exclude 'META-INF/LICENSE'
+ 		exclude 'META-INF/ASL2.0'
+ 	}
 +
-+    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
-+    android.applicationVariants.all { variant ->
-+        variant.outputs.all { output ->
-+            output.versionCodeOverride = DateVersionCode
++        def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++        android.applicationVariants.all { variant ->
++             variant.outputs.all { output ->
++                  output.versionCodeOverride = DateVersionCode
++             }
 +        }
-+    }
  }
  
  task copyResourcesToClasses(type: Copy) {

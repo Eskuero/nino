@@ -1,13 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 0faa9e3d..3f00c52e 100644
+index 0354a668..a39d2ef9 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -19,7 +19,7 @@ android {
-         applicationId 'fr.neamar.kiss'
-         minSdkVersion 15
-         targetSdkVersion 28
--        versionCode 158
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "3.10.2"
-         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+@@ -37,6 +37,13 @@ android {
+         sourceCompatibility = '1.8'
+         targetCompatibility = '1.8'
      }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
+ 
+ dependencies {

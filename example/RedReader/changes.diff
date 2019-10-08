@@ -11,7 +11,7 @@ index a73473b..045c8b6 100644
  		applicationId "org.quantumbadger.redreader"
  	}
 diff --git a/src/main/AndroidManifest.xml b/src/main/AndroidManifest.xml
-index d5d4fa6..5f67758 100644
+index 605b88a..d879d1f 100644
 --- a/src/main/AndroidManifest.xml
 +++ b/src/main/AndroidManifest.xml
 @@ -18,7 +18,6 @@

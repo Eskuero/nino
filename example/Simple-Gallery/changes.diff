@@ -1,5 +1,5 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index e769648e..cf5b0989 100644
+index fc9790af..ba47e7a6 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -3,10 +3,6 @@ apply plugin: 'kotlin-android'
