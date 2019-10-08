@@ -51,7 +51,7 @@ class git():
 		branch = subprocess.Popen(["git", "branch", "--show-current"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
 		remote = subprocess.Popen(["git", "remote"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
 		# Amount of commits the remote is ahead of the local copy
-		commitcount = subprocess.Popen(["git", "rev-list", branch + ".." + remote, "--count"], stdout = subprocess.PIPE).communicate()[0].decode('ascii')
+		commitcount = subprocess.Popen(["git", "rev-list", branch + ".." + remote + "/" + branch, "--count"], stdout = subprocess.PIPE).communicate()[0].decode('ascii')
 		# If the count is bigger than zero it means we can merge new stuff
 		return True if int(commitcount) > 0 else False
 	def merge(logfile):
