@@ -1,24 +1,29 @@
 diff --git a/build.gradle b/build.gradle
-index a73473b..045c8b6 100644
+index a73473b..c43ada9 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -42,6 +42,7 @@ android {
+@@ -81,6 +81,12 @@ android {
+             assets.srcDirs = ['assets']
+         }
+     }
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
  
- 		minSdkVersion 14
- 		targetSdkVersion 27
-+		versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
- 
- 		applicationId "org.quantumbadger.redreader"
- 	}
+ pmd {
 diff --git a/src/main/AndroidManifest.xml b/src/main/AndroidManifest.xml
-index 605b88a..d879d1f 100644
+index cc6ae8d..d879d1f 100644
 --- a/src/main/AndroidManifest.xml
 +++ b/src/main/AndroidManifest.xml
 @@ -18,7 +18,6 @@
  
  <manifest xmlns:android="http://schemas.android.com/apk/res/android"
            package="org.quantumbadger.redreader"
--          android:versionCode="87"
+-          android:versionCode="88"
            android:versionName="1.9.10"
            android:installLocation="auto">
  

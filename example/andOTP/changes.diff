@@ -1,12 +1,11 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index faa834a..02b9ecd 100644
+index ac69c78..15e329e 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -29,6 +29,13 @@ android {
-     dataBinding {
-         enabled = true
+@@ -38,6 +38,12 @@ android {
+             dimension = 'market'
+         }
      }
-+
 +    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
 +    android.applicationVariants.all { variant ->
 +        variant.outputs.all { output ->

@@ -1,13 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 4e397834..c1693f10 100644
+index 5deb1baf..6b6def25 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -11,7 +11,7 @@ android {
-         applicationId "com.kunzisoft.keepass"
-         minSdkVersion 14
-         targetSdkVersion 28
--        versionCode = 23
-+        versionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName = "2.5.0.0beta23"
-         multiDexEnabled true
+@@ -78,6 +78,13 @@ android {
+         targetCompatibility JavaVersion.VERSION_1_8
+         sourceCompatibility JavaVersion.VERSION_1_8
+     }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
  
+ def spongycastleVersion = "1.58.0.0"
