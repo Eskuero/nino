@@ -1,9 +1,9 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index ac69c78..15e329e 100644
+index e11831c..6ed74bf 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -38,6 +38,12 @@ android {
-             dimension = 'market'
+@@ -39,6 +39,12 @@ android {
+             versionNameSuffix = "-play"
          }
      }
 +    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))

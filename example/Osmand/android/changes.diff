@@ -1,8 +1,8 @@
 diff --git a/OsmAnd/build.gradle b/OsmAnd/build.gradle
-index 81f1a8e6c3..c66abea9d2 100644
+index a8dc4c4202..0d554017c1 100644
 --- a/OsmAnd/build.gradle
 +++ b/OsmAnd/build.gradle
-@@ -26,26 +26,10 @@ android {
+@@ -26,22 +26,6 @@ android {
  	buildToolsVersion "27.0.3"
  	// compileNdkVersion "android-ndk-r17b"
  
@@ -25,12 +25,7 @@ index 81f1a8e6c3..c66abea9d2 100644
  	defaultConfig {
  		minSdkVersion System.getenv("MIN_SDK_VERSION") ? System.getenv("MIN_SDK_VERSION").toInteger() : 14
  		targetSdkVersion 26
--		versionCode 340
-+		versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
- 		versionCode System.getenv("APK_NUMBER_VERSION") ? System.getenv("APK_NUMBER_VERSION").toInteger() : versionCode
- 		multiDexEnabled true
- 		versionName "3.4.0"
-@@ -196,15 +180,6 @@ android {
+@@ -196,15 +180,12 @@ android {
  		}
  	}
  
@@ -43,6 +38,12 @@ index 81f1a8e6c3..c66abea9d2 100644
 -		}
 -	}
 -
++        def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++        android.applicationVariants.all { variant ->
++            variant.outputs.all { output ->
++                output.versionCodeOverride = DateVersionCode
++            }
++        }
  }
  
  def replaceNoTranslate(line) {

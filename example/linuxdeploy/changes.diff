@@ -1,13 +1,17 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 5c74759..53629f3 100644
+index ca13468..3311dd3 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -8,7 +8,7 @@ android {
-         applicationId 'ru.meefik.linuxdeploy'
-         minSdkVersion 15
-         targetSdkVersion 28
--        versionCode 251
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "2.4.0"
+@@ -25,6 +25,12 @@ android {
+         sourceCompatibility JavaVersion.VERSION_1_8
+         targetCompatibility JavaVersion.VERSION_1_8
      }
-     buildTypes {
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
+ 
+ dependencies {

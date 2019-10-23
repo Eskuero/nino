@@ -1,13 +1,18 @@
 diff --git a/OpenKeychain/build.gradle b/OpenKeychain/build.gradle
-index dee2bb0ad..ac054b886 100644
+index 6465a9951..e9d561634 100644
 --- a/OpenKeychain/build.gradle
 +++ b/OpenKeychain/build.gradle
-@@ -177,7 +177,7 @@ android {
-     defaultConfig {
-         minSdkVersion 15
-         targetSdkVersion 28
--        versionCode 53004
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "5.3"
-         applicationId "org.sufficientlysecure.keychain"
-         // the androidjunitrunner is broken regarding coverage, see here:
+@@ -110,6 +110,13 @@ dependencies {
+ 
+     // for debugging the db. don't enable by default, this will expose the database no the network!
+     // debugImplementation 'com.amitshekhar.android:debug-db:1.0.3'
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
+ 
+ // Output of ./gradlew -q calculateChecksums

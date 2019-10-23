@@ -1,5 +1,5 @@
 diff --git a/build.gradle b/build.gradle
-index 76056a0..99b0316 100644
+index b6ffdcd..7c409fe 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -45,6 +45,7 @@ def versionCode() {
@@ -14,10 +14,10 @@ diff --git a/extern/GmsLib b/extern/GmsLib
 --- a/extern/GmsLib
 +++ b/extern/GmsLib
 @@ -1 +1 @@
--Subproject commit 39d20ec1f28bcc4b134d76f43296bad587362c69
-+Subproject commit 39d20ec1f28bcc4b134d76f43296bad587362c69-dirty
+-Subproject commit 15cd4491bcca57d627796b35b69bdf8c97564792
++Subproject commit 15cd4491bcca57d627796b35b69bdf8c97564792-dirty
 diff --git a/play-services-core/build.gradle b/play-services-core/build.gradle
-index 2598b53..16c6a76 100644
+index 0aef5a4..2b85c20 100644
 --- a/play-services-core/build.gradle
 +++ b/play-services-core/build.gradle
 @@ -83,7 +83,7 @@ android {
