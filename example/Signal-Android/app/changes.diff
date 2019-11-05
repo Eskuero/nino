@@ -1,5 +1,5 @@
 diff --git a/build.gradle b/build.gradle
-index 960503dda..f957d6e5b 100644
+index d08e1d4de..2a4c1e887 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -4,6 +4,7 @@ import java.security.MessageDigest
@@ -50,10 +50,3 @@ index 960503dda..f957d6e5b 100644
  }
  
  def getLastCommitTimestamp() {
-@@ -452,4 +445,4 @@ task qa {
- 
- wrapper {
-     distributionType = Wrapper.DistributionType.ALL
--}
-\ No newline at end of file
-+}

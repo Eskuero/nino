@@ -1,14 +1,10 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 1974f0c..b747c53 100644
+index ec74237..a1189dd 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -9,17 +9,9 @@ android {
-         applicationId "com.github.axet.audiorecorder"
-         minSdkVersion 9
-         targetSdkVersion 26
--        versionCode 331
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "3.3.6"
+@@ -12,14 +12,6 @@ android {
+         versionCode 335
+         versionName "3.3.10"
      }
 -    signingConfigs {
 -        release {
@@ -29,3 +25,16 @@ index 1974f0c..b747c53 100644
          }
      }
      applicationVariants.all { variant ->
+@@ -49,6 +40,12 @@ android {
+             universalApk true
+         }
+     }
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
+ 
+ dependencies {

@@ -1,9 +1,9 @@
 diff --git a/OsmAnd/build.gradle b/OsmAnd/build.gradle
-index a8dc4c4202..0d554017c1 100644
+index 4d52e76344..9c358e0e4c 100644
 --- a/OsmAnd/build.gradle
 +++ b/OsmAnd/build.gradle
 @@ -26,22 +26,6 @@ android {
- 	buildToolsVersion "27.0.3"
+ 	buildToolsVersion "28.0.3"
  	// compileNdkVersion "android-ndk-r17b"
  
 -	signingConfigs {
@@ -23,9 +23,9 @@ index a8dc4c4202..0d554017c1 100644
 -	}
 -
  	defaultConfig {
- 		minSdkVersion System.getenv("MIN_SDK_VERSION") ? System.getenv("MIN_SDK_VERSION").toInteger() : 14
- 		targetSdkVersion 26
-@@ -196,15 +180,12 @@ android {
+ 		minSdkVersion System.getenv("MIN_SDK_VERSION") ? System.getenv("MIN_SDK_VERSION").toInteger() : 15
+ 		targetSdkVersion 28
+@@ -204,15 +188,12 @@ android {
  		}
  	}
  
