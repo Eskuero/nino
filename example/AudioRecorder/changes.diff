@@ -1,23 +1,8 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index ec74237..a1189dd 100644
+index f515f7d..b628ec5 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -12,14 +12,6 @@ android {
-         versionCode 335
-         versionName "3.3.10"
-     }
--    signingConfigs {
--        release {
--            storeFile file(prop('RELEASE_STORE_FILE')?:'none')
--            storePassword prop('RELEASE_STORE_PASSWORD')
--            keyAlias prop('RELEASE_KEY_ALIAS')
--            keyPassword prop('RELEASE_KEY_PASSWORD')
--        }
--    }
-     buildTypes {
-         debug {
-             debuggable true
-@@ -30,7 +22,6 @@ android {
+@@ -30,7 +30,6 @@ android {
              shrinkResources true
              minifyEnabled true
              proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -25,7 +10,7 @@ index ec74237..a1189dd 100644
          }
      }
      applicationVariants.all { variant ->
-@@ -49,6 +40,12 @@ android {
+@@ -49,6 +48,12 @@ android {
              universalApk true
          }
      }

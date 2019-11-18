@@ -1,5 +1,5 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index d7d8957c..8d7d2416 100644
+index 3c5d265f..f305f015 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -57,7 +57,6 @@ android {
@@ -10,7 +10,7 @@ index d7d8957c..8d7d2416 100644
          }
      }
  
-@@ -103,6 +102,12 @@ android {
+@@ -112,6 +111,12 @@ android {
  
      }
  
@@ -23,7 +23,7 @@ index d7d8957c..8d7d2416 100644
  }
  
  
-@@ -117,18 +122,3 @@ dependencies {
+@@ -126,18 +131,3 @@ dependencies {
  
  // Map for the version code that gives each ABI a value.
  ext.abiCodes = ['armeabi-v7a':'1', 'arm64-v8a':'2', 'mips':'3', 'x86':'4', 'x86_64':'5']
