@@ -1,13 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index e730d10ed..42d207d47 100644
+index 2b189c60b..119440882 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -25,7 +25,7 @@ android {
-     buildToolsVersion '27.0.3'
+@@ -130,6 +130,13 @@ android {
+         exclude 'META-INF/INDEX.LIST'
+         exclude '.readme'
+     }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
  
-     defaultConfig {
--        versionCode 1007050
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName getVersionName()
- 
-         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+ dependencies {

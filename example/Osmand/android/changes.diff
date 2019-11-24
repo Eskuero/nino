@@ -1,5 +1,5 @@
 diff --git a/OsmAnd/build.gradle b/OsmAnd/build.gradle
-index 4d52e76344..9c358e0e4c 100644
+index 707d86fa80..f1f5d62cd3 100644
 --- a/OsmAnd/build.gradle
 +++ b/OsmAnd/build.gradle
 @@ -26,22 +26,6 @@ android {
