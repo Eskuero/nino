@@ -1,8 +1,8 @@
 diff --git a/app/k9mail/build.gradle b/app/k9mail/build.gradle
-index 3ccffcf8c..58ce49111 100644
+index 18219d3a4..0d4babb77 100644
 --- a/app/k9mail/build.gradle
 +++ b/app/k9mail/build.gradle
-@@ -108,6 +108,13 @@ android {
+@@ -109,6 +109,13 @@ android {
              includeAndroidResources = true
          }
      }
@@ -16,12 +16,3 @@ index 3ccffcf8c..58ce49111 100644
  }
  
  androidExtensions {
-diff --git a/gradle.properties b/gradle.properties
-index a01ef3e45..9660de210 100644
---- a/gradle.properties
-+++ b/gradle.properties
-@@ -1,3 +1,4 @@
-+org.gradle.jvmargs=-Xmx4096m
- android.useAndroidX=true
- android.enableJetifier=true
- org.gradle.parallel=true
