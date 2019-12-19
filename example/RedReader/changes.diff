@@ -1,11 +1,12 @@
 diff --git a/build.gradle b/build.gradle
-index a73473b..c43ada9 100644
+index a53bbd1..5b0dd79 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -81,6 +81,12 @@ android {
+@@ -81,6 +81,13 @@ android {
              assets.srcDirs = ['assets']
          }
      }
++
 +    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
 +    android.applicationVariants.all { variant ->
 +        variant.outputs.all { output ->
@@ -16,14 +17,14 @@ index a73473b..c43ada9 100644
  
  pmd {
 diff --git a/src/main/AndroidManifest.xml b/src/main/AndroidManifest.xml
-index cc6ae8d..d879d1f 100644
+index 1c50e08..2518cf2 100644
 --- a/src/main/AndroidManifest.xml
 +++ b/src/main/AndroidManifest.xml
 @@ -18,7 +18,6 @@
  
  <manifest xmlns:android="http://schemas.android.com/apk/res/android"
            package="org.quantumbadger.redreader"
--          android:versionCode="88"
-           android:versionName="1.9.10"
+-          android:versionCode="89"
+           android:versionName="1.9.11"
            android:installLocation="auto">
  

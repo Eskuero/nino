@@ -1,5 +1,5 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 7603a569..a6d2313f 100644
+index ceaf6710..2671a6ed 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -3,10 +3,6 @@ apply plugin: 'kotlin-android'
@@ -28,8 +28,8 @@ index 7603a569..a6d2313f 100644
 -
      buildTypes {
          debug {
-             applicationIdSuffix ".debug"
-@@ -38,7 +25,6 @@ android {
+             // we cannot change the original package name, else PhotoEditorSDK won't work
+@@ -39,7 +26,6 @@ android {
          release {
              minifyEnabled true
              proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -37,7 +37,7 @@ index 7603a569..a6d2313f 100644
          }
      }
  
-@@ -59,6 +45,13 @@ android {
+@@ -60,6 +46,13 @@ android {
      packagingOptions {
          exclude 'META-INF/library_release.kotlin_module'
      }

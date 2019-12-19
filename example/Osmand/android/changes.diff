@@ -1,5 +1,5 @@
 diff --git a/OsmAnd/build.gradle b/OsmAnd/build.gradle
-index 95424a01d6..59f72294e9 100644
+index b8ee55cad3..a829b49674 100644
 --- a/OsmAnd/build.gradle
 +++ b/OsmAnd/build.gradle
 @@ -26,22 +26,6 @@ android {
@@ -25,7 +25,7 @@ index 95424a01d6..59f72294e9 100644
  	defaultConfig {
  		minSdkVersion System.getenv("MIN_SDK_VERSION") ? System.getenv("MIN_SDK_VERSION").toInteger() : 15
  		targetSdkVersion 28
-@@ -204,15 +188,12 @@ android {
+@@ -211,15 +195,12 @@ android {
  		}
  	}
  
