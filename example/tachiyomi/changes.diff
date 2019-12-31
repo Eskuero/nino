@@ -1,13 +1,18 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 141e7ec6..1e595aea 100644
+index 0589e8ba..c11d620a 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -38,7 +38,7 @@ android {
-         minSdkVersion 16
-         targetSdkVersion 27
-         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
--        versionCode 41
-+        versionCode Integer.parseInt(new Date().format("yyMMddHHmm"))
-         versionName "0.8.4"
+@@ -99,6 +99,13 @@ android {
+     kotlinOptions {
+         jvmTarget = "1.8"
+     }
++
++    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
++    android.applicationVariants.all { variant ->
++        variant.outputs.all { output ->
++            output.versionCodeOverride = DateVersionCode
++        }
++    }
+ }
  
-         buildConfigField "String", "COMMIT_COUNT", "\"${getCommitCount()}\""
+ dependencies {

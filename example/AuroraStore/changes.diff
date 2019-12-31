@@ -1,10 +1,10 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 65f898fe..b9f77bdd 100644
+index ad8f2c27..db2dc349 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -55,6 +55,12 @@ android {
-         checkReleaseBuilds false
-         abortOnError false
+@@ -56,6 +56,12 @@ android {
+     lintOptions {
+         warning 'MissingTranslation', 'GetLocales', 'VectorDrawableCompat'
      }
 +    def DateVersionCode = Integer.parseInt(new Date().format("yyMMddHHmm"))
 +    android.applicationVariants.all { variant ->
@@ -14,4 +14,4 @@ index 65f898fe..b9f77bdd 100644
 +    }
  }
  
- configurations.all {
+ dependencies {

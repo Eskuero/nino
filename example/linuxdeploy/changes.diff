@@ -1,8 +1,8 @@
 diff --git a/app/build.gradle b/app/build.gradle
-index 60fb9d9..0f958d5 100644
+index e21c2da..8aba479 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
-@@ -25,6 +25,12 @@ android {
+@@ -26,6 +26,12 @@ android {
          sourceCompatibility JavaVersion.VERSION_1_8
          targetCompatibility JavaVersion.VERSION_1_8
      }
@@ -15,3 +15,10 @@ index 60fb9d9..0f958d5 100644
  }
  
  dependencies {
+diff --git a/app/src/main/assets/env b/app/src/main/assets/env
+index a1039cb..339f141 160000
+--- a/app/src/main/assets/env
++++ b/app/src/main/assets/env
+@@ -1 +1 @@
+-Subproject commit a1039cb5e1732e0b8d7c602636a14bbd31a1ae7c
++Subproject commit 339f1415571ee5c835db8e36ede2d1d10fa8f321-dirty
