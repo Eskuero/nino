@@ -1,5 +1,0 @@
-#!/bin/bash
-cd buildscripts;
-./buildall.sh --arch arm64 mpv
-./buildall.sh --arch x86_64 mpv
-./buildall.sh
