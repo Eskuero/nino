@@ -33,7 +33,6 @@ $ cd nino
 The following utils must be avalaible from PATH during execution
 - Python 3 - [https://www.python.org/downloads/](https://www.python.org/downloads/)
 - Toml python library (automatically installed by pip) - [https://github.com/uiri/toml](https://github.com/uiri/toml)
-- Colorama python library (automatically installed by pip) - [https://github.com/tartley/colorama](https://github.com/tartley/colorama)
 - Java OpenJDK 8 - [https://openjdk.java.net/install/index.html](https://openjdk.java.net/install/index.html)
 - Android SDK (adb, apksigner, zipalign) - [https://developer.android.com/studio/#command-tools](https://developer.android.com/studio/#command-tools)
 - Gradle (for projects not providing a wrapper) - [https://gradle.org/install/](https://gradle.org/install/)
@@ -47,9 +46,9 @@ The easiest integration with Windows is achieved by installing everything via ch
 ```
 Then you will need to manually install the latest build-tools and add them to your PATH:
 ```
-> sdkmanager.bat "build-tools;29.0.1"
+> sdkmanager.bat "build-tools;29.0.2"
 > $oldpath = (Get-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Environment' -Name PATH).path
-> $newpath ="$oldpath;C:\Android\android-sdk\build-tools\29.0.1"
+> $newpath ="$oldpath;C:\Android\android-sdk\build-tools\29.0.2"
 > Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Environment' -name PATH -Value $newpath
 ```
 Logging off and in may be required for the changes to be applied.
@@ -59,64 +58,60 @@ Each project may have additional dependencies.
 # Configuration
 ## TOML file
 The most convenient method for configuration is a toml file. Nino will automatically load the nino.toml file if found on the working directory. This allow providing defaults for all the options as well as granular control per project specific.
+For additional information on how TOML works and how you should structure your file you can review the official documentation at
+[https://github.com/toml-lang/toml/blob/master/README.md](https://github.com/toml-lang/toml/blob/master/README.md)
 
 In the following example:
-- We enable **syncing** and **preserving local** changes.
-- We also enable **building for all the projects** and signing them using the **key "mykey"** from the **keystore "clave.jks"**.
-- All the **output files will be deployed** to the **list of devices with the given ID**, may it be an IP addresss/port combination or a serial number.
+- We define a keystore named "store2", which references the file "clave.jks".
+- Inside that file there's a "mykey" key alias that we will reference from now on by the name of "key2"
+- We also enable **syncing/building/preserving changes for all the projects** and signing them using the **key "mykey"** from the **keystore "clave.jks"**.
+- You could also set a keystore/key combination per project or even per task outputs specific.
 
 Per project specific we have the following settings:
-- **Signal-Android** project it would always force building of the app using the assemblePlayRelease and assembleWebsiteRelease tasks, in that order.
-- **Conversations** project it would attempt the assembleConversationsFreeSystemRelease task and sign it with the key "another" inside the store "otherkey.jks".
-- **ghost-project** project will never build.
+- **fenix** project will always execute two tasks:
+  - clean, that matches the "clean" gradle task
+  - production, that matches the "assembleFenixProduction" gradle task
+- **Signal-Android** project it would always force building of the app using the "assembleWebsiteRelease" gradle task.
 ```
-[default]
-sync = true
-preserve = true
-build = true
-keystore = "clave.jks"
-keyalias = "mykey"
-deploy = ["DT456VP6T7", "192.168.10.40:5555"]
+[keystores]
+    [keystores.store2]
+        path = "clave.jks"
+        [keystores.store2.aliases.key2]
+            name = "mykey"
 
-[Signal-Android]
-force = true
-tasks = ["assemblePlayRelease", "assembleWebsiteRelease"]
-
-[Conversations]
-keystore = "otherkey.jks"
-keyalias = "another"
-tasks = ["assembleConversationsFreeSystemRelease"]
-
-[ghost-project]
-build = false
+[projects]
+        [projects.default]
+                sync = true
+                preserve = true
+                build = true
+                keystore = "store2"
+                keyalias = "key2"
+        [projects.fenix]
+                [projects.fenix.tasks.clean]
+                        exec = "clean"
+                [projects.fenix.tasks.production]
+                        exec = "assembleFenixProduction"
+        [projects.Signal-Android]
+                force = true
+                [projects.Signal-Android.tasks.websiterelease]
+                        exec = "assembleWebsiteRelease"
 ```
 ## Command line arguments
 It's indeed possible to override the default options (not the project specific ones) defined on the toml file by passing command line arguments as described below:
 ```
 $ nino --help
-usage: nino [-h] [-s {on,off}] [-p {on,off}] [-b {on,off}] [-f FORCE]
-            [-k KEYINFO] [-d DEPLOY] [-r] [--version]
+usage: nino [-h] [-f FORCE] [-r] [--version]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -s {on,off}, --sync {on,off}
-                        Retrieve and apply changes on remote to local
-  -p {on,off}, --preserve {on,off}
-                        Try to preserve local changes after syncing remotes
-  -b {on,off}, --build {on,off}
-                        Enable building of projects
   -f FORCE, --force FORCE
                         Force build of a project even without changes
-  -k KEYINFO, --keyinfo KEYINFO
-                        Keystore path and alias used for signing outputs
-  -d DEPLOY, --deploy DEPLOY
-                        ADB id of a device to deploy the outputs to
-  -r, --retry           Retry all the tasks that failed during last run
+  -r, --retry           Retry failed tasks from previous run
   --version             show program's version number and exit
 ```
-Per example we could disable syncing and force building of KISS and Signal-Android project using arguments like this:
+Per example we could force building of KISS and Signal-Android project using arguments like this:
 ```
-$ nino -s off --force KISS -f Signal-Android
+$ nino --force KISS -f Signal-Android
 ```
 # Understanding
 For each project nino will follow this four indepent steps: Syncing --> Building --> Signing --> Deploying
@@ -126,12 +121,12 @@ This is the first stage entered during a normal run. Nino will retrieve latest c
 Supported syncing methods are automatically detected without configuration and follow this priority when choosing one for each project: Custom script > Git > Mercurial
 #### Custom fetcher
 If an executable named nino-sync is found on the project folder root it will be used. The custom script may support the following arguments for a variety of tasks:
-- lastdate: Print via stdout the age of the last time the project was updated **!REQUIRED**
-- diff: Print via stdout local changes that are not committed
-- clean: Undo all the local-not-committed changes
-- pull: Fetch changes from remote (Must print "Already up-date" to stdout when nothing's new) **!REQUIRED**
-- update: Apply new changes to local copy (this may be implemented inside pull)
-- apply: Read via stdin the local changes that were reported by diff and try to apply them against the local copy
+- lastdate: Print via stdout the age of the last time the project was updated.
+- changes: Must store somewhere safe the local uncommitted changes to the project for later restore and have a return code of 0 if changes are to be restored.
+- fetch: Fetch changes from remote (not merge them). Return 0 if it went okey.
+- updated: Return 0 if there are new changes to be merged after fetch operation.
+- merge: Apply new changes to the local copy (will only be called if updated operation returned 0.
+- restore: Try to apply back the local uncommitted changes that were saved during the "changes" operation.
 #### Preserving local changes
 Sometimes you may have local changes that are not committed to the local SCM database but still need to hold onto them for a variety of reasons.
 
@@ -158,10 +153,13 @@ Per example the assembleBlueRelease of a Tusky project will provide a signed fil
 ## Deploying
 This is the final stage entered during a normal run. By now nino will have a list of all the outputs that were moved into the NINO-RELEASES folder for this project.
 
+DEPLOYING VIA ADB IS NOW DEPRECATED AND WILL BE REMOVED AS SOON AS SOON AS OTHER METHODS ARE MERGED IN
+```
 Then for each device device configured each one of the outputs will be deployed via adb. The installation will timeout at 15 seconds if the specified device ID is not attached.
 
 For more information regarding adb usage and connection see the official documentation:
 <https://developer.android.com/studio/command-line/adb>
+```
 
 ## Retrying
 Retrying is not a program stage rather than a mode. Nino always saves a json formatted report of the run into a .nino-last file. When we enter retry mode only the failed steps from the previous run are attempted, thus saving a lot of time by skipping projects and stages that went just fine.
