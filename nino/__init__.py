@@ -50,4 +50,4 @@ def main():
 		os.chdir(workdir)
 	# Save the report to file
 	with open(".nino-last", "w") as file:
-		json.dump(failed, file)
+		json.dump(failed, file, indent='\t')
