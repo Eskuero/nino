@@ -36,5 +36,6 @@ defconfig = {
 	},
 	"keystore": False,
 	"keyalias": False,
-	"deploy": []
+	"deploy": [],
+	"subdir": ""
 	}

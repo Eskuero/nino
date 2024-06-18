@@ -34,6 +34,9 @@ def main():
 				# Sync the project
 				if app.sync:
 					app.fetch()
+				# If project specifies a subdir for building get in there
+				if app.subdir:
+					os.chdir(app.subdir)
 				# Only attempt gradle projects with build enabled and are either forced or have new changes
 				if app.build and (app.changed or app.force):
 					app.package()
