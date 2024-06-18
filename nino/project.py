@@ -110,7 +110,7 @@ class project():
 		# Retrieve all present .apk inside projects folder
 		apks = [str(apk) for apk in pathlib.Path().glob("**/*.apk")]
 		# Filter out those that are not result of a Gradle task
-		validroutes = re.compile(".*build(\\\\|\/)outputs(\\\\|\/)apk(\\\\|\/)")
+		validroutes = re.compile(".*build(\\\\|\/).*outputs(\\\\|\/).*apk(\\\\|\/)")
 		# Filter out those remaining from a previous failed task
 		previous = copy.deepcopy(self.releases)
 		self.releases = set(filter(validroutes.match, apks))
