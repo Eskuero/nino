@@ -48,7 +48,10 @@ class git():
 		return True if pull == 0 else False
 	def updated():
 		# Branch and remote name on current local repository
-		branch = subprocess.Popen(["git", "branch", "--show-current"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
+		branch = subprocess.Popen(["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "HEAD"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
+		# If we get HEAD that means we are dettached on a particular tag and we stop
+		if branch == "HEAD":
+			return False
 		remote = subprocess.Popen(["git", "remote"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
 		# Amount of commits the remote is ahead of the local copy
 		commitcount = subprocess.Popen(["git", "rev-list", branch + ".." + remote + "/" + branch, "--count"], stdout = subprocess.PIPE).communicate()[0].decode('ascii')
