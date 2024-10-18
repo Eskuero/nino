@@ -13,13 +13,11 @@ ansiescape = {
 }
 fetchmethods = {
 	"nino-sync": "custom",
-	".git": "git",
-	".hg": "mercurial"
+	".git": "git"
 }
 dependencies = {
 	"keytool": "https://java.com/en/download/manual.jsp",
 	"git": "https://git-scm.com/book/en/v2/Getting-Started-Installing-Git",
-	"hg": "https://www.mercurial-scm.org/",
 	"gradle": "https://gradle.org/install/",
 	"zipalign": "https://developer.android.com/studio/#downloads (build-tools)",
 	"apksigner": "https://developer.android.com/studio/#downloads (build-tools)",

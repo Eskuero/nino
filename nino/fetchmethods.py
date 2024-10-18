@@ -68,29 +68,3 @@ class git():
 		apply = subprocess.Popen(["git", "apply"], stdout = logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE)
 		apply.communicate(input = diff)
 		return True if apply.returncode == 0 else False
-
-class mercurial():
-	def lastdate():
-		return subprocess.Popen(["hg", "log", "-l", "1", "-T", "{date|age}"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
-	def changes():
-		return subprocess.Popen(["hg", "diff"], stdout = subprocess.PIPE).communicate()[0]
-	def fetch(logfile):
-		pull = subprocess.call(["hg", "pull"], stdout = logfile, stderr = subprocess.STDOUT)
-		return True if pull == 0 else False
-	def updated():
-		# Remote and working revision numbers
-		remote = int(subprocess.Popen(["hg", "log", "-l1", "--template", "{rev}"], stdout = subprocess.PIPE).communicate()[0].decode('ascii'))
-		working = int(subprocess.Popen(["hg", "id", "-n"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip("+\n"))
-		# If the remote revision number is bigger than the working dir one it means we can merge new stuff
-		return True if remote > working else False
-	def merge(logfile):
-		# Always clean the working dir to avoid merging issues
-		subprocess.call(["hg", "revert", "--all"], stdout = logfile, stderr = subprocess.STDOUT)
-		# Try to merge the changes
-		update = subprocess.call(["hg", "update"], stdout = logfile, stderr = subprocess.STDOUT)
-		return True if update == 0 else False
-	def restore(diff, logfile):
-		print("\n" + diff.decode() + "\n", file = logfile, flush = True)
-		apply = subprocess.Popen(["hg", "import", "--no-commit", "-"], stdout = logfile, stderr = subprocess.STDOUT, stdin=subprocess.PIPE)
-		apply.communicate(input = diff)
-		return True if apply.returncode == 0 else False
