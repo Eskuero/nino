@@ -78,11 +78,6 @@ class project():
 
 	def package(self):
 		print("BUILDING PACKAGE:")
-		# Check if gradle wrapper exists before falling back to system-wide gradle
-		if not os.path.isfile("gradlew" + execsuffix):
-			command = "gradle"
-		else:
-			command = execprefix + "gradlew" + execsuffix
 		# User may provide an entrypoint that must be used as setup script before building
 		if os.path.isfile("nino-entrypoint" + execsuffix):
 			print("     ENTRYPOINT SCRIPT - ", end = "", flush = True)
@@ -94,6 +89,15 @@ class project():
 				return
 			else:
 				cprint("SUCCESSFUL", "correct")
+
+		# If project specifies a subdir for building get in there
+		if self.subdir:
+			os.chdir(self.subdir)
+		# Check if gradle wrapper exists before falling back to system-wide gradle
+		if not os.path.isfile("gradlew" + execsuffix):
+			command = "gradle"
+		else:
+			command = execprefix + "gradlew" + execsuffix
 		for task in self.tasks:
 			print("     GRADLE TASK " + task + " - ", end = "", flush = True)
 			# Attempt the task, we also redirect stderr to stdout to effectively merge them.
