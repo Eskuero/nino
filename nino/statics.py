@@ -25,6 +25,7 @@ dependencies = {
 }
 defconfig = {
 	"sync": False,
+	"followtags": True,
 	"preserve": False,
 	"build": False,
 	"tasks": {

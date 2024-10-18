@@ -42,19 +42,21 @@ class project():
 		# Pull changes from remote and proceed if it went fine
 		if self.fetcher.fetch(self.logfile):
 			# Check if there are new changes available before proceeding, else we stop here
-			if self.fetcher.updated():
+			checker = self.fetcher.newtag() if self.followtags else self.fetcher.updated()
+			if checker[0]:
 				cprint("UPDATED", "correct")
 				# Now we must merge changes into working tree
 				print("     MERGING REMOTE - ", end = "", flush = True)
 				# Store the current local diff to restore it later if enabled
 				if self.preserve:
 					diff = self.fetcher.changes()
-				if self.fetcher.merge(self.logfile):
+				merger = self.fetcher.tagswap(self.logfile, checker[1]) if self.followtags else self.fetcher.merge(self.logfile)
+				if merger:
 					self.changed = True
 					cprint("SUCCESSFUL", "correct")
 				else:
 					# Merging went bad
-					self.failed.update({"sync": self.sync, "preserve": self.preserve, "subdir": self.subdir, "build": self.build, "force": self.force, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
+					self.failed.update({"sync": self.sync, "followtags": self.followtags, "preserve": self.preserve, "subdir": self.subdir, "build": self.build, "force": self.force, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 					cprint("FAILED", "error")
 				# Now try to restore the local changes if they actually exist
 				if self.preserve and diff.decode() != "":
@@ -63,7 +65,7 @@ class project():
 						cprint("SUCCESSFUL", "correct")
 					else:
 						# Failure on restore means we skip building for this run to allow the user to fix the conflict once
-						self.failed.update({"sync": not self.changed, "preserve": self.preserve, "subdir": self.subdir, "build": self.build, "force": self.changed, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
+						self.failed.update({"sync": not self.changed, "followtags": self.followtags, "preserve": self.preserve, "subdir": self.subdir, "build": self.build, "force": self.changed, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 						self.build = False
 						cprint("FAILED", "error")
 			else:
@@ -71,7 +73,7 @@ class project():
 				return
 		else:
 			# Pulling went bad :(
-			self.failed.update({"sync": self.sync, "preserve": self.preserve, "subdir": self.subdir, "build": self.build, "force": self.force, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
+			self.failed.update({"sync": self.sync, "followtags": self.followtags, "preserve": self.preserve, "subdir": self.subdir, "build": self.build, "force": self.force, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 			cprint("FAILED", "error")
 
 	def package(self):

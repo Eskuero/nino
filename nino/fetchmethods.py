@@ -10,7 +10,7 @@ class fetchmethod():
 		for method in fetchmethods:
 			if method in localdir:
 				self.type = fetchmethods[method]
-				for operation in ["lastdate", "changes", "fetch", "updated", "merge", "restore"]:
+				for operation in ["lastdate", "changes", "fetch", "updated", "newtag", "merge", "tagswap", "restore"]:
 					setattr(self, operation, getattr(eval(self.type), operation))
 				break
 		# We need to outright store the lastdate because it will be used on project presentation
@@ -49,19 +49,31 @@ class git():
 	def updated():
 		# Branch and remote name on current local repository
 		branch = subprocess.Popen(["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "HEAD"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
-		# If we get HEAD that means we are dettached on a particular tag and we stop
-		if branch == "HEAD":
-			return False
 		remote = subprocess.Popen(["git", "remote"], stdout = subprocess.PIPE).communicate()[0].decode('ascii').strip()
 		# Amount of commits the remote is ahead of the local copy
 		commitcount = subprocess.Popen(["git", "rev-list", branch + ".." + remote + "/" + branch, "--count"], stdout = subprocess.PIPE).communicate()[0].decode('ascii')
 		# If the count is bigger than zero it means we can merge new stuff
-		return True if int(commitcount) > 0 else False
+		return True if int(commitcount) > 0 else False, commitcount
+	def newtag():
+		# Current tag on the repo
+		tag_old = subprocess.Popen(["git", "describe", "--exact-match", "--tags"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii').strip()
+		# Get the most recent commit associated with a tag (exluding betas and alphas)
+		commit_new = subprocess.Popen(["git", "rev-list", "--exclude", "*(alpha|beta)*", "--tags", "--max-count=1"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii').strip()
+		# use that commit to determine the tag name
+		tag_new = subprocess.Popen(["git", "describe", "--tags", commit_new], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii').strip()
+		# If tag_old and tag_new are different report as updated
+		return True if tag_old != tag_new else False, tag_new
 	def merge(logfile):
 		# Always clean the working dir to avoid merging issues
 		subprocess.call(["git", "checkout", "."], stdout = logfile, stderr = subprocess.STDOUT)
 		# Try to merge the changes
 		update = subprocess.call(["git", "merge"], stdout = logfile, stderr = subprocess.STDOUT)
+		return True if update == 0 else False
+	def tagswap(logfile, tag_new):
+		# Always clean the working dir to avoid merging issues
+		subprocess.call(["git", "checkout", "."], stdout = logfile, stderr = subprocess.STDOUT)
+		# Try to merge the changes
+		update = subprocess.call(["git", "checkout", tag_new], stdout = logfile, stderr = subprocess.STDOUT)
 		return True if update == 0 else False
 	def restore(diff, logfile):
 		print("\n" + diff.decode() + "\n", file = logfile, flush = True)
