@@ -92,6 +92,8 @@ class project():
 
 		# If project specifies a subdir for building get in there
 		if self.subdir:
+			# Remember where to return later
+			topdir = os.getcwd()
 			os.chdir(self.subdir)
 		# Check if gradle wrapper exists before falling back to system-wide gradle
 		if not os.path.isfile("gradlew" + execsuffix):
@@ -111,8 +113,16 @@ class project():
 				self.failed["tasks"].update({task: self.tasks[task]})
 				self.failed.update({"subdir": self.subdir, "build": self.build, "force": True, "tasks": self.failed["tasks"], "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 			else:
+				if self.subdir:
+					# Return to previous dir for scanning
+					os.chdir(topdir)
 				self.updatesignlist(task)
+				if self.subdir:
+					# Return to previous dir for scanning
+					os.chdir(self.subdir)
 				cprint("SUCCESSFUL", "correct")
+		if self.subdir:
+			os.chdir(topdir)
 
 	def updatesignlist(self, task):
 		# Retrieve all present .apk inside projects folder
