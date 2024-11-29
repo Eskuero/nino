@@ -28,6 +28,7 @@ defconfig = {
 	"followtags": True,
 	"preserve": False,
 	"build": False,
+	"javahome": False,
 	"tasks": {
 		"release": {
 			"exec": "assembleRelease"

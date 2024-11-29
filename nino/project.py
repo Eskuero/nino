@@ -56,7 +56,7 @@ class project():
 					cprint("SUCCESSFUL", "correct")
 				else:
 					# Merging went bad
-					self.failed.update({"sync": self.sync, "followtags": self.followtags, "preserve": self.preserve, "subdir": self.subdir, "build": self.build, "force": self.force, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
+					self.failed.update({"sync": self.sync, "followtags": self.followtags, "preserve": self.preserve, "subdir": self.subdir, "javahome": self.javahome, "build": self.build, "force": self.force, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 					cprint("FAILED", "error")
 				# Now try to restore the local changes if they actually exist
 				if self.preserve and diff.decode() != "":
@@ -65,7 +65,7 @@ class project():
 						cprint("SUCCESSFUL", "correct")
 					else:
 						# Failure on restore means we skip building for this run to allow the user to fix the conflict once
-						self.failed.update({"sync": not self.changed, "followtags": self.followtags, "preserve": self.preserve, "subdir": self.subdir, "build": self.build, "force": self.changed, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
+						self.failed.update({"sync": not self.changed, "followtags": self.followtags, "preserve": self.preserve, "subdir": self.subdir, "javahome": self.javahome, "build": self.build, "force": self.changed, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 						self.build = False
 						cprint("FAILED", "error")
 			else:
@@ -73,7 +73,7 @@ class project():
 				return
 		else:
 			# Pulling went bad :(
-			self.failed.update({"sync": self.sync, "followtags": self.followtags, "preserve": self.preserve, "subdir": self.subdir, "build": self.build, "force": self.force, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
+			self.failed.update({"sync": self.sync, "followtags": self.followtags, "preserve": self.preserve, "subdir": self.subdir, "javahome": self.javahome, "build": self.build, "force": self.force, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 			cprint("FAILED", "error")
 
 	def package(self):
@@ -85,11 +85,14 @@ class project():
 			self.built = subprocess.call([execprefix + "nino-entrypoint"], stdout = self.logfile, stderr = subprocess.STDOUT)
 			if self.built != 0:
 				cprint("FAILED", "error")
-				self.failed.update({"subdir": self.subdir, "build": self.build, "force": True, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
+				self.failed.update({"subdir": self.subdir, "javahome": self.javahome, "build": self.build, "force": True, "tasks": self.tasks, "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 				return
 			else:
 				cprint("SUCCESSFUL", "correct")
 
+		# Setup the JAVA_HOME specified
+		if self.javahome:
+			os.environ["JAVA_HOME"] = self.javahome
 		# If project specifies a subdir for building get in there
 		if self.subdir:
 			# Remember where to return later
@@ -111,7 +114,7 @@ class project():
 				if "tasks" not in self.failed:
 					self.failed["tasks"] = {}
 				self.failed["tasks"].update({task: self.tasks[task]})
-				self.failed.update({"subdir": self.subdir, "build": self.build, "force": True, "tasks": self.failed["tasks"], "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
+				self.failed.update({"subdir": self.subdir, "javahome": self.javahome, "build": self.build, "force": True, "tasks": self.failed["tasks"], "keystore": self.keystore, "keyalias": self.keyalias, "signlist": self.signlist, "deploylist": self.deploylist, "deploy": self.deploy})
 			else:
 				if self.subdir:
 					# Return to previous dir for scanning
@@ -123,6 +126,9 @@ class project():
 				cprint("SUCCESSFUL", "correct")
 		if self.subdir:
 			os.chdir(topdir)
+		# Forget JAVA_HOME before the next project
+		if self.javahome:
+			os.environ.pop("JAVA_HOME")
 
 	def updatesignlist(self, task):
 		# Retrieve all present .apk inside projects folder
