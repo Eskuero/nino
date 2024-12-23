@@ -56,11 +56,14 @@ class git():
 		return True if int(commitcount) > 0 else False, commitcount
 	def newtag():
 		# Current tag on the repo
-		tag_old = subprocess.Popen(["git", "describe", "--exact-match", "--tags"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii').strip()
+		tag_old = subprocess.Popen(["git", "describe", "--exact-match", "--tags"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii', 'ignore').strip()
+		tag_new = tag_old
 		# Get the most recent commit associated with a tag (exluding betas and alphas)
-		commit_new = subprocess.Popen(["git", "rev-list", "--exclude", "*(alpha|beta)*", "--tags", "--max-count=1"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii').strip()
-		# use that commit to determine the tag name
-		tag_new = subprocess.Popen(["git", "describe", "--tags", commit_new], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii').strip()
+		tags = subprocess.Popen(["git", "tag", "--sort", "-creatordate"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii', 'ignore')
+		for tag in tags.split("\n"):
+			if "alpha" not in tag and "beta" not in tag:
+				tag_new = tag
+				break
 		# If tag_old and tag_new are different report as updated
 		return True if tag_old != tag_new else False, tag_new
 	def merge(logfile):
