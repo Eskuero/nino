@@ -61,7 +61,9 @@ class git():
 		# Get the most recent commit associated with a tag (exluding betas and alphas)
 		tags = subprocess.Popen(["git", "tag", "--sort", "-creatordate"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii', 'ignore')
 		for tag in tags.split("\n"):
-			if "alpha" not in tag and "beta" not in tag:
+			# Some invalid tags contain this strings
+			NORELEASETAGS = ["alpha", "beta", "rc", "-"]
+			if not any(x in tag for x in NORELEASETAGS):
 				tag_new = tag
 				break
 		# If tag_old and tag_new are different report as updated
