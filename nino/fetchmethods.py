@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 from .statics import execprefix, fetchmethods
 
@@ -54,7 +55,7 @@ class git():
 		commitcount = subprocess.Popen(["git", "rev-list", branch + ".." + remote + "/" + branch, "--count"], stdout = subprocess.PIPE).communicate()[0].decode('ascii')
 		# If the count is bigger than zero it means we can merge new stuff
 		return True if int(commitcount) > 0 else False, commitcount
-	def newtag():
+	def newtag(regex):
 		# Current tag on the repo
 		tag_old = subprocess.Popen(["git", "describe", "--exact-match", "--tags"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii', 'ignore').strip()
 		tag_new = tag_old
@@ -62,10 +63,15 @@ class git():
 		tags = subprocess.Popen(["git", "tag", "--sort", "-creatordate"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii', 'ignore')
 		for tag in tags.split("\n"):
 			# Some invalid tags contain this strings
-			NORELEASETAGS = ["alpha", "beta", "rc", "-"]
+			NORELEASETAGS = ["alpha", "beta", "rc", "redfin", "barbet"]
 			if not any(x in tag for x in NORELEASETAGS):
-				tag_new = tag
-				break
+				# Make sure it matches a provided regex
+				if not regex:
+					tag_new = tag
+					break
+				elif re.match(regex, tag):
+					tag_new = tag
+					break
 		# If tag_old and tag_new are different report as updated
 		return True if tag_old != tag_new else False, tag_new
 	def merge(logfile):

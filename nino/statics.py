@@ -29,6 +29,7 @@ defconfig = {
 	"preserve": False,
 	"build": False,
 	"javahome": False,
+	"tagregex": False,
 	"tasks": {
 		"release": {
 			"exec": "assembleRelease"
@@ -37,5 +38,5 @@ defconfig = {
 	"keystore": False,
 	"keyalias": False,
 	"deploy": [],
-	"subdir": ""
+	"subdir": False
 	}
