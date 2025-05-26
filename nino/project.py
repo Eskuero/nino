@@ -3,6 +3,7 @@ import pathlib
 import re
 import subprocess
 import copy
+import shutil
 from .config import running
 from .utils import cprint
 from .fetchmethods import fetchmethod
@@ -212,7 +213,7 @@ class project():
 					cprint("FAILED", "error")
 			else:
 				self.updatedeploylist(self.signlist[apk]["displayname"], self.signlist[apk]["deploy"])
-				os.rename(apk, workdir + "/NINO-RELEASES/" + self.signlist[apk]["displayname"])
+				shutil.move(apk, workdir + "/NINO-RELEASES/" + self.signlist[apk]["displayname"])
 				cprint("UNNEEDED", "warning")
 		# If we failed at least on one output we need to save it for the retry run
 		if failedsignlist:
