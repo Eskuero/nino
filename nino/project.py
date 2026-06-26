@@ -196,7 +196,9 @@ class project():
 		for apk in self.signlist:
 			print("     " + self.signlist[apk]["displayname"] + " - ", end = "", flush = True)
 			# Verify whether is needed or not to sign, as some outputs may come out of building process already signed
-			verify = subprocess.call(["apksigner" + execsuffix, "verify", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+			# verify = subprocess.call(["apksigner" + execsuffix, "verify", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+			# ENFORCE OUR KEY
+			verify = 1
 			if verify == 1:
 				# Sign the .apk with the provided key
 				sign = subprocess.Popen(["apksigner" + execsuffix, "sign", "--ks", running["keystores"][self.signlist[apk]["keystore"]]["path"], "--ks-key-alias", running["keystores"][self.signlist[apk]["keystore"]]["aliases"][self.signlist[apk]["keyalias"]]["name"],"--out", workdir + "/NINO-RELEASES/" + self.signlist[apk]["displayname"], "--in", apk], stdout = self.logfile, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
