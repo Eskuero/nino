@@ -56,14 +56,15 @@ class git():
 		# If the count is bigger than zero it means we can merge new stuff
 		return True if int(commitcount) > 0 else False, commitcount
 	def newtag(regex):
+		# Some invalid tags contain this strings
+		NORELEASETAGS = ["alpha", "beta", "rc", "dev", "latest", "nightly"]
+		NORELEASETAGSARG = [item for tag in NORELEASETAGS for item in ("--exclude", f"*{tag}*")]
 		# Current tag on the repo
-		tag_old = subprocess.Popen(["git", "describe", "--exact-match", "--tags"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii', 'ignore').strip()
+		tag_old = subprocess.Popen(["git", "describe", "--exact-match", "--tags"] + NORELEASETAGSARG, stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii', 'ignore').strip()
 		tag_new = tag_old
 		# Get the most recent commit associated with a tag (exluding betas and alphas)
 		tags = subprocess.Popen(["git", "tag", "--sort", "-creatordate"], stdout = subprocess.PIPE, stderr = subprocess.DEVNULL).communicate()[0].decode('ascii', 'ignore')
 		for tag in tags.split("\n"):
-			# Some invalid tags contain this strings
-			NORELEASETAGS = ["alpha", "beta", "rc", "redfin", "barbet"]
 			if not any(x in tag for x in NORELEASETAGS):
 				# Make sure it matches a provided regex
 				if not regex:
